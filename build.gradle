@@ -31,6 +31,9 @@ allprojects {
         
         mockitoVersion = '1.+'
         junitVersion = '4.12'
+        
+        checkstyleVersion = '7.6'
+        sevntuCheckstyleVersion = '1.23.1'
     }
 
     repositories {
@@ -38,6 +41,7 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://sevntu-checkstyle.github.io/sevntu.checkstyle/maven2/" }
     }
 }
 
@@ -53,6 +57,18 @@ project(":desktop") {
 
 project(":core") {
     apply plugin: "kotlin"
+
+    apply plugin: 'checkstyle'
+
+    checkstyle {
+        toolVersion = checkstyleVersion
+        configFile = new File(rootDir, 'adv_checkstyle.xml')
+        configProperties = [ config_loc: rootDir ]
+        showViolations = true
+        
+        checkstyleMain.source = "src/main"
+        checkstyleTest.source = "src/test"
+    }
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -72,6 +88,9 @@ project(":core") {
         testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
         testCompile "org.mockito:mockito-core:$mockitoVersion"
+        
+        checkstyle "com.github.sevntu.checkstyle:sevntu-checks:$sevntuCheckstyleVersion"
+        checkstyle "com.github.sevntu.checkstyle:sevntu-checkstyle-maven-plugin:$sevntuCheckstyleVersion"
     }
 }
 

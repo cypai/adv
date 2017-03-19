@@ -214,12 +214,10 @@
   <module name="RegexpSingleline">
     <property name="format" value="\s+$"/>
     <property name="message" value="Trailing whitespace"/>
-    <property name="fileExtensions" value="kt"/>
   </module>
   <module name="RegexpSingleline">
     <property name="format" value=".{151}"/>
     <property name="message" value="Maximum line length of 120 exceeded"/>
-    <property name="fileExtensions" value="kt"/>
   </module>
   <module name="RegexpSingleline">
     <property name="format" value="\+$"/>
