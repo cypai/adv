@@ -81,9 +81,6 @@
     <module name="UselessSuperCtorCallCheck"/>
     <module name="NestedSwitchCheck"/>
     <module name="AvoidConditionInversionCheck"/>
-    <module name="ChildBlockLength">
-      <property name="blockTypes" value="LITERAL_IF,LITERAL_ELSE,LITERAL_WHILE,LITERAL_DO,LITERAL_FOR,LITERAL_SWITCH,LITERAL_TRY,LITERAL_CATCH"/>
-    </module>
     <module name="NoMainMethodInAbstractClass"/>
     <module name="ForbidWildcardAsReturnType"/>
     <module name="PublicReferenceToPrivateTypeCheck"/>
@@ -92,11 +89,7 @@
     <module name="EqualsAvoidNull"/>
     <module name="EmptyPublicCtorInClassCheck"/>
     <module name="ReturnBooleanFromTernary"/>
-    <module name="UnnecessaryParenthesesExtended">
-      <property name="ignoreCalculationOfBooleanVariables" value="true"/>
-      <property name="ignoreCalculationOfBooleanVariablesWithReturn" value="true"/>
-      <property name="ignoreCalculationOfBooleanVariablesWithAssert" value="true"/>
-    </module>
+    <module name="UnnecessaryParenthesesExtended"/>
     <module name="RedundantReturn"/>
     <module name="SimpleAccessorNameNotation"/>
     <module name="StaticMethodCandidate">
@@ -164,10 +157,6 @@
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="MethodLength"/>
-    <module name="LineLength">
-      <property name="max" value="150"/>
-      <property name="tabWidth" value="4"/>
-    </module>
     <module name="ModifierOrder"/>
     <module name="DeclarationOrder">
       <property name="severity" value="ignore"/>
@@ -179,10 +168,6 @@
     <module name="SingleBreakOrContinueCheck"/>
     <module name="InterfaceTypeParameterNameCheck"/>
     <module name="EnumValueNameCheck"/>
-    <module name="LineLengthExtended">
-      <property name="max" value="150"/>
-      <property name="tabWidth" value="4"/>
-    </module>
     <module name="AnonInnerLength"/>
     <module name="Regexp">
       <property name="format" value="$System\.out\.print.+^"/>
@@ -190,6 +175,11 @@
       <property name="illegalPattern" value="true"/>
     </module>
     <module name="CatchParameterName"/>
+    <module name="Regexp">
+      <property name="format" value="\r"/>
+      <property name="message" value="No Windows-style new lines allowed"/>
+      <property name="illegalPattern" value="true"/>
+    </module>
   </module>
   <module name="RegexpSingleline">
     <property name="format" value="^.*System.out.print.*$"/>
@@ -198,7 +188,7 @@
   </module>
   <module name="NewlineAtEndOfFile">
     <property name="lineSeparator" value="lf"/>
-    <property name="fileExtensions" value="java, gradle, xml, kt"/>
+    <property name="fileExtensions" value="java, gradle, xml, kt, csv"/>
   </module>
   <module name="SuppressWithNearbyCommentFilter">
     <property name="commentFormat" value="@cs\.suppress \[(\w+(\|\w+)*)\] \w[-\.'`,:;\w ]{14,}"/>
@@ -217,11 +207,15 @@
   </module>
   <module name="RegexpSingleline">
     <property name="format" value=".{151}"/>
-    <property name="message" value="Maximum line length of 120 exceeded"/>
+    <property name="message" value="Maximum line length of 150 exceeded"/>
   </module>
   <module name="RegexpSingleline">
     <property name="format" value="\+$"/>
     <property name="message" value="Operators should go on a new line"/>
     <property name="fileExtensions" value="kt"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\t"/>
+    <property name="message" value="No tabs allowed"/>
   </module>
 </module>
