@@ -1,1 +1,1 @@
-include 'desktop', 'core', 'mechanics'
+include 'desktop', 'core'
