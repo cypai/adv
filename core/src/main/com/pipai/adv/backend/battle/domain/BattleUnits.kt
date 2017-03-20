@@ -1,10 +1,9 @@
 package com.pipai.adv.backend.battle.domain
 
-data class BattleUnit(
-        val name: String,
-        val hp: Int,
-        val patk: Int,
-        val pdef: Int,
-        val yieldTime: Int) {
+import com.pipai.utils.DeepCopyable
 
+data class BattleUnit(val unitInstance: UnitInstance) : DeepCopyable<BattleUnit> {
+    override fun deepCopy(): BattleUnit {
+        return copy(unitInstance.deepCopy())
+    }
 }
