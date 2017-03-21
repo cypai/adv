@@ -11,7 +11,12 @@ data class UnitStats(
         val intelligence: Int,
         val resistance: Int,
         val avoid: Int,
-        val mobility: Int)
+        val mobility: Int) {
+
+    fun toMutableUnitStats(): MutableUnitStats {
+        return MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    }
+}
 
 data class MutableUnitStats(
         var hpMax: Int,
@@ -22,7 +27,83 @@ data class MutableUnitStats(
         var intelligence: Int,
         var resistance: Int,
         var avoid: Int,
-        var mobility: Int)
+        var mobility: Int) {
+
+    fun toUnitStats(): UnitStats {
+        return UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    }
+
+    companion object Factory {
+        fun createFactory(): UnitStatsFactory {
+            return UnitStatsFactory()
+        }
+    }
+}
+
+class UnitStatsFactory {
+    var hpMax: Int = 0
+    var mpMax: Int = 0
+    var strength: Int = 0
+    var dexterity: Int = 0
+    var constitution: Int = 0
+    var intelligence: Int = 0
+    var resistance: Int = 0
+    var avoid: Int = 0
+    var mobility: Int = 0
+
+    fun hpMax(value: Int): UnitStatsFactory {
+        hpMax = value
+        return this
+    }
+
+    fun mpMax(value: Int): UnitStatsFactory {
+        mpMax = value
+        return this
+    }
+
+    fun strength(value: Int): UnitStatsFactory {
+        strength = value
+        return this
+    }
+
+    fun dexterity(value: Int): UnitStatsFactory {
+        dexterity = value
+        return this
+    }
+
+    fun constitution(value: Int): UnitStatsFactory {
+        constitution = value
+        return this
+    }
+
+    fun intelligence(value: Int): UnitStatsFactory {
+        intelligence = value
+        return this
+    }
+
+    fun resistance(value: Int): UnitStatsFactory {
+        resistance = value
+        return this
+    }
+
+    fun avoid(value: Int): UnitStatsFactory {
+        avoid = value
+        return this
+    }
+
+    fun mobility(value: Int): UnitStatsFactory {
+        mobility = value
+        return this
+    }
+
+    fun buildUnitStats(): UnitStats {
+        return UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    }
+
+    fun buildMutableUnitStats(): MutableUnitStats {
+        return MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    }
+}
 
 data class UnitSchema(
         val name: String,
