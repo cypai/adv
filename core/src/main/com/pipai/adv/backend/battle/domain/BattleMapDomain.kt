@@ -27,7 +27,7 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
             for (y in 0 until height) {
                 val row: MutableList<BattleMapCell> = mutableListOf()
                 for (x in 0 until width) {
-                    row.add(BattleMapCell(null, mutableListOf()))
+                    row.add(BattleMapCell(null, mutableListOf(), mutableListOf()))
                 }
                 rows.add(row)
             }
@@ -50,8 +50,8 @@ sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
         override fun deepCopy() = copy()
     }
 
-    enum class DestructibleEnvironmentObjectType {
-        TREE, ROCK
+    enum class DestructibleEnvironmentObjectType(val defaultMinHp: Int, val defaultMaxHp: Int) {
+        TREE(100, 120), ROCK(70, 100), BOULDER(170, 200)
     }
 
     data class FullWall(val type: FullWallType) : FullEnvironmentObject() {
@@ -69,9 +69,17 @@ sealed class EnvironmentObject : DeepCopyable<EnvironmentObject> {
     // TrapEnvironmentObject
 }
 
+sealed class BattleMapCellSpecialFlag {
+    data class StartingCell(val number: Int) : BattleMapCellSpecialFlag()
+    class Exit : BattleMapCellSpecialFlag()
+}
+
 data class BattleMapCell(
         var fullEnvironmentObject: FullEnvironmentObject?,
-        val environmentObjects: MutableList<EnvironmentObject>) : DeepCopyable<BattleMapCell> {
+        val environmentObjects: MutableList<EnvironmentObject>,
+        val specialFlags: MutableList<BattleMapCellSpecialFlag>) : DeepCopyable<BattleMapCell> {
 
-    override fun deepCopy() = BattleMapCell(fullEnvironmentObject?.deepCopy(), environmentObjects.map { it.deepCopy() }.toMutableList())
+    override fun deepCopy() = BattleMapCell(fullEnvironmentObject?.deepCopy(),
+            environmentObjects.map { it.deepCopy() }.toMutableList(),
+            specialFlags.toMutableList())
 }
