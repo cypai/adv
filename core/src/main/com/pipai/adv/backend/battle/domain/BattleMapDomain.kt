@@ -9,9 +9,7 @@ data class GridPosition(val x: Int, val y: Int)
 data class BattleMap internal constructor(val width: Int, val height: Int, val cells: List<List<BattleMapCell>>) :
         DeepCopyable<BattleMap> {
 
-    override fun deepCopy(): BattleMap {
-        return copy(cells = deepCopy(cells))
-    }
+    override fun deepCopy() = copy(cells = deepCopy(cells))
 
     fun getCell(position: GridPosition): BattleMapCell {
         return getCell(position.x, position.y)
@@ -38,20 +36,28 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
     }
 }
 
-
 sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
 
     data class BattleUnitEnvironmentObject(val battleUnit: BattleUnit) : FullEnvironmentObject() {
-        override fun deepCopy(): BattleUnitEnvironmentObject {
-            return copy(battleUnit.deepCopy())
-        }
+        override fun deepCopy() = copy(battleUnit.deepCopy())
+    }
+
+    data class ChestEnvironmentObject(val item: InventoryItem) : FullEnvironmentObject() {
+        override fun deepCopy() = copy(item.deepCopy())
+    }
+
+    data class DestructibleEnvironmentObject(val type: DestructibleEnvironmentObjectType, var hp: Int) : FullEnvironmentObject() {
+        override fun deepCopy() = copy()
+    }
+
+    enum class DestructibleEnvironmentObjectType {
+        TREE, ROCK
     }
 
     data class FullWall(val type: FullWallType) : FullEnvironmentObject() {
-        override fun deepCopy(): FullWall {
-            return copy()
-        }
+        override fun deepCopy() = copy()
     }
+
     enum class FullWallType {
         SOLID, WALL
     }
@@ -67,7 +73,5 @@ data class BattleMapCell(
         var fullEnvironmentObject: FullEnvironmentObject?,
         val environmentObjects: MutableList<EnvironmentObject>) : DeepCopyable<BattleMapCell> {
 
-    override fun deepCopy(): BattleMapCell {
-        return BattleMapCell(fullEnvironmentObject?.deepCopy(), environmentObjects.map { it.deepCopy() }.toMutableList())
-    }
+    override fun deepCopy() = BattleMapCell(fullEnvironmentObject?.deepCopy(), environmentObjects.map { it.deepCopy() }.toMutableList())
 }

@@ -13,9 +13,7 @@ data class UnitStats(
         val avoid: Int,
         val mobility: Int) {
 
-    fun toMutableUnitStats(): MutableUnitStats {
-        return MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
-    }
+    fun toMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
 }
 
 data class MutableUnitStats(
@@ -29,15 +27,7 @@ data class MutableUnitStats(
         var avoid: Int,
         var mobility: Int) {
 
-    fun toUnitStats(): UnitStats {
-        return UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
-    }
-
-    companion object Factory {
-        fun createFactory(): UnitStatsFactory {
-            return UnitStatsFactory()
-        }
-    }
+    fun toUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
 }
 
 class UnitStatsFactory {
@@ -96,13 +86,9 @@ class UnitStatsFactory {
         return this
     }
 
-    fun buildUnitStats(): UnitStats {
-        return UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
-    }
+    fun buildUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
 
-    fun buildMutableUnitStats(): MutableUnitStats {
-        return MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
-    }
+    fun buildMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
 }
 
 data class UnitSchema(
@@ -117,9 +103,7 @@ data class UnitInstance(
         val stats: MutableUnitStats,
         var weapon: InventoryItem.WeaponInstance) : DeepCopyable<UnitInstance> {
 
-    override fun deepCopy(): UnitInstance {
-        return copy(stats = stats.copy(), weapon = weapon.copy())
-    }
+    override fun deepCopy() = copy(stats = stats.copy(), weapon = weapon.copy())
 }
 
 enum class WeaponType {

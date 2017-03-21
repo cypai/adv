@@ -4,9 +4,7 @@ import com.pipai.utils.DeepCopyable
 
 sealed class InventoryItem : DeepCopyable<InventoryItem> {
     data class WeaponInstance(val schema: WeaponSchema) : InventoryItem() {
-        override fun deepCopy(): WeaponInstance {
-            return copy()
-        }
+        override fun deepCopy() = copy()
     }
 
     sealed class ConsumableItem {
