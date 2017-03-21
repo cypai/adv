@@ -6,7 +6,7 @@ sourceSets.main.resources.srcDirs = [ "src/main/res/" ]
 sourceSets.test.java.srcDirs = [ "src/test/java/" ]
 sourceSets.test.resources.srcDirs = [ "src/test/res/" ]
 
-project.ext.mainClassName = "com.pipai.sfa.desktop.DesktopLauncher"
+project.ext.mainClassName = "com.pipai.adv.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
 
 task run(dependsOn: classes, type: JavaExec) {
