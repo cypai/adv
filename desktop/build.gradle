@@ -2,18 +2,44 @@ apply plugin: "kotlin"
 
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/main/java/" ]
-sourceSets.main.resources.srcDirs = [ "src/main/res/" ]
+sourceSets.main.resources.srcDirs = [ "src/main/resources/" ]
 sourceSets.test.java.srcDirs = [ "src/test/java/" ]
-sourceSets.test.resources.srcDirs = [ "src/test/res/" ]
+sourceSets.test.resources.srcDirs = [ "src/test/resources/" ]
 
 project.ext.mainClassName = "com.pipai.adv.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
 
+project.ext.runDir = new File(projectDir, 'run/')
+project.ext.runAssetsDir = new File(runDir, 'assets/')
+project.ext.runConfigDir = new File(runDir, 'config/')
+project.ext.runSaveDir = new File(runDir, 'save/')
+
+def cleanRunDir() {
+    delete fileTree(dir: runDir, excludes: [ 'save/', 'config/' ])
+}
+
+def makeRunDirs() {
+    runAssetsDir.mkdirs()
+    runConfigDir.mkdirs()
+    runSaveDir.mkdirs()
+}
+
+def copyAssets() {
+    copy {
+        from assetsDir
+        into runAssetsDir
+    }
+}
+
 task run(dependsOn: classes, type: JavaExec) {
+    cleanRunDir()
+    makeRunDirs()
+    copyAssets()
+
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-    workingDir = project.assetsDir
+    workingDir = project.runDir
     ignoreExitValue = true
 }
 
