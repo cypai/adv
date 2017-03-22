@@ -4,6 +4,6 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress checks="FanOutComplexity" files=".*[\\/]src[\\/]test[\\/]" />
-    <suppress checks="ClassDataAbstractionCoupling" files=".*[\\/]src[\\/]test[\\/]" />
+    <suppress checks="FanOutComplexity" files=".*[\\/]src[\\/]test[\\/]java[\\/]" />
+    <suppress checks="ClassDataAbstractionCoupling" files=".*[\\/]src[\\/]test[\\/]java[\\/]" />
 </suppressions>

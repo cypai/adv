@@ -66,8 +66,8 @@ project(":core") {
         configProperties = [ config_loc: rootDir ]
         showViolations = true
         
-        checkstyleMain.source = "src/main"
-        checkstyleTest.source = "src/test"
+        checkstyleMain.source = "src/main/java"
+        checkstyleTest.source = "src/test/java"
     }
 
     dependencies {
