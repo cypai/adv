@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.badlogic.gdx.Gdx;
-import com.pipai.libgdx.test.GdxMockedTest;
+import com.pipai.test.libgdx.GdxMockedTest;
 
 public class WeaponSchemaIndexTest extends GdxMockedTest {
 

@@ -1,4 +1,4 @@
-package com.pipai.libgdx.test;
+package com.pipai.test.libgdx;
 
 import java.io.File;
 
