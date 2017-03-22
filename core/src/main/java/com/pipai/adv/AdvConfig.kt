@@ -1,6 +1,8 @@
 package com.pipai.adv
 
 import com.badlogic.gdx.files.FileHandle
+import com.pipai.utils.getLogger
+import com.pipai.utils.valueOfOrDefault
 import java.util.Properties
 
 enum class AspectRatio {
@@ -26,6 +28,8 @@ private val DEFAULT_RESOLUTION = ScreenResolution.RES_1024_768
 
 class AdvConfig(val configFile: FileHandle) {
 
+    private val logger = getLogger()
+
     var resolution: ScreenResolution
 
     init {
@@ -33,7 +37,7 @@ class AdvConfig(val configFile: FileHandle) {
             val properties = Properties()
             configFile.reader().use { properties.load(it) }
 
-            resolution = ScreenResolution.valueOf(properties.get("resolution") as String)
+            resolution = valueOfOrDefault(properties.get("resolution") as String, DEFAULT_RESOLUTION)
         } else {
             resolution = DEFAULT_RESOLUTION;
         }
