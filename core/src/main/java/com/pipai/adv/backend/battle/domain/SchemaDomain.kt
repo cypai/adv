@@ -100,10 +100,9 @@ data class UnitInstance(
         var nickname: String,
         var hp: Int,
         var mp: Int,
-        val stats: MutableUnitStats,
-        var weapon: InventoryItem.WeaponInstance) : DeepCopyable<UnitInstance> {
+        var weapon: InventoryItem.WeaponInstance?) : DeepCopyable<UnitInstance> {
 
-    override fun deepCopy() = copy(stats = stats.copy(), weapon = weapon.copy())
+    override fun deepCopy() = copy(weapon = weapon?.copy())
 }
 
 enum class WeaponType {

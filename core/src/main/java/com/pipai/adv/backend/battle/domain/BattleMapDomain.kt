@@ -36,6 +36,9 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
     }
 }
 
+val solidFullWall = FullEnvironmentObject.FullWall(FullEnvironmentObject.FullWallType.SOLID)
+val fullWall = FullEnvironmentObject.FullWall(FullEnvironmentObject.FullWallType.WALL)
+
 sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
 
     data class BattleUnitEnvironmentObject(val battleUnit: BattleUnit) : FullEnvironmentObject() {
