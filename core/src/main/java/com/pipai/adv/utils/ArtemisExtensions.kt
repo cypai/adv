@@ -186,7 +186,7 @@ inline fun <reified T : Component> BaseSystem.mapper(): ReadOnlyProperty<BaseSys
  * @param T the component type.
  * @param type the component class.
  */
-fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = MapperProperty<T>(
+fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = MapperProperty(
         type.java)
 
 /**
@@ -212,7 +212,7 @@ fun <T : Component> BaseEntitySystem.require(type: KClass<T>): ReadOnlyProperty<
     val aspectConfiguration = aspectConfigurationField.get(this) as Aspect.Builder
     aspectConfiguration.all(type.java)
 
-    return MapperProperty<T>(type.java)
+    return MapperProperty(type.java)
 }
 
 /**
@@ -228,7 +228,7 @@ inline fun <reified T : BaseSystem> BaseSystem.system(): ReadOnlyProperty<BaseSy
  * @param T the system type.
  * @param type the system class.
  */
-fun <T : BaseSystem> BaseSystem.system(type: KClass<T>): ReadOnlyProperty<BaseSystem, T> = SystemProperty<T>(type.java)
+fun <T : BaseSystem> BaseSystem.system(type: KClass<T>): ReadOnlyProperty<BaseSystem, T> = SystemProperty(type.java)
 
 private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
 

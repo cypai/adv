@@ -18,27 +18,18 @@ public abstract class GdxMockedTest {
     @BeforeClass
     public static void mockGdxFiles() {
         Gdx.files = Mockito.mock(Files.class);
-        Mockito.when(Gdx.files.internal(Matchers.anyString())).thenAnswer(new Answer<FileHandle>() {
-            @Override
-            public FileHandle answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                return new FileHandle("assets/" + (String) args[0]);
-            }
+        Mockito.when(Gdx.files.internal(Matchers.anyString())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new FileHandle("assets/" + (String) args[0]);
         });
-        Mockito.when(Gdx.files.local(Matchers.anyString())).thenAnswer(new Answer<FileHandle>() {
-            @Override
-            public FileHandle answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                return new FileHandle((String) args[0]);
-            }
+        Mockito.when(Gdx.files.local(Matchers.anyString())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new FileHandle((String) args[0]);
         });
-        Mockito.when(Gdx.files.external(Matchers.anyString())).thenAnswer(new Answer<FileHandle>() {
-            @Override
-            public FileHandle answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                File file = new File("" + (String) args[0]);
-                return new FileHandle(file);
-            }
+        Mockito.when(Gdx.files.external(Matchers.anyString())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            File file = new File("" + (String) args[0]);
+            return new FileHandle(file);
         });
     }
 

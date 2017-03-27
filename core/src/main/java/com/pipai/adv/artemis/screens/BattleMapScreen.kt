@@ -30,7 +30,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                 .build()
         world = World(config)
         multiplexer.addProcessor(ExitInputProcessor())
-        Gdx.input.setInputProcessor(multiplexer)
+        Gdx.input.inputProcessor = multiplexer
     }
 
     override fun render(delta: Float) {

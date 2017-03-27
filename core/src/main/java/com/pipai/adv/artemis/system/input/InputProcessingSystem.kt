@@ -11,15 +11,15 @@ class InputProcessingSystem : NoProcessingSystem() {
 
     override protected fun initialize() {
         multiplexer.addProcessor(ExitInputProcessor())
-        Gdx.input.setInputProcessor(multiplexer)
+        Gdx.input.inputProcessor = multiplexer
         inactiveMultiplexer.addProcessor(ExitInputProcessor())
     }
 
     fun activateInput() {
-        Gdx.input.setInputProcessor(multiplexer)
+        Gdx.input.inputProcessor = multiplexer
     }
 
     fun deactivateInput() {
-        Gdx.input.setInputProcessor(inactiveMultiplexer)
+        Gdx.input.inputProcessor = inactiveMultiplexer
     }
 }

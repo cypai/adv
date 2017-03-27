@@ -18,7 +18,7 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
     fun getCell(x: Int, y: Int): BattleMapCell {
         Preconditions.checkElementIndex(x, width)
         Preconditions.checkElementIndex(y, height)
-        return cells.get(x).get(y)
+        return cells[x][y]
     }
 
     companion object Factory {

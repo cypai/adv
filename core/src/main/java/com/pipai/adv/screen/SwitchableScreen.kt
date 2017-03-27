@@ -1,9 +1,8 @@
 package com.pipai.adv.screen
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Screen
+import org.slf4j.LoggerFactory
 
 abstract class SwitchableScreen(val game: Game) : Screen {
 
@@ -14,6 +13,6 @@ abstract class SwitchableScreen(val game: Game) : Screen {
     fun switchScreen(screen: Screen) {
         LOGGER.debug("Switching Gui to " + screen.javaClass)
         dispose()
-        game.setScreen(screen)
+        game.screen = screen
     }
 }

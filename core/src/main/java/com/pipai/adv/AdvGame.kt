@@ -21,7 +21,7 @@ class AdvGame : Game() {
         font = BitmapFont()
         batchHelper = BatchHelper(spriteBatch, shapeRenderer, font)
         ToStringBuilder.setDefaultStyle(ToStringStyle.SHORT_PREFIX_STYLE)
-        setScreen(BattleMapScreen(this));
+        setScreen(BattleMapScreen(this))
     }
 
     override fun render() {

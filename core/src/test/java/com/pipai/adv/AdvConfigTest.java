@@ -11,9 +11,9 @@ import com.pipai.test.libgdx.GdxTestUtilsKt;
 
 public class AdvConfigTest extends GdxMockedTest {
 
-    public static final FileHandle TEST_FILE = GdxTestUtilsKt.getTestResourceFileHandle(AdvConfigTest.class, "config.properties");
-    public static final FileHandle BAD_TEST_FILE = GdxTestUtilsKt.getTestResourceFileHandle(AdvConfigTest.class, "bad-config.properties");
-    public static final FileHandle TEST_WRITE_FILE = Gdx.files.local("test-config.properties");
+    private static final FileHandle TEST_FILE = GdxTestUtilsKt.getTestResourceFileHandle(AdvConfigTest.class, "config.properties");
+    private static final FileHandle BAD_TEST_FILE = GdxTestUtilsKt.getTestResourceFileHandle(AdvConfigTest.class, "bad-config.properties");
+    private static final FileHandle TEST_WRITE_FILE = Gdx.files.local("test-config.properties");
 
     @After
     public void teardown() {

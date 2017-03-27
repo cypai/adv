@@ -11,11 +11,11 @@ class WeaponSchemaIndex(weaponsFile: FileHandle) {
     val index: Map<String, WeaponSchema>
 
     init {
-        val rawData = weaponsFile.readString("UTF-8");
-        val parser = CSVParser.parse(rawData, CSVFormat.DEFAULT.withHeader());
+        val rawData = weaponsFile.readString("UTF-8")
+        val parser = CSVParser.parse(rawData, CSVFormat.DEFAULT.withHeader())
 
         val mutIndex: MutableMap<String, WeaponSchema> = mutableMapOf()
-        for (record in parser.getRecords()) {
+        for (record in parser.records) {
             val name = record.get("name")
             val weaponSchema = WeaponSchema(
                     name,

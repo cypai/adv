@@ -37,9 +37,9 @@ class AdvConfig(val configFile: FileHandle) {
             val properties = Properties()
             configFile.reader().use { properties.load(it) }
 
-            resolution = valueOfOrDefault(properties.get("resolution") as String, DEFAULT_RESOLUTION)
+            resolution = valueOfOrDefault(properties["resolution"] as String, DEFAULT_RESOLUTION)
         } else {
-            resolution = DEFAULT_RESOLUTION;
+            resolution = DEFAULT_RESOLUTION
         }
     }
 

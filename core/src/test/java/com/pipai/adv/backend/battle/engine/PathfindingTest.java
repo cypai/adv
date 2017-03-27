@@ -12,7 +12,6 @@ import com.pipai.adv.backend.battle.domain.BattleMapDomainKt;
 import com.pipai.adv.backend.battle.domain.BattleUnit;
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject;
 import com.pipai.adv.backend.battle.domain.GridPosition;
-import com.pipai.adv.backend.battle.domain.Team;
 import com.pipai.adv.backend.battle.domain.UnitStats;
 import com.pipai.test.fixtures.BattleUnitFixturesKt;
 

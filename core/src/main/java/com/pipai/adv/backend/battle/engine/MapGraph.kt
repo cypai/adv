@@ -1,16 +1,10 @@
 package com.pipai.adv.backend.battle.engine
 
-import java.util.ArrayList
-import java.util.Comparator
-import java.util.HashMap
-import java.util.LinkedList
-import java.util.PriorityQueue
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import com.pipai.utils.getLogger
-import com.pipai.adv.backend.battle.utils.distance
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.utils.distance
+import com.pipai.utils.getLogger
+import java.util.*
 
 /*
 * To be used as a disposable BattleMap representation for Dijkstra's and other pathfinding algorithms
@@ -49,7 +43,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         for (x in 0 until width) {
             for (y in 0 until height) {
                 val cellPos = GridPosition(x, y)
-                if (map.getCell(cellPos).fullEnvironmentObject == null || cellPos.equals(start)) {
+                if (map.getCell(cellPos).fullEnvironmentObject == null || cellPos == start) {
                     val cell = Node(cellPos)
                     nodeMap.put(cellPos.toString(), cell)
                     val west = getNode(GridPosition(x - 1, y))
@@ -81,17 +75,13 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     }
 
     private fun getNode(pos: GridPosition): Node? {
-        return nodeMap.get(pos.toString())
+        return nodeMap[pos.toString()]
     }
 
     private fun apRequiredToMoveTo(destination: Node): Int {
         val delta = 0.000001f
-        for (i in 1..moveBounds.size) {
-            if (destination.totalCost - delta <= moveBounds[i - 1]) {
-                return i
-            }
-        }
-        return Integer.MAX_VALUE
+        return (1..moveBounds.size).firstOrNull { destination.totalCost - delta <= moveBounds[it - 1] }
+                ?: Integer.MAX_VALUE
     }
 
     fun apRequiredToMoveTo(destination: GridPosition): Int {
@@ -102,10 +92,10 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         val pqueue = PriorityQueue((maxMove * maxMove).toInt(), NodeComparator())
         var current: Node? = root
         while (current != null) {
-            if (!current.position.equals(root.position)) {
+            if (current.position != root.position) {
                 val apNeeded = apRequiredToMoveTo(current)
                 val index = apNeeded - 1
-                var reachableList = reachableLists.get(index)
+                val reachableList = reachableLists[index]
                 reachableList.add(current.position)
                 current.apNeeded = apNeeded
             }
@@ -113,21 +103,20 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
             if (debug) {
                 logger.debug("Current " + current)
             }
-            for (edge in current.edges) {
-                val node = edge.destination
+            for ((destination, cost) in current.edges) {
                 if (debug) {
-                    logger.debug("Checking " + node.position)
+                    logger.debug("Checking " + destination.position)
                 }
-                if (!node.isVisited && !node.isAdded) {
-                    val totalCost = edge.cost + current.totalCost
+                if (!destination.isVisited && !destination.isAdded) {
+                    val totalCost = cost + current.totalCost
                     if (totalCost <= maxMove) {
                         if (debug) {
-                            logger.debug("Added " + node.position + " Dist " + totalCost)
+                            logger.debug("Added " + destination.position + " Dist " + totalCost)
                         }
-                        node.setAdded()
-                        node.totalCost = totalCost
-                        node.path = current
-                        pqueue.add(node)
+                        destination.setAdded()
+                        destination.totalCost = totalCost
+                        destination.path = current
+                        pqueue.add(destination)
                     }
                 }
             }
@@ -138,7 +127,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     fun getMovableCellPositions(ap: Int): List<GridPosition> {
         var list: List<GridPosition>
         try {
-            list = reachableLists.get(ap - 1)
+            list = reachableLists[ap - 1]
         } catch (e: IndexOutOfBoundsException) {
             list = listOf()
         }
@@ -148,7 +137,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     fun getPath(destinationPos: GridPosition): LinkedList<GridPosition> {
         val node = getNode(destinationPos)
         if (node == null || !node.isVisited) {
-            return LinkedList<GridPosition>()
+            return LinkedList()
         }
         val pathList = LinkedList<GridPosition>()
         var path = getNode(destinationPos)
@@ -161,7 +150,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
 
     fun canMoveTo(pos: GridPosition): Boolean {
         val node = getNode(pos)
-        return if (node == null) false else node.isVisited
+        return node?.isVisited ?: false
     }
 
     fun startingPosition(): GridPosition {
@@ -171,7 +160,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     private data class Edge internal constructor(val destination: Node, val cost: Double)
 
     private inner class Node internal constructor(val position: GridPosition) {
-        val edges: ArrayList<Edge>
+        val edges: ArrayList<Edge> = ArrayList<Edge>()
         var isAdded: Boolean = false
         var isVisited: Boolean = false
         var totalCost: Double = 0.0
@@ -179,7 +168,6 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         var apNeeded: Int = 0
 
         init {
-            edges = ArrayList<Edge>()
             apNeeded = Integer.MAX_VALUE
         }
 
@@ -196,11 +184,9 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         }
 
         override fun toString(): String {
-            var s = "Node: " + position + " Edges [ "
-            for (edge in edges) {
-                val node = edge.destination
-                s += "{" + node.position + " " + node.isVisited + " " + node.isAdded + "} "
-            }
+            var s = "Node: $position Edges [ "
+            edges.map { it.destination }
+                    .forEach { s += "{" + it.position + " " + it.isVisited + " " + it.isAdded + "} " }
             s += "]"
             return s
         }
