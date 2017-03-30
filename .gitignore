@@ -71,3 +71,6 @@ Thumbs.db
 
 ## Game-specific
 desktop/run
+
+## Binary assets from other repos
+core/assets/binassets
