@@ -157,7 +157,7 @@ public class PathfindingTest {
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 0).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
 
-        BattleUnit battleUnit = BattleUnitFixturesKt.battleUnitFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        BattleUnit battleUnit = BattleUnitFixturesKt.battleUnitFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), 1);
         map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.BattleUnitEnvironmentObject(battleUnit));
 
         MapGraph graph = new MapGraph(map, new GridPosition(1, 1), 10, 1, 1, false);
