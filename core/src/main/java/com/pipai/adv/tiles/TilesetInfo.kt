@@ -20,6 +20,7 @@ data class TilePosition(val x: Int, val y: Int)
 
 interface MapTilesetInfo {
     fun tilePositions(tileType: MapTileType): List<TilePosition>
+    fun tiles(tileType: MapTileType): List<TextureRegion>
     fun tile(tilePosition: TilePosition): TextureRegion
 }
 
@@ -45,6 +46,10 @@ class GrassyTileset(val tilesetFile: FileHandle) : MapTilesetInfo {
                     TilePosition(2, 8), TilePosition(2, 9),
                     TilePosition(2, 10), TilePosition(2, 11))
         }
+    }
+
+    override fun tiles(tileType: MapTileType): List<TextureRegion> {
+        return tilePositions(tileType).map { it -> tile(it) }
     }
 
     override fun tile(tilePosition: TilePosition): TextureRegion {

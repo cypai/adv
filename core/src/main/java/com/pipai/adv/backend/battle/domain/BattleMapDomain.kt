@@ -1,6 +1,7 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.google.common.base.Preconditions
+import com.pipai.adv.tiles.MapTileType
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.deepCopy
 
@@ -27,7 +28,7 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
             for (y in 0 until height) {
                 val row: MutableList<BattleMapCell> = mutableListOf()
                 for (x in 0 until width) {
-                    row.add(BattleMapCell(null, mutableListOf(), mutableListOf()))
+                    row.add(BattleMapCell(null, mutableListOf(), mutableListOf(), mutableListOf()))
                 }
                 rows.add(row)
             }
@@ -80,9 +81,13 @@ sealed class BattleMapCellSpecialFlag {
 data class BattleMapCell(
         var fullEnvironmentObject: FullEnvironmentObject?,
         val environmentObjects: MutableList<EnvironmentObject>,
-        val specialFlags: MutableList<BattleMapCellSpecialFlag>) : DeepCopyable<BattleMapCell> {
+        val specialFlags: MutableList<BattleMapCellSpecialFlag>,
+        val backgroundTiles: MutableList<MapCellTileInfo>) : DeepCopyable<BattleMapCell> {
 
     override fun deepCopy() = BattleMapCell(fullEnvironmentObject?.deepCopy(),
             environmentObjects.map { it.deepCopy() }.toMutableList(),
-            specialFlags.toMutableList())
+            specialFlags.toMutableList(),
+            backgroundTiles.toMutableList())
 }
+
+data class MapCellTileInfo(val tileType: MapTileType, val index: Int)
