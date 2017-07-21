@@ -1,8 +1,8 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
-import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.engine.BattleBackend
 
 class BattleBackendComponent : Component() {
-    lateinit var map: BattleMap
+    lateinit var backend: BattleBackend
 }

@@ -8,9 +8,13 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.system.init.BattleMapScreenInit
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
+import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.gui.BatchHelper
+import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
+import com.pipai.adv.tiles.GrassyTileset
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
@@ -21,16 +25,27 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
     private val world: World
 
     init {
+        val ftile = Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")
+        System.out.println(ftile.file().absolutePath)
+        val mapTileset = GrassyTileset(ftile)
+
+        val map = TestMapGenerator()
+                .generate(20, 20, mapTileset)
+
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
                         TagManager(),
                         GroupManager(),
                         EventSystem())
+                .withPassive(-1,
+                        BattleMapRenderingSystem(game.batchHelper, mapTileset))
                 .build()
         world = World(config)
         multiplexer.addProcessor(ExitInputProcessor())
         Gdx.input.inputProcessor = multiplexer
+
+        BattleMapScreenInit(world, map).initialize()
     }
 
     override fun render(delta: Float) {
