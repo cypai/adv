@@ -39,7 +39,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         GroupManager(),
                         EventSystem())
                 .withPassive(-1,
-                        BattleMapRenderingSystem(game.batchHelper, mapTileset))
+                        BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()

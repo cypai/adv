@@ -22,6 +22,6 @@ public final class DesktopLauncher {
         config.width = advConfig.getResolution().getWidth();
         config.height = advConfig.getResolution().getHeight();
         config.resizable = false;
-        new LwjglApplication(new AdvGame(), config);
+        new LwjglApplication(new AdvGame(advConfig), config);
     }
 }

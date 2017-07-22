@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 
 enum class MapTileType {
     // Walls by direction (C_WALL is center)
-    U_WALL, D_WALL, L_WALL, R_WALL, C_WALL, UL_WALL, UR_WALL, LL_WALL, LR_WALL,
+    U_WALL,
+    D_WALL, L_WALL, R_WALL, C_WALL, UL_WALL, UR_WALL, LL_WALL, LR_WALL,
 
     // Ground types
     GROUND,
@@ -19,6 +20,9 @@ enum class MapTileType {
 data class TilePosition(val x: Int, val y: Int)
 
 interface MapTilesetInfo {
+    fun tileWidth(): Int
+    fun tileHeight(): Int
+
     fun tilePositions(tileType: MapTileType): List<TilePosition>
     fun tiles(tileType: MapTileType): List<TextureRegion>
     fun tile(tilePosition: TilePosition): TextureRegion
@@ -32,6 +36,9 @@ class GrassyTileset(val tilesetFile: FileHandle) : MapTilesetInfo {
     init {
         tiles = TextureRegion.split(tilesetTexture, 33, 33);
     }
+
+    override fun tileWidth(): Int = 32
+    override fun tileHeight(): Int = 32
 
     override fun tilePositions(tileType: MapTileType): List<TilePosition> {
         return when (tileType) {
