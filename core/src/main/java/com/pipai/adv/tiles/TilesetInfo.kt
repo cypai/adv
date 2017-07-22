@@ -3,11 +3,11 @@ package com.pipai.adv.tiles
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.pipai.utils.split
 
 enum class MapTileType {
     // Walls by direction (C_WALL is center)
-    U_WALL,
-    D_WALL, L_WALL, R_WALL, C_WALL, UL_WALL, UR_WALL, LL_WALL, LR_WALL,
+    U_WALL, D_WALL, L_WALL, R_WALL, C_WALL, UL_WALL, UR_WALL, LL_WALL, LR_WALL,
 
     // Ground types
     GROUND,
@@ -34,7 +34,7 @@ class GrassyTileset(val tilesetFile: FileHandle) : MapTilesetInfo {
     private val tiles: Array<Array<TextureRegion>>
 
     init {
-        tiles = TextureRegion.split(tilesetTexture, 33, 33);
+        tiles = tilesetTexture.split(32, 32, 1, 1);
     }
 
     override fun tileWidth(): Int = 32
