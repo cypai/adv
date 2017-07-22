@@ -26,7 +26,6 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
     init {
         val ftile = Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")
-        System.out.println(ftile.file().absolutePath)
         val mapTileset = GrassyTileset(ftile)
 
         val map = TestMapGenerator()

@@ -35,9 +35,13 @@ class BattleMapRenderingSystem(private val batch: BatchHelper, private val mapTi
         val cCamera = mCamera.get(cameraId)
 
         batch.spr.begin()
-        for (x in 0..mapState.width) {
-            for (y in 0..mapState.height) {
-                batch.spr.draw(mapTileset.tile(TilePosition(1, 1)), 0f, 0f)
+        for (x in 0 until mapState.width) {
+            for (y in 0 until mapState.height) {
+                val cell = mapState.cells[x][y]
+                for (bgTileInfo in cell.backgroundTiles) {
+                    val tile = mapTileset.tiles(bgTileInfo.tileType)[bgTileInfo.index]
+                    batch.spr.draw(tile, x.toFloat() * 32f, y.toFloat() * 32f)
+                }
             }
         }
         batch.spr.end()

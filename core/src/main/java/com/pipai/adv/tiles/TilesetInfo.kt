@@ -53,6 +53,6 @@ class GrassyTileset(val tilesetFile: FileHandle) : MapTilesetInfo {
     }
 
     override fun tile(tilePosition: TilePosition): TextureRegion {
-        return tiles[tilePosition.x][tilePosition.y]
+        return tiles[tilePosition.y][tilePosition.x]
     }
 }
