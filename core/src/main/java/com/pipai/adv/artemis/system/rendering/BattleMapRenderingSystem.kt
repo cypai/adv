@@ -8,14 +8,14 @@ import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.screens.BattleMapScreenTags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.gui.BatchHelper
-import com.pipai.adv.tiles.MapTilesetInfo
+import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.require
 import com.pipai.adv.utils.system
 
 class BattleMapRenderingSystem(private val batch: BatchHelper,
-                               private val mapTileset: MapTilesetInfo,
+                               private val mapTileset: MapTileset,
                                private val advConfig: AdvConfig) : IteratingSystem(allOf()) {
 
     private val mBackend by require<BattleBackendComponent>()

@@ -3,16 +3,16 @@ package com.pipai.adv.map
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.MapCellTileInfo
 import com.pipai.adv.tiles.MapTileType
-import com.pipai.adv.tiles.MapTilesetInfo
+import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(width: Int, height: Int, tileset: MapTilesetInfo): BattleMap
+    fun generate(width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(width: Int, height: Int, tileset: MapTilesetInfo): BattleMap {
+    override fun generate(width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
@@ -29,7 +29,7 @@ fun generateGround(map: BattleMap) {
     }
 }
 
-fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTilesetInfo) {
+fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTileset) {
     val decosAmount = tileset.tilePositions(MapTileType.GROUND_DECO).size
 
     val generatorWidth = map.width + map.width % sparseness

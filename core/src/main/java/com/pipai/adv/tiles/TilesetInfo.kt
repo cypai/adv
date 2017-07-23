@@ -19,16 +19,19 @@ enum class MapTileType {
 // Encodes tileset offsets
 data class TilePosition(val x: Int, val y: Int)
 
-interface MapTilesetInfo {
+interface Tileset {
     fun tileWidth(): Int
     fun tileHeight(): Int
 
-    fun tilePositions(tileType: MapTileType): List<TilePosition>
-    fun tiles(tileType: MapTileType): List<TextureRegion>
     fun tile(tilePosition: TilePosition): TextureRegion
 }
 
-class GrassyTileset(val tilesetFile: FileHandle) : MapTilesetInfo {
+interface MapTileset : Tileset {
+    fun tilePositions(tileType: MapTileType): List<TilePosition>
+    fun tiles(tileType: MapTileType): List<TextureRegion>
+}
+
+class GrassyTileset(val tilesetFile: FileHandle) : MapTileset {
 
     private val tilesetTexture = Texture(tilesetFile)
     private val tiles: Array<Array<TextureRegion>>
