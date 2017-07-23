@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.init.BattleMapScreenInit
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
+import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
@@ -17,11 +18,11 @@ import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.tiles.GrassyTileset
 import net.mostlyoriginal.api.event.common.EventSystem
+import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 
 class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
     private val batch: BatchHelper = game.batchHelper
-    private val multiplexer: InputMultiplexer = InputMultiplexer()
 
     private val world: World
 
@@ -37,15 +38,22 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         // Managers
                         TagManager(),
                         GroupManager(),
-                        EventSystem())
+                        EventSystem(),
+
+                        InputProcessingSystem(),
+                        CameraMovementInputSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
+
         world = World(config)
-        multiplexer.addProcessor(ExitInputProcessor())
-        Gdx.input.inputProcessor = multiplexer
+
+        val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
+        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
+        inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
+        inputProcessor.activateInput()
 
         BattleMapScreenInit(world, map).initialize()
     }

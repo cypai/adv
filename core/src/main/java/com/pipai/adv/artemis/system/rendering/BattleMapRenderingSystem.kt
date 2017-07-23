@@ -28,6 +28,10 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
         val cBackend = mBackend.get(entityId)
         val mapState = cBackend.backend.getBattleMapState()
 
+        val cameraId = sTags.getEntityId(BattleMapScreenTags.CAMERA.toString())
+        val camera = mCamera.get(cameraId).camera
+
+        batch.spr.setProjectionMatrix(camera.combined)
         batch.spr.begin()
         renderBackgroundTiles(mapState)
         renderMapObjects()
@@ -35,8 +39,6 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     }
 
     private fun renderBackgroundTiles(mapState: BattleMap) {
-        val cameraId = sTags.getEntityId(BattleMapScreenTags.CAMERA.toString())
-        val cCamera = mCamera.get(cameraId)
 
         val tileSize = advConfig.resolution.tileSize.toFloat()
 

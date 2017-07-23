@@ -9,6 +9,7 @@ import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.screens.BattleMapScreenTags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.artemis.screens.UniversalTags
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val map: BattleMap) {
@@ -30,6 +31,10 @@ class BattleMapScreenInit(private val world: World, private val map: BattleMap) 
         val cameraId = world.create()
         mCamera.create(cameraId)
         sTags.register(BattleMapScreenTags.CAMERA.toString(), cameraId)
+
+        val uiCameraId = world.create()
+        mCamera.create(uiCameraId)
+        sTags.register(UniversalTags.UI_CAMERA.toString(), uiCameraId)
     }
 
 }
