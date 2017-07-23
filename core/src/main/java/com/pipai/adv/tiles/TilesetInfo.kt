@@ -1,5 +1,6 @@
 package com.pipai.adv.tiles
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -20,10 +21,33 @@ enum class MapTileType {
 data class TilePosition(val x: Int, val y: Int)
 
 interface Tileset {
+    fun dispose()
+
     fun tileWidth(): Int
     fun tileHeight(): Int
 
     fun tile(tilePosition: TilePosition): TextureRegion
+}
+
+class FileTileset(private val tilesetFile: FileHandle, private val width: Int, private val height: Int) : Tileset {
+
+    private val tilesetTexture = Texture(tilesetFile)
+    private val tiles: Array<Array<TextureRegion>>
+
+    init {
+        tiles = TextureRegion.split(tilesetTexture, width, height)
+    }
+
+    override fun dispose() {
+        tilesetTexture.dispose()
+    }
+
+    override fun tileWidth() = width
+    override fun tileHeight() = height
+
+    override fun tile(tilePosition: TilePosition): TextureRegion {
+        return tiles[tilePosition.y][tilePosition.x]
+    }
 }
 
 interface MapTileset : Tileset {
@@ -31,13 +55,17 @@ interface MapTileset : Tileset {
     fun tiles(tileType: MapTileType): List<TextureRegion>
 }
 
-class GrassyTileset(val tilesetFile: FileHandle) : MapTileset {
+class GrassyTileset(private val tilesetFile: FileHandle) : MapTileset {
 
     private val tilesetTexture = Texture(tilesetFile)
     private val tiles: Array<Array<TextureRegion>>
 
     init {
         tiles = tilesetTexture.split(32, 32, 1, 1);
+    }
+
+    override fun dispose() {
+        tilesetTexture.dispose()
     }
 
     override fun tileWidth(): Int = 32
