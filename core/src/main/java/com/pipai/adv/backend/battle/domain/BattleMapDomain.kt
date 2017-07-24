@@ -24,15 +24,15 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
 
     companion object Factory {
         fun createBattleMap(width: Int, height: Int): BattleMap {
-            val rows: MutableList<List<BattleMapCell>> = mutableListOf()
-            for (y in 0 until height) {
-                val row: MutableList<BattleMapCell> = mutableListOf()
-                for (x in 0 until width) {
-                    row.add(BattleMapCell(null, mutableListOf(), mutableListOf(), mutableListOf()))
+            val columns: MutableList<List<BattleMapCell>> = mutableListOf()
+            for (x in 0 until width) {
+                val column: MutableList<BattleMapCell> = mutableListOf()
+                for (y in 0 until height) {
+                    column.add(BattleMapCell(null, mutableListOf(), mutableListOf(), mutableListOf()))
                 }
-                rows.add(row)
+                columns.add(column)
             }
-            return BattleMap(width, height, rows.toList())
+            return BattleMap(width, height, columns.toList())
         }
     }
 }

@@ -31,7 +31,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         val mapTileset = GrassyTileset(ftile)
 
         val map = TestMapGenerator()
-                .generate(20, 20, mapTileset)
+                .generate(30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

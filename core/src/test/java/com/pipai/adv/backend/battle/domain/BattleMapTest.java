@@ -15,4 +15,13 @@ public class BattleMapTest {
         Assert.assertNull(battleMap.getCell(0, 0).getFullEnvironmentObject());
     }
 
+    @Test
+    public void testDimensions() {
+        BattleMap battleMap = BattleMap.Factory.createBattleMap(2, 3);
+        Assert.assertNotNull(battleMap.getCell(0, 0));
+        Assert.assertNotNull(battleMap.getCell(1, 0));
+        Assert.assertNotNull(battleMap.getCell(1, 2));
+        Assert.assertNotNull(battleMap.getCell(0, 2));
+    }
+
 }
