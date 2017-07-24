@@ -7,12 +7,13 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.screens.BattleMapScreenTags
+import com.pipai.adv.artemis.screens.UniversalTags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.artemis.screens.UniversalTags
+import com.pipai.adv.save.NpcList
 
 @Wire
-class BattleMapScreenInit(private val world: World, private val map: BattleMap) {
+class BattleMapScreenInit(private val world: World, private val npcList: NpcList, private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
@@ -26,7 +27,7 @@ class BattleMapScreenInit(private val world: World, private val map: BattleMap) 
     fun initialize() {
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(map)
+        cBackend.backend = BattleBackend(npcList, map)
 
         val cameraId = world.create()
         mCamera.create(cameraId)

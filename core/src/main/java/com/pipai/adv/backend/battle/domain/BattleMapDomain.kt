@@ -1,6 +1,7 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.google.common.base.Preconditions
+import com.pipai.adv.save.Npc
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.deepCopy
@@ -42,8 +43,8 @@ val fullWall = FullEnvironmentObject.FullWall(FullEnvironmentObject.FullWallType
 
 sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
 
-    data class BattleUnitEnvironmentObject(val battleUnit: BattleUnit) : FullEnvironmentObject() {
-        override fun deepCopy() = copy(battleUnit.deepCopy())
+    data class NpcEnvironmentObject(val npcId: Int) : FullEnvironmentObject() {
+        override fun deepCopy() = copy(npcId)
     }
 
     data class ChestEnvironmentObject(val item: InventoryItem) : FullEnvironmentObject() {

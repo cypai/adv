@@ -1,13 +1,14 @@
 package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.BattleUnitEnvironmentObject
+import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.save.NpcList
 
-class BattleBackend(private val battleMap: BattleMap) {
+class BattleBackend(private val npcList: NpcList, private val battleMap: BattleMap) {
 
-    private var state: BattleState = BattleState(BattleTurn.PLAYER, battleMap, BattleLog())
-    private var battleUnitPositions: MutableMap<Int, GridPosition> = mutableMapOf()
+    private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog())
+    private var npcPositions: MutableMap<Int, GridPosition> = mutableMapOf()
 
     val commandRules: List<CommandRule> = listOf(NoMovingToFullCellRule())
     val commandExecutionRules: List<CommandExecutionRule> = listOf(MovementExecutionRule())
@@ -15,20 +16,20 @@ class BattleBackend(private val battleMap: BattleMap) {
     init {
         for (x in 0 until battleMap.width) {
             for (y in 0 until battleMap.height) {
-                val maybeBattleUnit = battleMap.getCell(x, y).fullEnvironmentObject
-                if (maybeBattleUnit != null && maybeBattleUnit is BattleUnitEnvironmentObject) {
-                    battleUnitPositions.put(maybeBattleUnit.battleUnit.id, GridPosition(x, y))
+                val maybeNpc = battleMap.getCell(x, y).fullEnvironmentObject
+                if (maybeNpc != null && maybeNpc is NpcEnvironmentObject) {
+                    npcPositions.put(maybeNpc.npcId, GridPosition(x, y))
                 }
             }
         }
     }
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
-    fun getBattleUnitPositions(): Map<Int, GridPosition> = battleUnitPositions
+    fun getNpcPositions(): Map<Int, GridPosition> = npcPositions
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
         for (rule in commandRules) {
-            val status = rule.canBeExecuted(command, state, battleUnitPositions)
+            val status = rule.canBeExecuted(command, state, npcPositions)
             if (!status.executable) {
                 return status
             }
@@ -38,7 +39,7 @@ class BattleBackend(private val battleMap: BattleMap) {
 
     fun preview(command: BattleCommand): List<PreviewComponent> {
         val previews: MutableList<PreviewComponent> = mutableListOf()
-        commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, battleUnitPositions)) })
+        commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, npcPositions)) })
         return previews
     }
 
@@ -47,7 +48,7 @@ class BattleBackend(private val battleMap: BattleMap) {
         if (!executionStatus.executable) {
             throw IllegalArgumentException("$command cannot be executed because: ${executionStatus.reason}")
         }
-        commandExecutionRules.forEach({ it.execute(command, state, battleUnitPositions) })
+        commandExecutionRules.forEach({ it.execute(command, state, npcPositions) })
     }
 }
 
@@ -59,6 +60,7 @@ data class ExecutableStatus(val executable: Boolean, val reason: String?) {
 }
 
 data class BattleState(var turn: BattleTurn,
+                       val npcList: NpcList,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog)
 

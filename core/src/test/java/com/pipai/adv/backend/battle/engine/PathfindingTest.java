@@ -9,11 +9,8 @@ import org.junit.Test;
 
 import com.pipai.adv.backend.battle.domain.BattleMap;
 import com.pipai.adv.backend.battle.domain.BattleMapDomainKt;
-import com.pipai.adv.backend.battle.domain.BattleUnit;
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject;
 import com.pipai.adv.backend.battle.domain.GridPosition;
-import com.pipai.adv.backend.battle.domain.UnitStats;
-import com.pipai.test.fixtures.BattleUnitFixturesKt;
 
 public class PathfindingTest {
 
@@ -55,11 +52,7 @@ public class PathfindingTest {
     @Test
     public void testObstacleMovableList() {
         /*
-         * Map looks like:
-         * 0 0 0 0
-         * 0 1 1 0
-         * 0 A 0 0
-         * 0 0 0 1
+         * Map looks like: 0 0 0 0 0 1 1 0 0 A 0 0 0 0 0 1
          */
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(1, 2).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
@@ -157,8 +150,7 @@ public class PathfindingTest {
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 0).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
 
-        BattleUnit battleUnit = BattleUnitFixturesKt.battleUnitFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), 1);
-        map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.BattleUnitEnvironmentObject(battleUnit));
+        map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.NpcEnvironmentObject(0));
 
         MapGraph graph = new MapGraph(map, new GridPosition(1, 1), 10, 1, 1, false);
         Assert.assertFalse("Failed to return false on moving to solid tile", graph.canMoveTo(new GridPosition(3, 0)));

@@ -1,9 +1,8 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.BattleUnit
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.BattleUnitEnvironmentObject
+import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.save.Npc
 
 data class MoveCommand(val unitId: Int, val path: List<GridPosition>) : BattleCommand
 
@@ -44,21 +43,21 @@ class MovementExecutionRule : CommandExecutionRule {
         val startingCell = state.battleMap.getCell(startPosition)
         val endingCell = state.battleMap.getCell(endPosition)
 
-        val unitEnvObj = startingCell.fullEnvironmentObject as BattleUnitEnvironmentObject
+        val npc = startingCell.fullEnvironmentObject as NpcEnvironmentObject
 
         startingCell.fullEnvironmentObject = null
-        endingCell.fullEnvironmentObject = unitEnvObj
+        endingCell.fullEnvironmentObject = npc
 
-        unitPositions[unitEnvObj.battleUnit.id] = endPosition
+        unitPositions[npc.npcId] = endPosition
 
-        state.battleLog.log.add(MoveEvent(unitEnvObj.battleUnit, startPosition, endPosition))
+        state.battleLog.log.add(MoveEvent(state.npcList.getNpc(npc.npcId), startPosition, endPosition))
     }
 }
 
-data class MoveEvent(val battleUnit: BattleUnit,
+data class MoveEvent(val npc: Npc,
                      val startPosition: GridPosition,
                      val endPosition: GridPosition) : BattleLogEvent {
 
-    override fun description() = "$battleUnit moved from $startPosition to $endPosition"
-    override fun userFriendlyDescription() = "${battleUnit.unitInstance.nickname} is moving..."
+    override fun description() = "$npc moved from $startPosition to $endPosition"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} is moving..."
 }

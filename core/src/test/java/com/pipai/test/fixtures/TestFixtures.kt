@@ -1,12 +1,13 @@
 package com.pipai.test.fixtures
 
-import com.pipai.adv.backend.battle.domain.BattleUnit
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
+import com.pipai.adv.save.Npc
+import com.pipai.adv.tiles.EnvObjTilesetType
 
-fun battleUnitFromStats(stats: UnitStats, id: Int): BattleUnit {
+fun npcFromStats(stats: UnitStats): Npc {
     val schema = UnitSchema("Test Unit", stats)
     val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.mpMax, null)
-    return BattleUnit(unitInstance, id)
+    return Npc(unitInstance, EnvObjTilesetType.NONE, null, null)
 }

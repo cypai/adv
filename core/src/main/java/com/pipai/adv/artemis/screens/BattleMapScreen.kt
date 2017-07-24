@@ -5,20 +5,20 @@ import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.init.BattleMapScreenInit
+import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
+import com.pipai.adv.save.NpcList
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.tiles.GrassyTileset
 import net.mostlyoriginal.api.event.common.EventSystem
-import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 
 class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -27,6 +27,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
     private val world: World
 
     init {
+        val npcList = NpcList()
+
         val ftile = Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")
         val mapTileset = GrassyTileset(ftile)
 
@@ -55,7 +57,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, map).initialize()
+        BattleMapScreenInit(world, npcList, map).initialize()
     }
 
     override fun render(delta: Float) {
