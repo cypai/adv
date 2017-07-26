@@ -5,10 +5,15 @@ import com.artemis.systems.IteratingSystem
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.PccComponent
+import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.BattleMapScreenTags
 import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.tiles.MapTileset
+import com.pipai.adv.tiles.PccFrame
+import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.require
@@ -16,11 +21,14 @@ import com.pipai.adv.utils.system
 
 class BattleMapRenderingSystem(private val batch: BatchHelper,
                                private val mapTileset: MapTileset,
-                               private val advConfig: AdvConfig) : IteratingSystem(allOf()) {
+                               private val advConfig: AdvConfig,
+                               private val pccManager: PccManager) : IteratingSystem(allOf()) {
 
     private val mBackend by require<BattleBackendComponent>()
 
     private val mCamera by mapper<OrthographicCameraComponent>()
+    private val mPccs by mapper<PccComponent>()
+    private val mXy by mapper<XYComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -55,5 +63,18 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
 
     private fun renderMapObjects() {
 
+        val tileSize = advConfig.resolution.tileSize.toFloat()
+
+        val pccEntityBag = world.aspectSubscriptionManager.get(allOf(PccComponent::class, XYComponent::class)).entities
+        val pccEntities = pccEntityBag.data.slice(0 until pccEntityBag.size())
+        for (pccEntity in pccEntities) {
+            val cPcc = mPccs.get(pccEntity)
+            val cXy = mXy.get(pccEntity)
+            for (pcc in cPcc.pccs) {
+                val pccTexture = pccManager.getPccFrame(pcc, PccFrame(Direction.S, 0))
+                val scaleFactor = tileSize / pccTexture.regionWidth
+                batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
+            }
+        }
     }
 }

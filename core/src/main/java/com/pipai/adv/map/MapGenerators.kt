@@ -5,23 +5,25 @@ import com.pipai.adv.backend.battle.domain.MapCellTileInfo
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
+import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 
 interface MapGenerator {
-    fun generate(width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
+        map.getCell(1, 1).fullEnvironmentObject = NpcEnvironmentObject(party[0])
         return map
     }
 
 }
 
-fun generateGround(map: BattleMap) {
+private fun generateGround(map: BattleMap) {
     for (column in map.cells) {
         for (cell in column) {
             cell.backgroundTiles.add(MapCellTileInfo(MapTileType.GROUND, 0))
@@ -29,7 +31,7 @@ fun generateGround(map: BattleMap) {
     }
 }
 
-fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTileset) {
+private fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTileset) {
     val decosAmount = tileset.tilePositions(MapTileType.GROUND_DECO).size
 
     val generatorWidth = map.width + map.width % sparseness

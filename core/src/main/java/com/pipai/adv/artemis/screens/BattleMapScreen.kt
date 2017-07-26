@@ -32,7 +32,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
         val map = TestMapGenerator()
-                .generate(30, 20, mapTileset)
+                .generate(listOf(0), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -44,7 +44,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         InputProcessingSystem(),
                         CameraMovementInputSystem())
                 .withPassive(-1,
-                        BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig))
+                        BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
@@ -56,7 +56,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, globals.save.globalNpcList.shallowCopy(), map).initialize()
+        BattleMapScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)
+                .initialize()
     }
 
     override fun render(delta: Float) {
