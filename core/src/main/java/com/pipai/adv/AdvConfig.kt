@@ -24,7 +24,7 @@ enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: As
     RES_1280_720(1280, 720, AspectRatio.AR_16_9, "720p", 96),
     RES_1920_1080(1920, 1080, AspectRatio.AR_16_9, "1080p", 128);
 
-    override fun toString(): String {
+    fun toDebugString(): String {
         return "ScreenResolution[${width}x${height}, ${aspectRatio}, ${description}, TileSize: ${tileSize}]"
     }
 }

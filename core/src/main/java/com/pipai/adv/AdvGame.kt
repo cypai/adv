@@ -21,7 +21,7 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
 
     override fun create() {
         logger.info("Starting AdvGame with the following config settings:")
-        logger.info(advConfig.resolution.toString())
+        logger.info(advConfig.resolution.toDebugString())
 
         spriteBatch = SpriteBatch()
         shapeRenderer = ShapeRenderer()
