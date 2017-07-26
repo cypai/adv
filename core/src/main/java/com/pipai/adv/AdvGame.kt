@@ -12,12 +12,22 @@ import org.apache.commons.lang3.builder.ToStringStyle
 
 class AdvGame(val advConfig: AdvConfig) : Game() {
 
-    val logger = getLogger()
+    private val logger = getLogger()
+
+    lateinit var globals: AdvGameGlobals
+        private set
 
     lateinit var spriteBatch: SpriteBatch
+        private set
+
     lateinit var shapeRenderer: ShapeRenderer
+        private set
+
     lateinit var font: BitmapFont
+        private set
+
     lateinit var batchHelper: BatchHelper
+        private set
 
     override fun create() {
         logger.info("Starting AdvGame with the following config settings:")
@@ -28,6 +38,9 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         font = BitmapFont()
         batchHelper = BatchHelper(spriteBatch, shapeRenderer, font)
         ToStringBuilder.setDefaultStyle(ToStringStyle.SHORT_PREFIX_STYLE)
+
+        logger.info("Loading schematics...")
+        globals = AdvGameInitializer().initializeGlobals()
         setScreen(BattleMapScreen(this))
     }
 

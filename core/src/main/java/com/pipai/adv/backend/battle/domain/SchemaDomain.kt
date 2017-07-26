@@ -102,6 +102,8 @@ data class UnitInstance(
         var mp: Int,
         var weapon: InventoryItem.WeaponInstance?) : DeepCopyable<UnitInstance> {
 
+    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.mpMax, null)
+
     override fun deepCopy() = copy(weapon = weapon?.copy())
 }
 

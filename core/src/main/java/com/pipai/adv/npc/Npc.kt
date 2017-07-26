@@ -5,10 +5,15 @@ import com.pipai.adv.tiles.EnvObjTilesetType
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.TilePosition
 import com.pipai.utils.DeepCopyable
+import com.pipai.utils.ShallowCopyable
 
-class NpcList {
+class NpcList : Iterable<Npc>, ShallowCopyable<NpcList> {
     private var nextId = 0
     private val npcs: MutableMap<Int, Npc> = mutableMapOf()
+
+    override operator fun iterator(): Iterator<Npc> {
+        return npcs.values.iterator()
+    }
 
     fun addNpc(npc: Npc): Int {
         val id = nextId
@@ -30,6 +35,11 @@ class NpcList {
         }
     }
 
+    fun clear() {
+        nextId = 0
+        npcs.clear()
+    }
+
     fun npcExists(id: Int): Boolean = npcs.containsKey(id)
 
     fun getNpc(id: Int): Npc {
@@ -38,12 +48,23 @@ class NpcList {
         }
         return npcs.get(id)!!
     }
+
+    override fun shallowCopy(): NpcList {
+        val copy = NpcList()
+        npcs.forEach { copy.setNpc(it.value, it.key) }
+        return copy
+    }
 }
 
 data class Npc(val unitInstance: UnitInstance,
-               val tileType: EnvObjTilesetType,
-               val atlasTilesetPosition: TilePosition?,
-               val pccMetadata: List<PccMetadata>?) : DeepCopyable<Npc> {
+               val tilesetMetadata: EnvObjTilesetMetadata) : DeepCopyable<Npc> {
 
-    override fun deepCopy() = copy(unitInstance.deepCopy(), tileType, atlasTilesetPosition, pccMetadata?.toList())
+    override fun deepCopy() = copy(unitInstance.deepCopy(), tilesetMetadata.deepCopy())
+}
+
+data class EnvObjTilesetMetadata(val tileType: EnvObjTilesetType,
+                                 val atlasTilesetPosition: TilePosition?,
+                                 val pccMetadata: List<PccMetadata>?) : DeepCopyable<EnvObjTilesetMetadata> {
+
+    override fun deepCopy() = copy(tileType, atlasTilesetPosition, pccMetadata?.toList())
 }

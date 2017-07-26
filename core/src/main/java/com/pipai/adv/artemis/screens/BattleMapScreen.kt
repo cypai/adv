@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
+import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.tiles.GrassyTileset
@@ -27,10 +28,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
     private val world: World
 
     init {
-        val npcList = NpcList()
-
-        val ftile = Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")
-        val mapTileset = GrassyTileset(ftile)
+        val globals = game.globals
+        val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
         val map = TestMapGenerator()
                 .generate(30, 20, mapTileset)
@@ -57,7 +56,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, npcList, map).initialize()
+        BattleMapScreenInit(world, globals.save.globalNpcList.shallowCopy(), map).initialize()
     }
 
     override fun render(delta: Float) {
