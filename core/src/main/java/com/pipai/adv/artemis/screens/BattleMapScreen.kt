@@ -15,7 +15,7 @@ import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
-import com.pipai.adv.save.NpcList
+import com.pipai.adv.npc.NpcList
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.tiles.GrassyTileset
 import net.mostlyoriginal.api.event.common.EventSystem

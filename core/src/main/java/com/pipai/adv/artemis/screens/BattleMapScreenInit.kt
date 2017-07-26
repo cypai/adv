@@ -10,7 +10,7 @@ import com.pipai.adv.artemis.screens.BattleMapScreenTags
 import com.pipai.adv.artemis.screens.UniversalTags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.save.NpcList
+import com.pipai.adv.npc.NpcList
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val npcList: NpcList, private val map: BattleMap) {

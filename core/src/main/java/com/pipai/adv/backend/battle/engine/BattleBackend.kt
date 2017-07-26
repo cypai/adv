@@ -3,7 +3,7 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.save.NpcList
+import com.pipai.adv.npc.NpcList
 
 class BattleBackend(private val npcList: NpcList, private val battleMap: BattleMap) {
 

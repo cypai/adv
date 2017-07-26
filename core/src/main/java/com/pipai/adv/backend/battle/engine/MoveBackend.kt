@@ -2,7 +2,7 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.save.Npc
+import com.pipai.adv.npc.Npc
 
 data class MoveCommand(val unitId: Int, val path: List<GridPosition>) : BattleCommand
 

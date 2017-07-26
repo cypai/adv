@@ -10,8 +10,8 @@ import com.pipai.adv.backend.battle.domain.BattleMapDomainKt;
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject;
 import com.pipai.adv.backend.battle.domain.GridPosition;
 import com.pipai.adv.backend.battle.domain.UnitStats;
-import com.pipai.adv.save.Npc;
-import com.pipai.adv.save.NpcList;
+import com.pipai.adv.npc.Npc;
+import com.pipai.adv.npc.NpcList;
 import com.pipai.test.fixtures.TestFixturesKt;
 
 public class MoveBackendTest {

@@ -1,7 +1,7 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.google.common.base.Preconditions
-import com.pipai.adv.save.Npc
+import com.pipai.adv.npc.Npc
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.deepCopy
