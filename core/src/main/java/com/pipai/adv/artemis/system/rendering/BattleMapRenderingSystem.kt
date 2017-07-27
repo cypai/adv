@@ -49,11 +49,10 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     }
 
     private fun renderBackgroundTiles(mapState: BattleMap) {
-
         val tileSize = advConfig.resolution.tileSize.toFloat()
 
-        for (x in 0 until mapState.width) {
-            for (y in 0 until mapState.height) {
+        for (y in 0 until mapState.height) {
+            for (x in 0 until mapState.width) {
                 val cell = mapState.cells[x][y]
                 for (bgTileInfo in cell.backgroundTiles) {
                     val tile = mapTileset.tiles(bgTileInfo.tileType)[bgTileInfo.index]
@@ -64,14 +63,16 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     }
 
     private fun renderMapObjects() {
-
         val tileSize = advConfig.resolution.tileSize.toFloat()
 
         val pccEntityBag = world.aspectSubscriptionManager.get(allOf(
                 PccComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
         val pccEntities = pccEntityBag.data.slice(0 until pccEntityBag.size())
-        for (pccEntity in pccEntities) {
-            renderPcc(pccEntity, tileSize)
+
+        val sortedPccEntities = pccEntities.map { it -> Pair(-mXy.get(it).y, it) }.sortedBy { it.first }
+
+        for (pccEntityPair in sortedPccEntities) {
+            renderPcc(pccEntityPair.second, tileSize)
         }
     }
 

@@ -18,6 +18,7 @@ class TestMapGenerator : MapGenerator {
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
         map.getCell(1, 1).fullEnvironmentObject = NpcEnvironmentObject(party[0])
+        map.getCell(1, 2).fullEnvironmentObject = NpcEnvironmentObject(party[1])
         return map
     }
 

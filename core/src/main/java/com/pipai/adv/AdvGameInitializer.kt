@@ -32,9 +32,20 @@ class AdvGameInitializer() {
 
         val playerPcc: MutableList<PccMetadata> = mutableListOf()
         playerPcc.add(PccMetadata("body", 2))
-        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Charlie"),
+        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
                 EnvObjTilesetMetadata(EnvObjTilesetType.PCC, null, playerPcc))
         save.globalNpcList.addNpc(playerNpc)
+
+        val friendPcc: MutableList<PccMetadata> = mutableListOf()
+        friendPcc.add(PccMetadata("body", 1))
+        friendPcc.add(PccMetadata("eye", 7))
+        friendPcc.add(PccMetadata("hair", 0))
+        friendPcc.add(PccMetadata("pants", 13))
+        friendPcc.add(PccMetadata("cloth", 63))
+        friendPcc.add(PccMetadata("etc", 205))
+        val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
+                EnvObjTilesetMetadata(EnvObjTilesetType.PCC, null, friendPcc))
+        save.globalNpcList.addNpc(friendNpc)
 
         return save
     }
