@@ -20,6 +20,7 @@ import com.pipai.adv.npc.NpcList
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.tiles.GrassyTileset
 import net.mostlyoriginal.api.event.common.EventSystem
+import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 
 class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -42,7 +43,9 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         EventSystem(),
 
                         InputProcessingSystem(),
-                        CameraMovementInputSystem())
+                        CameraMovementInputSystem(),
+
+                        AnimationFrameIncrementSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,

@@ -18,6 +18,7 @@ import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.require
 import com.pipai.adv.utils.system
+import com.pipai.adv.artemis.components.AnimationFramesComponent
 
 class BattleMapRenderingSystem(private val batch: BatchHelper,
                                private val mapTileset: MapTileset,
@@ -29,6 +30,7 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mPccs by mapper<PccComponent>()
     private val mXy by mapper<XYComponent>()
+    private val mAnimationFrames by mapper<AnimationFramesComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -65,16 +67,22 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
 
         val tileSize = advConfig.resolution.tileSize.toFloat()
 
-        val pccEntityBag = world.aspectSubscriptionManager.get(allOf(PccComponent::class, XYComponent::class)).entities
+        val pccEntityBag = world.aspectSubscriptionManager.get(allOf(
+                PccComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
         val pccEntities = pccEntityBag.data.slice(0 until pccEntityBag.size())
         for (pccEntity in pccEntities) {
-            val cPcc = mPccs.get(pccEntity)
-            val cXy = mXy.get(pccEntity)
-            for (pcc in cPcc.pccs) {
-                val pccTexture = pccManager.getPccFrame(pcc, PccFrame(Direction.S, 0))
-                val scaleFactor = tileSize / pccTexture.regionWidth
-                batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
-            }
+            renderPcc(pccEntity, tileSize)
+        }
+    }
+
+    private fun renderPcc(id: Int, tileSize: Float) {
+        val cPcc = mPccs.get(id)
+        val cXy = mXy.get(id)
+        val cAnimationFrames = mAnimationFrames.get(id)
+        for (pcc in cPcc.pccs) {
+            val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cPcc.direction, cAnimationFrames.frame))
+            val scaleFactor = tileSize / pccTexture.regionWidth
+            batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
         }
     }
 }

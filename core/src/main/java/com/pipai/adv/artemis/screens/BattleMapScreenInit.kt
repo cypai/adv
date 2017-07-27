@@ -16,6 +16,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentO
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.EnvObjTilesetType
+import com.pipai.adv.artemis.components.AnimationFramesComponent
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
@@ -25,6 +26,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
     private lateinit var mPccs: ComponentMapper<PccComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
+    private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
 
     private lateinit var sTags: TagManager
 
@@ -69,6 +71,9 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
                 cXy.y = config.resolution.tileSize * y.toFloat()
+                val cAnimationFrames = mAnimationFrames.create(id)
+                cAnimationFrames.frameMax = 3
+                cAnimationFrames.tMax = 30
             }
             else -> {
                 // Do nothing
