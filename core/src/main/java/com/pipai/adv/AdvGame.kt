@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.pipai.adv.artemis.screens.BattleMapScreen
+import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.utils.getLogger
 import org.apache.commons.lang3.builder.ToStringBuilder
@@ -41,7 +41,7 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
 
         logger.info("Loading schematics...")
         globals = AdvGameInitializer().initializeGlobals()
-        setScreen(BattleMapScreen(this))
+        setScreen(MainMenuScreen(this))
     }
 
     override fun render() {
