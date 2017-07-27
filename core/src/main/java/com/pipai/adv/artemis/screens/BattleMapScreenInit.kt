@@ -74,6 +74,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 val cAnimationFrames = mAnimationFrames.create(id)
                 cAnimationFrames.frameMax = 3
                 cAnimationFrames.tMax = 30
+                cAnimationFrames.tStartNoise = 5
             }
             else -> {
                 // Do nothing

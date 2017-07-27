@@ -16,10 +16,3 @@ class NpcTileComponent : Component() {
     lateinit var tileset: Tileset
     lateinit var tilePosition: TilePosition
 }
-
-class AnimationFramesComponent : Component() {
-    var frame = 0
-    var frameMax = 0
-    var t = 0
-    var tMax = 0
-}
