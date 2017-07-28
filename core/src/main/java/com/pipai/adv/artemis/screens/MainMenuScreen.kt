@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.ui.MainMenuUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.screen.SwitchableScreen
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -27,13 +28,14 @@ class MainMenuScreen(game: AdvGame) : SwitchableScreen(game) {
                         GroupManager(),
                         EventSystem(),
 
-                        InputProcessingSystem())
+                        InputProcessingSystem(),
+                        MainMenuUiSystem(game))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
-        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(MainMenuUiSystem::class.java).stage)
         inputProcessor.activateInput()
     }
 
