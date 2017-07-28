@@ -8,15 +8,26 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
+import com.pipai.adv.ScreenResolution
+import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
 import com.pipai.adv.artemis.screens.BattleMapScreen
+import com.pipai.adv.utils.system
+import com.pipai.utils.getLogger
+import net.mostlyoriginal.api.event.common.EventSystem
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
-    val stage = Stage()
+    private val logger = getLogger()
+
+    private val sEvent by system<EventSystem>()
 
     private val batch = game.batchHelper
     private val config = game.advConfig
+
+    val stage = Stage(ScreenViewport())
 
     private val background = Texture(Gdx.files.internal("assets/binassets/graphics/textures/mainmenu.jpg"))
 
@@ -27,8 +38,21 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
     private val BUTTON_HPADDING_RATIO = 0.03f
 
     init {
-        val width = config.resolution.width.toFloat()
-        val height = config.resolution.height.toFloat()
+        initUi(game.advConfig.resolution)
+    }
+
+    @Subscribe
+    public fun resolutionChangeListener(event: ScreenResolutionChangeEvent) {
+        logger.info("Screen resolution changed to ${event}")
+        stage.viewport.update(event.resolution.width, event.resolution.height, true)
+        stage.clear()
+        initUi(event.resolution)
+        batch.spr.projectionMatrix = stage.camera.combined
+    }
+
+    private fun initUi(resolution: ScreenResolution) {
+        val width = resolution.width.toFloat()
+        val height = resolution.height.toFloat()
 
         val buttonHeight = height * BUTTON_HEIGHT_RATIO
         val buttonHPadding = height * BUTTON_HPADDING_RATIO
@@ -58,7 +82,17 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         optionsBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                optionsBtn.setText("Options: Not yet implemented")
+                if (config.resolution == ScreenResolution.RES_1280_720) {
+                    config.resolution = ScreenResolution.RES_1024_768
+                    Gdx.graphics.setWindowedMode(ScreenResolution.RES_1024_768.width, ScreenResolution.RES_1024_768.height)
+                    config.writeToFile()
+                    sEvent.dispatch(ScreenResolutionChangeEvent(config.resolution))
+                } else {
+                    config.resolution = ScreenResolution.RES_1280_720
+                    Gdx.graphics.setWindowedMode(ScreenResolution.RES_1280_720.width, ScreenResolution.RES_1280_720.height)
+                    config.writeToFile()
+                    sEvent.dispatch(ScreenResolutionChangeEvent(config.resolution))
+                }
             }
         })
 
