@@ -17,8 +17,10 @@ class TestMapGenerator : MapGenerator {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
-        map.getCell(1, 1).fullEnvironmentObject = NpcEnvironmentObject(party[0])
-        map.getCell(1, 2).fullEnvironmentObject = NpcEnvironmentObject(party[1])
+        if (party.size > 0) {
+            map.getCell(1, 1).fullEnvironmentObject = NpcEnvironmentObject(party[0])
+            map.getCell(1, 2).fullEnvironmentObject = NpcEnvironmentObject(party[1])
+        }
         return map
     }
 

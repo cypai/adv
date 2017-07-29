@@ -13,6 +13,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.ScreenResolution
 import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
 import com.pipai.adv.artemis.screens.BattleMapScreen
+import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.utils.system
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -72,7 +73,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         loadGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                game.screen = BattleMapScreen(game)
+                game.screen = GuildScreen(game)
                 dispose()
             }
         })
