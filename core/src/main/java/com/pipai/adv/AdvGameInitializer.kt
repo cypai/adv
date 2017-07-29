@@ -74,7 +74,7 @@ class AdvGameInitializer() {
         val pccManager = PccManager()
         val pccMetadataList: MutableList<PccMetadata> = mutableListOf()
 
-        save.globalNpcList.map { it.tilesetMetadata }
+        save.globalNpcList.map { it.value.tilesetMetadata }
                 .filter { it.pccMetadata != null }
                 .forEach { pccMetadataList.addAll(it.pccMetadata!!) }
 

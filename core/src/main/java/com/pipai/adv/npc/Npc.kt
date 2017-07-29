@@ -7,12 +7,12 @@ import com.pipai.adv.tiles.TilePosition
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.ShallowCopyable
 
-class NpcList : Iterable<Npc>, ShallowCopyable<NpcList> {
+class NpcList : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
     private var nextId = 0
     private val npcs: MutableMap<Int, Npc> = mutableMapOf()
 
-    override operator fun iterator(): Iterator<Npc> {
-        return npcs.values.iterator()
+    override operator fun iterator(): Iterator<Map.Entry<Int, Npc>> {
+        return npcs.asIterable().iterator()
     }
 
     fun addNpc(npc: Npc): Int {

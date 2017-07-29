@@ -7,7 +7,7 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.system.init.BattleMapScreenInit
+import com.pipai.adv.artemis.system.init.GuildScreenInit
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
@@ -56,7 +56,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)
+        GuildScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)
                 .initialize()
     }
 
