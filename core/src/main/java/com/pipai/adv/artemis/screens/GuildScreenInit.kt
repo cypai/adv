@@ -17,6 +17,7 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.EnvObjTilesetType
 import com.pipai.adv.artemis.components.AnimationFramesComponent
+import com.pipai.adv.artemis.screens.CharacterTags
 
 @Wire
 class GuildScreenInit(private val world: World, private val config: AdvConfig,
@@ -53,6 +54,11 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
     private fun addPcc(npcId: Int, x: Int, y: Int) {
         val entityId = world.create()
+
+        if (npcId == 0) {
+            sTags.register(CharacterTags.CONTROLLABLE_CHARACTER.toString(), entityId)
+        }
+
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
 
         val cPcc = mPccs.create(entityId)

@@ -7,3 +7,7 @@ enum class UniversalTags {
 enum class BattleMapScreenTags {
     CAMERA
 }
+
+enum class CharacterTags {
+    CONTROLLABLE_CHARACTER
+}

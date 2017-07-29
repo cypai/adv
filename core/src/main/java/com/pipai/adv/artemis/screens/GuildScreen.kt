@@ -17,6 +17,7 @@ import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
+import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -43,7 +44,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         GroupManager(),
                         EventSystem(),
 
-                        InputProcessingSystem())
+                        InputProcessingSystem(),
+                        CharacterMovementInputSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
@@ -54,6 +56,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)
