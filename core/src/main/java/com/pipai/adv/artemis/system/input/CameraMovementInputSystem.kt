@@ -45,12 +45,12 @@ class CameraMovementInputSystem : BaseSystem(), InputProcessor {
 
     override fun keyDown(keycode: Int): Boolean {
         heldKeys.keyDown(keycode)
-        return true
+        return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
         heldKeys.keyUp(keycode)
-        return true
+        return false
     }
 
     override fun keyTyped(character: Char) = false

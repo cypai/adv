@@ -42,7 +42,10 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         cBackend.backend = BattleBackend(npcList, map)
 
         val cameraId = world.create()
-        mCamera.create(cameraId)
+        val cCamera = mCamera.create(cameraId)
+        // Hard-coded position for the camera on the player character's spawn location
+        cCamera.camera.position.x = config.resolution.tileSize * 1.5f
+        cCamera.camera.position.y = config.resolution.tileSize * 1.5f
         sTags.register(BattleMapScreenTags.CAMERA.toString(), cameraId)
 
         val uiCameraId = world.create()

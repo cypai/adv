@@ -7,7 +7,10 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.init.GuildScreenInit
+import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
+import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
@@ -17,8 +20,6 @@ import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
-import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
-import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -48,7 +49,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         AnimationFrameIncrementSystem(),
 
                         InputProcessingSystem(),
-                        CharacterMovementInputSystem())
+                        CharacterMovementInputSystem(),
+                        CameraMovementInputSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
@@ -60,6 +62,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)

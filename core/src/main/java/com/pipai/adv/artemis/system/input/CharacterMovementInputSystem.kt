@@ -81,7 +81,7 @@ class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
         if (keycode == Keys.D || keycode == Keys.RIGHT) {
             keyDownDirection.add(Direction.E)
         }
-        return true
+        return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
@@ -99,7 +99,7 @@ class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
         if (keycode == Keys.D || keycode == Keys.RIGHT) {
             keyDownDirection.remove(Direction.E)
         }
-        return true
+        return false
     }
 
     override fun keyTyped(character: Char) = false
