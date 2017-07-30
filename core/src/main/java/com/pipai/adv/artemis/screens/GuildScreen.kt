@@ -18,6 +18,7 @@ import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
+import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -43,6 +44,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         TagManager(),
                         GroupManager(),
                         EventSystem(),
+
+                        AnimationFrameIncrementSystem(),
 
                         InputProcessingSystem(),
                         CharacterMovementInputSystem())

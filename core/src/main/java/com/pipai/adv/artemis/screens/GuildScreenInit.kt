@@ -66,10 +66,8 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         val cXy = mXy.create(entityId)
         cXy.x = config.resolution.tileSize * x.toFloat()
         cXy.y = config.resolution.tileSize * y.toFloat()
-        val cAnimationFrames = mAnimationFrames.create(entityId)
-        cAnimationFrames.frameMax = 3
-        cAnimationFrames.tMax = 30
-        cAnimationFrames.tStartNoise = 5
+
+        mAnimationFrames.create(entityId)
     }
 
 }
