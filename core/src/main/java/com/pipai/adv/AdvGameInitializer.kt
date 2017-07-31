@@ -2,16 +2,17 @@ package com.pipai.adv
 
 import com.badlogic.gdx.Gdx
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
-import com.pipai.adv.tiles.EnvObjTilesetType
 import com.pipai.adv.tiles.GrassyTileset
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.NoEnvObjectTilesetMetadata
 
 data class AdvGameGlobals(val save: AdvSave,
                           val schemaList: SchemaList,
@@ -33,7 +34,7 @@ class AdvGameInitializer() {
         val playerPcc: MutableList<PccMetadata> = mutableListOf()
         playerPcc.add(PccMetadata("body", 2))
         val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
-                EnvObjTilesetMetadata(EnvObjTilesetType.PCC, null, playerPcc))
+                PccTilesetMetadata(playerPcc))
         save.globalNpcList.addNpc(playerNpc)
 
         val friendPcc: MutableList<PccMetadata> = mutableListOf()
@@ -44,7 +45,7 @@ class AdvGameInitializer() {
         friendPcc.add(PccMetadata("cloth", 63))
         friendPcc.add(PccMetadata("etc", 205))
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
-                EnvObjTilesetMetadata(EnvObjTilesetType.PCC, null, friendPcc))
+                PccTilesetMetadata(friendPcc))
         save.globalNpcList.addNpc(friendNpc)
 
         return save
@@ -55,9 +56,9 @@ class AdvGameInitializer() {
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
         schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 5),
-                EnvObjTilesetMetadata(EnvObjTilesetType.NONE, null, null))
+                EnvObjTilesetMetadata.NONE)
         schemaList.addSchema("Slime", UnitStats(15, 20, 5, 5, 20, 15, 5, 0, 3),
-                EnvObjTilesetMetadata(EnvObjTilesetType.NONE, null, null))
+                EnvObjTilesetMetadata.NONE)
         return schemaList
     }
 
@@ -75,12 +76,12 @@ class AdvGameInitializer() {
         val pccMetadataList: MutableList<PccMetadata> = mutableListOf()
 
         save.globalNpcList.map { it.value.tilesetMetadata }
-                .filter { it.pccMetadata != null }
-                .forEach { pccMetadataList.addAll(it.pccMetadata!!) }
+                .filter { it is PccTilesetMetadata }
+                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
 
         schemaList.map { it.tilesetMetadata }
-                .filter { it.pccMetadata != null }
-                .forEach { pccMetadataList.addAll(it.pccMetadata!!) }
+                .filter { it is PccTilesetMetadata }
+                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
 
         pccManager.loadPccTextures(pccMetadataList)
 

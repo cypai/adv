@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 
 @Wire
 class GuildScreenInit(private val world: World, private val config: AdvConfig,
@@ -62,8 +63,11 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
 
-        val cPcc = mPccs.create(entityId)
-        cPcc.pccs.addAll(tilesetMetadata.pccMetadata!!)
+        if (tilesetMetadata is PccTilesetMetadata) {
+            val cPcc = mPccs.create(entityId)
+            cPcc.pccs.addAll(tilesetMetadata.pccMetadata)
+        }
+
         val cXy = mXy.create(entityId)
         cXy.x = config.resolution.tileSize * x.toFloat()
         cXy.y = config.resolution.tileSize * y.toFloat()

@@ -14,11 +14,9 @@ import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject
-import com.pipai.adv.backend.battle.domain.FullEnvObject.FullWall
-import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
-import com.pipai.adv.tiles.EnvObjTilesetType
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
@@ -63,10 +61,10 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         val id = world.create()
         val tilesetMetadata = envObj.getTilesetMetadata()
 
-        when (tilesetMetadata.tileType) {
-            EnvObjTilesetType.PCC -> {
+        when (tilesetMetadata) {
+            is PccTilesetMetadata -> {
                 val cPcc = mPccs.create(id)
-                cPcc.pccs.addAll(tilesetMetadata.pccMetadata!!)
+                cPcc.pccs.addAll(tilesetMetadata.pccMetadata)
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
                 cXy.y = config.resolution.tileSize * y.toFloat()

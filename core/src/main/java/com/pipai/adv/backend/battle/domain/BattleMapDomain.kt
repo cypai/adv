@@ -1,10 +1,8 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.google.common.base.Preconditions
-import com.pipai.adv.tiles.EnvObjTilesetType
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
-import com.pipai.adv.tiles.TilePosition
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.deepCopy
 
@@ -79,7 +77,7 @@ sealed class FullEnvObject : DeepCopyable<FullEnvObject> {
 
     data class FullWall(val type: FullWallType) : FullEnvObject() {
         override fun deepCopy() = copy()
-        override fun getTilesetMetadata() = EnvObjTilesetMetadata(EnvObjTilesetType.MAP, MapTileType.WALL, null)
+        override fun getTilesetMetadata() = EnvObjTilesetMetadata.MapTilesetMetadata(MapTileType.WALL)
     }
 
     enum class FullWallType {
@@ -96,16 +94,24 @@ sealed class EnvObject : DeepCopyable<EnvObject> {
     // TrapEnvironmentObject
 }
 
-data class EnvObjTilesetMetadata(val tileType: EnvObjTilesetType,
-                                 val mapTileType: MapTileType?,
-                                 val pccMetadata: List<PccMetadata>?) : DeepCopyable<EnvObjTilesetMetadata> {
+sealed class EnvObjTilesetMetadata : DeepCopyable<EnvObjTilesetMetadata> {
 
     companion object {
         @JvmField
-        val NONE = EnvObjTilesetMetadata(EnvObjTilesetType.NONE, null, null)
+        val NONE = NoEnvObjectTilesetMetadata()
     }
 
-    override fun deepCopy() = copy(tileType, mapTileType, pccMetadata?.toList())
+    class NoEnvObjectTilesetMetadata : EnvObjTilesetMetadata() {
+        override fun deepCopy() = NoEnvObjectTilesetMetadata()
+    }
+
+    data class MapTilesetMetadata(val mapTileType: MapTileType) : EnvObjTilesetMetadata() {
+        override fun deepCopy() = copy()
+    }
+
+    data class PccTilesetMetadata(val pccMetadata: List<PccMetadata>) : EnvObjTilesetMetadata() {
+        override fun deepCopy() = copy()
+    }
 }
 
 sealed class BattleMapCellSpecialFlag {
