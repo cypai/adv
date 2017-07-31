@@ -4,7 +4,9 @@ import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
+import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
+import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
@@ -12,13 +14,14 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 
-class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
+class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem(), InputProcessor {
 
     private val speed = 3
 
     private val mXy by mapper<XYComponent>()
     private val mPcc by mapper<PccComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
+    private val mCamera by mapper<OrthographicCameraComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -63,6 +66,11 @@ class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
             cAnimationFrames.tMax = 0
             cAnimationFrames.frame = 0
         }
+
+        val camera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString())).camera
+        camera.position.x = cXy.x + config.resolution.tileSize / 2
+        camera.position.y = cXy.y + config.resolution.tileSize / 2
+        camera.update()
     }
 
 

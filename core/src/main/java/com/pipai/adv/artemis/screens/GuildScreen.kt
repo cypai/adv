@@ -50,8 +50,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         AnimationFrameIncrementSystem(),
 
                         InputProcessingSystem(),
-                        CharacterMovementInputSystem(),
-                        CameraMovementInputSystem(),
+                        CharacterMovementInputSystem(game.advConfig),
                         ZoomInputSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
@@ -64,7 +63,6 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.activateInput()
 
