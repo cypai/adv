@@ -5,7 +5,7 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.screens.UniversalTags
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
@@ -18,7 +18,7 @@ class FpsRenderingSystem(private val batch: BatchHelper) : BaseSystem() {
 
     override fun processSystem() {
 
-        val uiCameraId = sTags.getEntityId(UniversalTags.UI_CAMERA.toString())
+        val uiCameraId = sTags.getEntityId(Tags.UI_CAMERA.toString())
         val uiCamera = mCamera.get(uiCameraId).camera
 
         val spr = batch.spr

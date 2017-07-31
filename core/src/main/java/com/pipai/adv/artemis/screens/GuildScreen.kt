@@ -13,6 +13,7 @@ import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
@@ -50,7 +51,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         InputProcessingSystem(),
                         CharacterMovementInputSystem(),
-                        CameraMovementInputSystem())
+                        CameraMovementInputSystem(),
+                        ZoomInputSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
@@ -63,6 +65,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CameraMovementInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)

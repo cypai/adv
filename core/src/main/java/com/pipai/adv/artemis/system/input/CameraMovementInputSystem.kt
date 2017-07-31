@@ -6,14 +6,13 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
-import com.pipai.utils.getLogger
-import com.pipai.adv.artemis.screens.BattleMapScreenTags
 
 class CameraMovementInputSystem : BaseSystem(), InputProcessor {
 
-    private val speed = 8
+    private val speed = 3
 
     private val mCamera by mapper<OrthographicCameraComponent>()
 
@@ -22,7 +21,7 @@ class CameraMovementInputSystem : BaseSystem(), InputProcessor {
     private val heldKeys: HeldKeys = HeldKeys()
 
     override protected fun processSystem() {
-        val cameraId = sTags.getEntityId(BattleMapScreenTags.CAMERA.toString())
+        val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
         translateCamera(camera)
         camera.update()

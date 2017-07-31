@@ -7,7 +7,7 @@ import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
-import com.pipai.adv.artemis.screens.BattleMapScreenTags
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.gui.BatchHelper
@@ -38,7 +38,7 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
         val cBackend = mBackend.get(entityId)
         val mapState = cBackend.backend.getBattleMapState()
 
-        val cameraId = sTags.getEntityId(BattleMapScreenTags.CAMERA.toString())
+        val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
 
         batch.spr.setProjectionMatrix(camera.combined)

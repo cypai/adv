@@ -5,18 +5,18 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
+import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
-import com.pipai.adv.artemis.screens.BattleMapScreenTags
-import com.pipai.adv.artemis.screens.UniversalTags
+import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.EnvObjTilesetType
-import com.pipai.adv.artemis.components.AnimationFramesComponent
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
@@ -40,12 +40,13 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         cBackend.backend = BattleBackend(npcList, map)
 
         val cameraId = world.create()
-        mCamera.create(cameraId)
-        sTags.register(BattleMapScreenTags.CAMERA.toString(), cameraId)
+        val camera = mCamera.create(cameraId).camera
+        sTags.register(Tags.CAMERA.toString(), cameraId)
+        camera.zoom = world.getSystem(ZoomInputSystem::class.java).currentZoom()
 
         val uiCameraId = world.create()
         mCamera.create(uiCameraId)
-        sTags.register(UniversalTags.UI_CAMERA.toString(), uiCameraId)
+        sTags.register(Tags.UI_CAMERA.toString(), uiCameraId)
 
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {

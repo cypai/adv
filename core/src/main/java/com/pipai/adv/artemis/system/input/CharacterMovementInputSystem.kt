@@ -7,14 +7,14 @@ import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
-import com.pipai.adv.artemis.screens.CharacterTags
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 
 class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
 
-    private val speed = 8
+    private val speed = 3
 
     private val mXy by mapper<XYComponent>()
     private val mPcc by mapper<PccComponent>()
@@ -26,7 +26,7 @@ class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
     private var keyDownDirection: MutableList<Direction> = mutableListOf()
 
     override protected fun processSystem() {
-        val charId = sTags.getEntityId(CharacterTags.CONTROLLABLE_CHARACTER.toString())
+        val charId = sTags.getEntityId(Tags.CONTROLLABLE_CHARACTER.toString())
         translateCharacter(charId)
     }
 
@@ -57,7 +57,7 @@ class CharacterMovementInputSystem : BaseSystem(), InputProcessor {
 
         val cAnimationFrames = mAnimationFrames.get(charId)
         if (isMoving) {
-            cAnimationFrames.tMax = 10
+            cAnimationFrames.tMax = 8
             cAnimationFrames.frameMax = 3
         } else {
             cAnimationFrames.tMax = 0
