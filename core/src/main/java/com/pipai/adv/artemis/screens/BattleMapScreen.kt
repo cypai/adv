@@ -30,8 +30,10 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         val globals = game.globals
         val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
+        val npcList = globals.save.globalNpcList.shallowCopy()
+
         val map = TestMapGenerator()
-                .generate(listOf(0, 1), 30, 20, mapTileset)
+                .generate(npcList, listOf(0, 1), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -59,7 +61,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, globals.save.globalNpcList.shallowCopy(), map)
+        BattleMapScreenInit(world, game.advConfig, npcList, map)
                 .initialize()
     }
 

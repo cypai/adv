@@ -1,25 +1,28 @@
 package com.pipai.adv.map
 
 import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.MapCellTileInfo
+import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
 
 interface MapGenerator {
-    fun generate(party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
         if (party.size > 0) {
-            map.getCell(1, 1).fullEnvironmentObject = NpcEnvironmentObject(party[0])
-            map.getCell(1, 2).fullEnvironmentObject = NpcEnvironmentObject(party[1])
+            map.getCell(1, 1).fullEnvObject = NpcEnvObject(party[0], npcList.getNpc(party[0]).tilesetMetadata)
+            map.getCell(1, 2).fullEnvObject = NpcEnvObject(party[1], npcList.getNpc(party[1]).tilesetMetadata)
         }
         return map
     }
@@ -49,5 +52,12 @@ private fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTile
                         MapCellTileInfo(MapTileType.GROUND_DECO, RNG.nextInt(decosAmount)))
             }
         }
+    }
+}
+
+private fun generateWallBoundary(map: BattleMap) {
+    for (x in 0 until map.width) {
+        map.getCell(x, 0).fullEnvObject = FullEnvObject.FULL_WALL
+        map.getCell(x, map.height - 1).fullEnvObject = FullEnvObject.FULL_WALL
     }
 }

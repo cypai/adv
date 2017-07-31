@@ -1,10 +1,10 @@
 package com.pipai.adv
 
 import com.badlogic.gdx.Gdx
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
-import com.pipai.adv.npc.EnvObjTilesetMetadata
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.EnvObjTilesetType

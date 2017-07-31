@@ -1,9 +1,7 @@
 package com.pipai.adv.npc
 
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.adv.tiles.EnvObjTilesetType
-import com.pipai.adv.tiles.PccMetadata
-import com.pipai.adv.tiles.TilePosition
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.ShallowCopyable
 
@@ -60,11 +58,4 @@ data class Npc(val unitInstance: UnitInstance,
                val tilesetMetadata: EnvObjTilesetMetadata) : DeepCopyable<Npc> {
 
     override fun deepCopy() = copy(unitInstance.deepCopy(), tilesetMetadata.deepCopy())
-}
-
-data class EnvObjTilesetMetadata(val tileType: EnvObjTilesetType,
-                                 val atlasTilesetPosition: TilePosition?,
-                                 val pccMetadata: List<PccMetadata>?) : DeepCopyable<EnvObjTilesetMetadata> {
-
-    override fun deepCopy() = copy(tileType, atlasTilesetPosition, pccMetadata?.toList())
 }

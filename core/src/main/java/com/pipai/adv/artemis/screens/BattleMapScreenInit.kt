@@ -13,7 +13,9 @@ import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.FullWall
+import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.EnvObjTilesetType
@@ -51,19 +53,15 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {
                 val cell = map.getCell(x, y)
-                val fullEnvObj = cell.fullEnvironmentObject ?: continue
-                when (fullEnvObj) {
-                    is NpcEnvironmentObject -> {
-                        handleNpcEnvObj(fullEnvObj, x, y)
-                    }
-                }
+                val fullEnvObj = cell.fullEnvObject ?: continue
+                handleEnvObj(fullEnvObj, x, y)
             }
         }
     }
 
-    private fun handleNpcEnvObj(npcEnvObj: NpcEnvironmentObject, x: Int, y: Int) {
+    private fun handleEnvObj(envObj: FullEnvObject, x: Int, y: Int) {
         val id = world.create()
-        val tilesetMetadata = npcList.getNpc(npcEnvObj.npcId).tilesetMetadata
+        val tilesetMetadata = envObj.getTilesetMetadata()
 
         when (tilesetMetadata.tileType) {
             EnvObjTilesetType.PCC -> {

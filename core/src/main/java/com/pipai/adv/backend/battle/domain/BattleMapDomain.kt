@@ -1,8 +1,10 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.google.common.base.Preconditions
-import com.pipai.adv.npc.Npc
+import com.pipai.adv.tiles.EnvObjTilesetType
 import com.pipai.adv.tiles.MapTileType
+import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.tiles.TilePosition
 import com.pipai.utils.DeepCopyable
 import com.pipai.utils.deepCopy
 
@@ -38,29 +40,46 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
     }
 }
 
-val solidFullWall = FullEnvironmentObject.FullWall(FullEnvironmentObject.FullWallType.SOLID)
-val fullWall = FullEnvironmentObject.FullWall(FullEnvironmentObject.FullWallType.WALL)
+sealed class FullEnvObject : DeepCopyable<FullEnvObject> {
 
-sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
+    abstract fun getTilesetMetadata(): EnvObjTilesetMetadata
 
-    data class NpcEnvironmentObject(val npcId: Int) : FullEnvironmentObject() {
+    companion object {
+        @JvmField
+        val SOLID_FULL_WALL = FullEnvObject.FullWall(FullEnvObject.FullWallType.SOLID)
+
+        @JvmField
+        val FULL_WALL = FullEnvObject.FullWall(FullEnvObject.FullWallType.WALL)
+    }
+
+    data class NpcEnvObject(val npcId: Int,
+                            private val envObjTilesetMetadata: EnvObjTilesetMetadata) : FullEnvObject() {
+
         override fun deepCopy() = copy(npcId)
+        override fun getTilesetMetadata() = envObjTilesetMetadata
     }
 
-    data class ChestEnvironmentObject(val item: InventoryItem) : FullEnvironmentObject() {
+    data class ChestEnvObject(val item: InventoryItem,
+                              private val envObjTilesetMetadata: EnvObjTilesetMetadata) : FullEnvObject() {
+
         override fun deepCopy() = copy(item.deepCopy())
+        override fun getTilesetMetadata() = envObjTilesetMetadata
     }
 
-    data class DestructibleEnvironmentObject(val type: DestructibleEnvironmentObjectType, var hp: Int) : FullEnvironmentObject() {
+    data class DestructibleEnvObject(val type: DestructibleEnvObjectType, var hp: Int,
+                                     private val envObjTilesetMetadata: EnvObjTilesetMetadata) : FullEnvObject() {
+
         override fun deepCopy() = copy()
+        override fun getTilesetMetadata() = envObjTilesetMetadata
     }
 
-    enum class DestructibleEnvironmentObjectType(val defaultMinHp: Int, val defaultMaxHp: Int) {
+    enum class DestructibleEnvObjectType(val defaultMinHp: Int, val defaultMaxHp: Int) {
         TREE(100, 120), ROCK(70, 100), BOULDER(170, 200)
     }
 
-    data class FullWall(val type: FullWallType) : FullEnvironmentObject() {
+    data class FullWall(val type: FullWallType) : FullEnvObject() {
         override fun deepCopy() = copy()
+        override fun getTilesetMetadata() = EnvObjTilesetMetadata(EnvObjTilesetType.MAP, MapTileType.WALL, null)
     }
 
     enum class FullWallType {
@@ -68,10 +87,25 @@ sealed class FullEnvironmentObject : DeepCopyable<FullEnvironmentObject> {
     }
 }
 
-sealed class EnvironmentObject : DeepCopyable<EnvironmentObject> {
-    class InventoryItemEnvironmentObject(val item: InventoryItem)
+
+sealed class EnvObject : DeepCopyable<EnvObject> {
+    abstract fun getTilesetMetadata(): EnvObjTilesetMetadata
+
+    class InventoryItemEnvObject(val item: InventoryItem)
     // Other potentially interesting ideas:
     // TrapEnvironmentObject
+}
+
+data class EnvObjTilesetMetadata(val tileType: EnvObjTilesetType,
+                                 val mapTileType: MapTileType?,
+                                 val pccMetadata: List<PccMetadata>?) : DeepCopyable<EnvObjTilesetMetadata> {
+
+    companion object {
+        @JvmField
+        val NONE = EnvObjTilesetMetadata(EnvObjTilesetType.NONE, null, null)
+    }
+
+    override fun deepCopy() = copy(tileType, mapTileType, pccMetadata?.toList())
 }
 
 sealed class BattleMapCellSpecialFlag {
@@ -80,13 +114,13 @@ sealed class BattleMapCellSpecialFlag {
 }
 
 data class BattleMapCell(
-        var fullEnvironmentObject: FullEnvironmentObject?,
-        val environmentObjects: MutableList<EnvironmentObject>,
+        var fullEnvObject: FullEnvObject?,
+        val envObjects: MutableList<EnvObject>,
         val specialFlags: MutableList<BattleMapCellSpecialFlag>,
         val backgroundTiles: MutableList<MapCellTileInfo>) : DeepCopyable<BattleMapCell> {
 
-    override fun deepCopy() = BattleMapCell(fullEnvironmentObject?.deepCopy(),
-            environmentObjects.map { it.deepCopy() }.toMutableList(),
+    override fun deepCopy() = BattleMapCell(fullEnvObject?.deepCopy(),
+            envObjects.map { it.deepCopy() }.toMutableList(),
             specialFlags.toMutableList(),
             backgroundTiles.toMutableList())
 }

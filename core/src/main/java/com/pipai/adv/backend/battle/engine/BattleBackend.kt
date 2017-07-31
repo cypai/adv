@@ -1,7 +1,7 @@
 package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.npc.NpcList
 
@@ -16,8 +16,8 @@ class BattleBackend(private val npcList: NpcList, private val battleMap: BattleM
     init {
         for (x in 0 until battleMap.width) {
             for (y in 0 until battleMap.height) {
-                val maybeNpc = battleMap.getCell(x, y).fullEnvironmentObject
-                if (maybeNpc != null && maybeNpc is NpcEnvironmentObject) {
+                val maybeNpc = battleMap.getCell(x, y).fullEnvObject
+                if (maybeNpc != null && maybeNpc is NpcEnvObject) {
                     npcPositions.put(maybeNpc.npcId, GridPosition(x, y))
                 }
             }

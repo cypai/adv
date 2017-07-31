@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.NpcEnvironmentObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.npc.Npc
 
@@ -10,7 +10,7 @@ class NoMovingToFullCellRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus {
         if (command is MoveCommand) {
             val destination = command.path.last()
-            if (state.battleMap.getCell(destination).fullEnvironmentObject != null) {
+            if (state.battleMap.getCell(destination).fullEnvObject != null) {
                 return ExecutableStatus(false, "Destination is not empty")
             }
         }
@@ -43,10 +43,10 @@ class MovementExecutionRule : CommandExecutionRule {
         val startingCell = state.battleMap.getCell(startPosition)
         val endingCell = state.battleMap.getCell(endPosition)
 
-        val npc = startingCell.fullEnvironmentObject as NpcEnvironmentObject
+        val npc = startingCell.fullEnvObject as NpcEnvObject
 
-        startingCell.fullEnvironmentObject = null
-        endingCell.fullEnvironmentObject = npc
+        startingCell.fullEnvObject = null
+        endingCell.fullEnvObject = npc
 
         unitPositions[npc.npcId] = endPosition
 

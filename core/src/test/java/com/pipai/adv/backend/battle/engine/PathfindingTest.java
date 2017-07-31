@@ -8,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.pipai.adv.backend.battle.domain.BattleMap;
-import com.pipai.adv.backend.battle.domain.BattleMapDomainKt;
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject;
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata;
+import com.pipai.adv.backend.battle.domain.FullEnvObject;
 import com.pipai.adv.backend.battle.domain.GridPosition;
 
 public class PathfindingTest {
@@ -55,9 +55,9 @@ public class PathfindingTest {
          * Map looks like: 0 0 0 0 0 1 1 0 0 A 0 0 0 0 0 1
          */
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        map.getCell(1, 2).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
-        map.getCell(2, 2).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
-        map.getCell(3, 0).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
+        map.getCell(1, 2).setFullEnvObject(FullEnvObject.SOLID_FULL_WALL);
+        map.getCell(2, 2).setFullEnvObject(FullEnvObject.SOLID_FULL_WALL);
+        map.getCell(3, 0).setFullEnvObject(FullEnvObject.SOLID_FULL_WALL);
         MapGraph graph = new MapGraph(map, new GridPosition(1, 1), 3, 1, 1, false);
         List<GridPosition> movableList = graph.getMovableCellPositions(1);
         ArrayList<GridPosition> req = new ArrayList<>();
@@ -148,9 +148,8 @@ public class PathfindingTest {
     @Test
     public void testCannotMoveToNonEmpty() {
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        map.getCell(3, 0).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
-
-        map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.NpcEnvironmentObject(0));
+        map.getCell(3, 0).setFullEnvObject(FullEnvObject.SOLID_FULL_WALL);
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(0, EnvObjTilesetMetadata.NONE));
 
         MapGraph graph = new MapGraph(map, new GridPosition(1, 1), 10, 1, 1, false);
         Assert.assertFalse("Failed to return false on moving to solid tile", graph.canMoveTo(new GridPosition(3, 0)));

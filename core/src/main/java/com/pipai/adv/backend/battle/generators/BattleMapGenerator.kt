@@ -2,11 +2,12 @@ package com.pipai.adv.backend.battle.generators
 
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.BattleMapCellSpecialFlag.Exit
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.DestructibleEnvironmentObject
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.DestructibleEnvironmentObjectType
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.DestructibleEnvironmentObjectType.ROCK
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject.DestructibleEnvironmentObjectType.TREE
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType
+import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType.ROCK
+import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType.TREE
 import com.pipai.adv.utils.RNG
 
 internal val EXIT = Exit()
@@ -49,14 +50,14 @@ fun addExitsToPerimeter(map: BattleMap) {
     }
 }
 
-fun createDefaultDestructibleFullEnvironmentObject(type: DestructibleEnvironmentObjectType): DestructibleEnvironmentObject {
+fun createDefaultDestructibleFullEnvironmentObject(type: DestructibleEnvObjectType): DestructibleEnvObject {
     val min = type.defaultMinHp
     val max = type.defaultMaxHp
     val hp = min + RNG.nextInt(max - min)
-    return DestructibleEnvironmentObject(type, hp)
+    return DestructibleEnvObject(type, hp, EnvObjTilesetMetadata.NONE)
 }
 
-fun addFullEnvironmentObjectToRandomPosition(map: BattleMap, envObj: FullEnvironmentObject) {
+fun addFullEnvironmentObjectToRandomPosition(map: BattleMap, envObj: FullEnvObject) {
     val width = map.width
     val height = map.height
 
@@ -65,8 +66,8 @@ fun addFullEnvironmentObjectToRandomPosition(map: BattleMap, envObj: FullEnviron
         val x = RNG.nextInt(width)
         val y = RNG.nextInt(height)
         val cell = map.getCell(x, y)
-        if (cell.fullEnvironmentObject == null) {
-            cell.fullEnvironmentObject = envObj
+        if (cell.fullEnvObject == null) {
+            cell.fullEnvObject = envObj
             added = true
         }
     }

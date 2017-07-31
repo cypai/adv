@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.pipai.adv.backend.battle.domain.BattleMap;
-import com.pipai.adv.backend.battle.domain.BattleMapDomainKt;
-import com.pipai.adv.backend.battle.domain.FullEnvironmentObject;
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata;
+import com.pipai.adv.backend.battle.domain.FullEnvObject;
 import com.pipai.adv.backend.battle.domain.GridPosition;
 import com.pipai.adv.backend.battle.domain.UnitStats;
 import com.pipai.adv.npc.Npc;
@@ -22,7 +22,7 @@ public class MoveBackendTest {
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.NpcEnvironmentObject(id));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
 
         BattleBackend backend = new BattleBackend(npcList, map);
 
@@ -35,12 +35,11 @@ public class MoveBackendTest {
         GridPosition expectedDestination = new GridPosition(3, 1);
         Assert.assertEquals(expectedDestination, backend.getNpcPositions().get(id));
 
-        FullEnvironmentObject destinationObj = backend.getBattleMapState().getCell(expectedDestination)
-                .getFullEnvironmentObject();
+        FullEnvObject destinationObj = backend.getBattleMapState().getCell(expectedDestination).getFullEnvObject();
 
-        Assert.assertTrue(destinationObj instanceof FullEnvironmentObject.NpcEnvironmentObject);
+        Assert.assertTrue(destinationObj instanceof FullEnvObject.NpcEnvObject);
 
-        FullEnvironmentObject.NpcEnvironmentObject unit = (FullEnvironmentObject.NpcEnvironmentObject) destinationObj;
+        FullEnvObject.NpcEnvObject unit = (FullEnvObject.NpcEnvObject) destinationObj;
 
         Assert.assertEquals(id, unit.getNpcId());
     }
@@ -49,10 +48,10 @@ public class MoveBackendTest {
     public void testBadMove() {
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        map.getCell(3, 1).setFullEnvironmentObject(BattleMapDomainKt.getSolidFullWall());
+        map.getCell(3, 1).setFullEnvObject(FullEnvObject.FULL_WALL);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvironmentObject(new FullEnvironmentObject.NpcEnvironmentObject(id));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
 
         BattleBackend backend = new BattleBackend(npcList, map);
 
@@ -71,12 +70,11 @@ public class MoveBackendTest {
         GridPosition expectedLocation = new GridPosition(2, 1);
         Assert.assertEquals(expectedLocation, backend.getNpcPositions().get(id));
 
-        FullEnvironmentObject destinationObj = backend.getBattleMapState().getCell(expectedLocation)
-                .getFullEnvironmentObject();
+        FullEnvObject destinationObj = backend.getBattleMapState().getCell(expectedLocation).getFullEnvObject();
 
-        Assert.assertTrue(destinationObj instanceof FullEnvironmentObject.NpcEnvironmentObject);
+        Assert.assertTrue(destinationObj instanceof FullEnvObject.NpcEnvObject);
 
-        FullEnvironmentObject.NpcEnvironmentObject unit = (FullEnvironmentObject.NpcEnvironmentObject) destinationObj;
+        FullEnvObject.NpcEnvObject unit = (FullEnvObject.NpcEnvObject) destinationObj;
 
         Assert.assertEquals(id, unit.getNpcId());
     }
