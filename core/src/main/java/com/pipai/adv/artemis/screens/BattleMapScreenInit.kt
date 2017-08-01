@@ -7,16 +7,17 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
+import com.pipai.adv.artemis.components.NpcTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
@@ -24,7 +25,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
-    private lateinit var mPccs: ComponentMapper<PccComponent>
+    private lateinit var mNpcTile: ComponentMapper<NpcTileComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
 
@@ -63,8 +64,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
         when (tilesetMetadata) {
             is PccTilesetMetadata -> {
-                val cPcc = mPccs.create(id)
-                cPcc.pccs.addAll(tilesetMetadata.pccMetadata)
+                val cNpcTile = mNpcTile.create(id)
+                cNpcTile.tilesetMetadata = tilesetMetadata.deepCopy()
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
                 cXy.y = config.resolution.tileSize * y.toFloat()
@@ -72,6 +73,14 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cAnimationFrames.frameMax = 3
                 cAnimationFrames.tMax = 30
                 cAnimationFrames.tStartNoise = 5
+            }
+            is MapTilesetMetadata -> {
+                val cNpcTile = mNpcTile.create(id)
+                cNpcTile.tilesetMetadata = tilesetMetadata.deepCopy()
+                val cXy = mXy.create(id)
+                cXy.x = config.resolution.tileSize * x.toFloat()
+                cXy.y = config.resolution.tileSize * y.toFloat()
+                mAnimationFrames.create(id)
             }
             else -> {
                 // Do nothing

@@ -24,6 +24,7 @@ class TestMapGenerator : MapGenerator {
             map.getCell(1, 1).fullEnvObject = NpcEnvObject(party[0], npcList.getNpc(party[0]).tilesetMetadata)
             map.getCell(1, 2).fullEnvObject = NpcEnvObject(party[1], npcList.getNpc(party[1]).tilesetMetadata)
         }
+        generateWallBoundary(map)
         return map
     }
 
@@ -59,5 +60,9 @@ private fun generateWallBoundary(map: BattleMap) {
     for (x in 0 until map.width) {
         map.getCell(x, 0).fullEnvObject = FullEnvObject.FULL_WALL
         map.getCell(x, map.height - 1).fullEnvObject = FullEnvObject.FULL_WALL
+    }
+    for (y in 1 until map.height - 1) {
+        map.getCell(0, y).fullEnvObject = FullEnvObject.FULL_WALL
+        map.getCell(map.width - 1, y).fullEnvObject = FullEnvObject.FULL_WALL
     }
 }

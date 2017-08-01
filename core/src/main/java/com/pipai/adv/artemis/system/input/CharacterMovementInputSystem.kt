@@ -6,8 +6,8 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
+import com.pipai.adv.artemis.components.NpcTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.Direction
@@ -19,7 +19,7 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
     private val speed = 3
 
     private val mXy by mapper<XYComponent>()
-    private val mPcc by mapper<PccComponent>()
+    private val mNpcTile by mapper<NpcTileComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
 
@@ -53,9 +53,9 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
             isMoving = true
         }
 
-        val cPcc = mPcc.get(charId)
+        val cNpcTile = mNpcTile.get(charId)
         if (keyDownDirection.size > 0) {
-            cPcc.direction = keyDownDirection.last()
+            cNpcTile.direction = keyDownDirection.last()
         }
 
         val cAnimationFrames = mAnimationFrames.get(charId)

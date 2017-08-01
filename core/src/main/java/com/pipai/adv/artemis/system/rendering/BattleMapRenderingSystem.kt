@@ -3,13 +3,15 @@ package com.pipai.adv.artemis.system.rendering
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.pipai.adv.AdvConfig
+import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
+import com.pipai.adv.artemis.components.NpcTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.Direction
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccFrame
@@ -18,7 +20,6 @@ import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.require
 import com.pipai.adv.utils.system
-import com.pipai.adv.artemis.components.AnimationFramesComponent
 
 class BattleMapRenderingSystem(private val batch: BatchHelper,
                                private val mapTileset: MapTileset,
@@ -28,7 +29,7 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private val mBackend by require<BattleBackendComponent>()
 
     private val mCamera by mapper<OrthographicCameraComponent>()
-    private val mPccs by mapper<PccComponent>()
+    private val mNpcTile by mapper<NpcTileComponent>()
     private val mXy by mapper<XYComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
 
@@ -65,25 +66,34 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private fun renderMapObjects() {
         val tileSize = advConfig.resolution.tileSize.toFloat()
 
-        val pccEntityBag = world.aspectSubscriptionManager.get(allOf(
-                PccComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
-        val pccEntities = pccEntityBag.data.slice(0 until pccEntityBag.size())
+        val npcTileEntityBag = world.aspectSubscriptionManager.get(allOf(
+                NpcTileComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
+        val entities = npcTileEntityBag.data.slice(0 until npcTileEntityBag.size())
 
-        val sortedPccEntities = pccEntities.map { it -> Pair(-mXy.get(it).y, it) }.sortedBy { it.first }
+        val sortedEntities = entities.map { it -> Pair(-mXy.get(it).y, it) }.sortedBy { it.first }
 
-        for (pccEntityPair in sortedPccEntities) {
-            renderPcc(pccEntityPair.second, tileSize)
+        for (npcTilePair in sortedEntities) {
+            renderNpcTile(npcTilePair.second, tileSize)
         }
     }
 
-    private fun renderPcc(id: Int, tileSize: Float) {
-        val cPcc = mPccs.get(id)
+    private fun renderNpcTile(id: Int, tileSize: Float) {
+        val cNpcTile = mNpcTile.get(id)
         val cXy = mXy.get(id)
         val cAnimationFrames = mAnimationFrames.get(id)
-        for (pcc in cPcc.pccs) {
-            val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cPcc.direction, cAnimationFrames.frame))
-            val scaleFactor = tileSize / pccTexture.regionWidth
-            batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
+
+        val tilesetMetadata = cNpcTile.tilesetMetadata
+        when (tilesetMetadata) {
+            is PccTilesetMetadata -> {
+                for (pcc in tilesetMetadata.pccMetadata) {
+                    val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cNpcTile.direction, cAnimationFrames.frame))
+                    val scaleFactor = tileSize / pccTexture.regionWidth
+                    batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
+                }
+            }
+            is MapTilesetMetadata -> {
+                batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
+            }
         }
     }
 }
