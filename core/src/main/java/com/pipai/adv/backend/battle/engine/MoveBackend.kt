@@ -4,7 +4,9 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.npc.Npc
 
-data class MoveCommand(val unitId: Int, val path: List<GridPosition>) : BattleCommand
+data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) : ActionCommand {
+    override val requiredAp: Int = 1
+}
 
 class NoMovingToFullCellRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus {
