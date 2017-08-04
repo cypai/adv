@@ -7,14 +7,18 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
+import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
+import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.NpcTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
 import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 
@@ -27,6 +31,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mNpcTile: ComponentMapper<NpcTileComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
+    private lateinit var mCollision: ComponentMapper<CollisionComponent>
 
     private lateinit var sTags: TagManager
 
@@ -86,6 +91,11 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         val id = world.create()
         val tilesetMetadata = envObj.getTilesetMetadata()
 
+        generateTilesetMetadataComponents(id, x, y, tilesetMetadata)
+        generateCollisionComponents(id, envObj)
+    }
+
+    private fun generateTilesetMetadataComponents(id: Int, x: Int, y: Int, tilesetMetadata: EnvObjTilesetMetadata) {
         when (tilesetMetadata) {
             is MapTilesetMetadata -> {
                 val cNpcTile = mNpcTile.create(id)
@@ -97,6 +107,20 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
             }
             else -> {
                 // Do nothing
+            }
+        }
+    }
+
+    private fun generateCollisionComponents(id: Int, envObj: FullEnvObject) {
+        val tileSize = config.resolution.tileSize.toFloat()
+        when (envObj) {
+            is NpcEnvObject -> {
+                val cCollision = mCollision.create(id)
+                cCollision.bounds = CollisionBoundingBox(tileSize / 4, tileSize / 4, tileSize / 2, tileSize / 2)
+            }
+            else -> {
+                val cCollision = mCollision.create(id)
+                cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
             }
         }
     }
