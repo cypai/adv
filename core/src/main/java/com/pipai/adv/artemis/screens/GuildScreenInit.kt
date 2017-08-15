@@ -9,7 +9,7 @@ import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
-import com.pipai.adv.artemis.components.NpcTileComponent
+import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
@@ -28,7 +28,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
-    private lateinit var mNpcTile: ComponentMapper<NpcTileComponent>
+    private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
     private lateinit var mCollision: ComponentMapper<CollisionComponent>
@@ -77,8 +77,8 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
 
-        val cNpcTile = mNpcTile.create(entityId)
-        cNpcTile.tilesetMetadata = tilesetMetadata
+        val cEnvObjTile = mEnvObjTile.create(entityId)
+        cEnvObjTile.tilesetMetadata = tilesetMetadata
 
         val cXy = mXy.create(entityId)
         cXy.x = config.resolution.tileSize * x.toFloat()
@@ -98,8 +98,8 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private fun generateTilesetMetadataComponents(id: Int, x: Int, y: Int, tilesetMetadata: EnvObjTilesetMetadata) {
         when (tilesetMetadata) {
             is MapTilesetMetadata -> {
-                val cNpcTile = mNpcTile.create(id)
-                cNpcTile.tilesetMetadata = tilesetMetadata.deepCopy()
+                val cEnvObjTile = mEnvObjTile.create(id)
+                cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
                 cXy.y = config.resolution.tileSize * y.toFloat()

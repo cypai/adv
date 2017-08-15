@@ -7,7 +7,7 @@ import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.TilePosition
 import com.pipai.adv.tiles.Tileset
 
-class NpcTileComponent : Component() {
+class EnvObjTileComponent : Component() {
     lateinit var tilesetMetadata: EnvObjTilesetMetadata
 
     var direction = Direction.S

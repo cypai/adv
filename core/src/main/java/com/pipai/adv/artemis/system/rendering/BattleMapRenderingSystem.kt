@@ -5,7 +5,7 @@ import com.artemis.systems.IteratingSystem
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
-import com.pipai.adv.artemis.components.NpcTileComponent
+import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
@@ -29,7 +29,7 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private val mBackend by require<BattleBackendComponent>()
 
     private val mCamera by mapper<OrthographicCameraComponent>()
-    private val mNpcTile by mapper<NpcTileComponent>()
+    private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mXy by mapper<XYComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
 
@@ -66,27 +66,27 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private fun renderMapObjects() {
         val tileSize = advConfig.resolution.tileSize.toFloat()
 
-        val npcTileEntityBag = world.aspectSubscriptionManager.get(allOf(
-                NpcTileComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
-        val entities = npcTileEntityBag.data.slice(0 until npcTileEntityBag.size())
+        val envObjEntityBag = world.aspectSubscriptionManager.get(allOf(
+                EnvObjTileComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
+        val entities = envObjEntityBag.data.slice(0 until envObjEntityBag.size())
 
         val sortedEntities = entities.map { it -> Pair(-mXy.get(it).y, it) }.sortedBy { it.first }
 
-        for (npcTilePair in sortedEntities) {
-            renderNpcTile(npcTilePair.second, tileSize)
+        for (envObjTilePair in sortedEntities) {
+            renderEnvObjTile(envObjTilePair.second, tileSize)
         }
     }
 
-    private fun renderNpcTile(id: Int, tileSize: Float) {
-        val cNpcTile = mNpcTile.get(id)
+    private fun renderEnvObjTile(id: Int, tileSize: Float) {
+        val cEnvObjTile = mEnvObjTile.get(id)
         val cXy = mXy.get(id)
         val cAnimationFrames = mAnimationFrames.get(id)
 
-        val tilesetMetadata = cNpcTile.tilesetMetadata
+        val tilesetMetadata = cEnvObjTile.tilesetMetadata
         when (tilesetMetadata) {
             is PccTilesetMetadata -> {
                 for (pcc in tilesetMetadata.pccMetadata) {
-                    val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cNpcTile.direction, cAnimationFrames.frame))
+                    val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cEnvObjTile.direction, cAnimationFrames.frame))
                     val scaleFactor = tileSize / pccTexture.regionWidth
                     batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
                 }
