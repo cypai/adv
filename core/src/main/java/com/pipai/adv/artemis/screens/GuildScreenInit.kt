@@ -10,7 +10,10 @@ import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
+import com.pipai.adv.artemis.components.NpcComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.WallCollisionFlagComponent
+import com.pipai.adv.artemis.components.WallComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
@@ -32,6 +35,9 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
     private lateinit var mCollision: ComponentMapper<CollisionComponent>
+    private lateinit var mWallCollisionFlag: ComponentMapper<WallCollisionFlagComponent>
+    private lateinit var mNpc: ComponentMapper<NpcComponent>
+    private lateinit var mWall: ComponentMapper<WallComponent>
 
     private lateinit var sTags: TagManager
 
@@ -80,11 +86,18 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         val cEnvObjTile = mEnvObjTile.create(entityId)
         cEnvObjTile.tilesetMetadata = tilesetMetadata
 
+        val tileSize = config.resolution.tileSize.toFloat()
+
         val cXy = mXy.create(entityId)
-        cXy.x = config.resolution.tileSize * x.toFloat()
-        cXy.y = config.resolution.tileSize * y.toFloat()
+        cXy.x = tileSize * x
+        cXy.y = tileSize * y
 
         mAnimationFrames.create(entityId)
+
+        mWallCollisionFlag.create(entityId)
+        mNpc.create(entityId)
+        val cCollision = mCollision.create(entityId)
+        cCollision.bounds = CollisionBoundingBox(tileSize / 4, tileSize / 4, tileSize / 2, tileSize / 2)
     }
 
     private fun handleEnvObj(envObj: FullEnvObject, x: Int, y: Int) {
@@ -119,6 +132,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
                 cCollision.bounds = CollisionBoundingBox(tileSize / 4, tileSize / 4, tileSize / 2, tileSize / 2)
             }
             else -> {
+                mWall.create(id)
                 val cCollision = mCollision.create(id)
                 cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
             }

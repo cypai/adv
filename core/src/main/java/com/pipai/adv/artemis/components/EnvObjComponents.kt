@@ -12,3 +12,7 @@ class EnvObjTileComponent : Component() {
 
     var direction = Direction.S
 }
+
+class NpcComponent : Component()
+
+class WallComponent : Component()
