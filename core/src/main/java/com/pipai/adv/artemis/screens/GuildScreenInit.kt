@@ -7,6 +7,7 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
+import com.pipai.adv.artemis.components.CameraFollowComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
@@ -31,6 +32,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
+    private lateinit var mCameraFollow: ComponentMapper<CameraFollowComponent>
     private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
@@ -79,6 +81,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
         if (npcId == 0) {
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
+            mCameraFollow.create(entityId)
         }
 
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata

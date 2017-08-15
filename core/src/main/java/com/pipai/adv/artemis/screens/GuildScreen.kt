@@ -8,12 +8,13 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
 import com.pipai.adv.artemis.system.init.GuildScreenInit
-import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
@@ -21,7 +22,6 @@ import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
-import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -58,6 +58,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         NpcCollisionSystem())
                 .withPassive(-1,
+                        CameraFollowSystem(game.advConfig))
+                .withPassive(-2,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))

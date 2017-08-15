@@ -66,13 +66,7 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
             cAnimationFrames.tMax = 0
             cAnimationFrames.frame = 0
         }
-
-        val camera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString())).camera
-        camera.position.x = cXy.x + config.resolution.tileSize / 2
-        camera.position.y = cXy.y + config.resolution.tileSize / 2
-        camera.update()
     }
-
 
     override fun keyDown(keycode: Int): Boolean {
         heldKeys.keyDown(keycode)

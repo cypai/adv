@@ -23,3 +23,5 @@ class OrthographicCameraComponent : Component() {
     }
 
 }
+
+class CameraFollowComponent : Component()
