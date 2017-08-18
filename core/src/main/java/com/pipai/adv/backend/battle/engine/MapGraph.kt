@@ -2,9 +2,9 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.utils.distance
 import com.pipai.utils.getLogger
 import java.util.*
+import com.pipai.adv.utils.MathUtils
 
 /*
 * To be used as a disposable BattleMap representation for Dijkstra's and other pathfinding algorithms
@@ -172,7 +172,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         }
 
         fun addEdge(node: Node) {
-            edges.add(Edge(node, distance(position, node.position)))
+            edges.add(Edge(node, MathUtils.distance(position.x, position.y, node.position.x, node.position.y)))
         }
 
         fun visit() {

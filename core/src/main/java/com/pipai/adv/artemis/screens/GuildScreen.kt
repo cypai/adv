@@ -22,6 +22,7 @@ import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
+import com.pipai.adv.artemis.system.input.InteractionInputSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -55,6 +56,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         InputProcessingSystem(),
                         CharacterMovementInputSystem(game.advConfig),
                         ZoomInputSystem(),
+                        InteractionInputSystem(game.advConfig),
 
                         NpcCollisionSystem())
                 .withPassive(-1,
@@ -71,6 +73,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game.advConfig, npcList, map)

@@ -25,6 +25,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
+import com.pipai.adv.artemis.components.TextInteractionComponent
 
 @Wire
 class GuildScreenInit(private val world: World, private val config: AdvConfig,
@@ -40,6 +41,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mWallCollisionFlag: ComponentMapper<WallCollisionFlagComponent>
     private lateinit var mNpc: ComponentMapper<NpcComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
+    private lateinit var mTextInteraction: ComponentMapper<TextInteractionComponent>
 
     private lateinit var sTags: TagManager
 
@@ -82,6 +84,9 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         if (npcId == 0) {
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
             mCameraFollow.create(entityId)
+        } else {
+            val cTextInteraction = mTextInteraction.create(entityId)
+            cTextInteraction.textList.add("Hi, my name is ${npcList.getNpc(npcId).unitInstance.nickname}.")
         }
 
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
