@@ -50,7 +50,7 @@ class MovementExecutionRule : CommandExecutionRule {
 
         unitPositions[npc.npcId] = endPosition
 
-        state.battleLog.log.add(MoveEvent(state.npcList.getNpc(npc.npcId), startPosition, endPosition))
+        state.battleLog.log.add(MoveEvent(state.npcList.getNpc(npc.npcId)!!, startPosition, endPosition))
     }
 }
 

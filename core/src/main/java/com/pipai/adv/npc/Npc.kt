@@ -40,11 +40,8 @@ class NpcList : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
 
     fun npcExists(id: Int): Boolean = npcs.containsKey(id)
 
-    fun getNpc(id: Int): Npc {
-        if (!npcExists(id)) {
-            throw IllegalArgumentException("NPC id ${id} does not exist")
-        }
-        return npcs.get(id)!!
+    fun getNpc(id: Int): Npc? {
+        return npcs.get(id)
     }
 
     override fun shallowCopy(): NpcList {

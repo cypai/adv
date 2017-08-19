@@ -83,19 +83,21 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
 
         val entityId = world.create()
 
+        val npc = npcList.getNpc(npcId)!!
+
         if (npcId == 0) {
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
             mCameraFollow.create(entityId)
         } else {
             val cTextInteraction = mTextInteraction.create(entityId)
-            cTextInteraction.textList.add("Hi, my name is ${npcList.getNpc(npcId).unitInstance.nickname}.")
+            cTextInteraction.textList.add("Hi, my name is ${npc.unitInstance.nickname}.")
 
             mWall.create(entityId)
             val cCollision = mCollision.create(entityId)
             cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize / 2, tileSize / 2)
         }
 
-        val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
+        val tilesetMetadata = npc.tilesetMetadata
 
         val cEnvObjTile = mEnvObjTile.create(entityId)
         cEnvObjTile.tilesetMetadata = tilesetMetadata

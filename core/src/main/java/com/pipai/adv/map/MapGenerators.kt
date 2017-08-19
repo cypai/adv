@@ -21,8 +21,8 @@ class TestMapGenerator : MapGenerator {
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
         if (party.size > 0) {
-            map.getCell(1, 1).fullEnvObject = NpcEnvObject(party[0], npcList.getNpc(party[0]).tilesetMetadata)
-            map.getCell(1, 2).fullEnvObject = NpcEnvObject(party[1], npcList.getNpc(party[1]).tilesetMetadata)
+            map.getCell(1, 1).fullEnvObject = NpcEnvObject(party[0], npcList.getNpc(party[0])!!.tilesetMetadata)
+            map.getCell(1, 2).fullEnvObject = NpcEnvObject(party[1], npcList.getNpc(party[1])!!.tilesetMetadata)
         }
         generateWallBoundary(map)
         return map
