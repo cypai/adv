@@ -24,6 +24,9 @@ class NpcCollisionSystem : IteratingSystem(allOf()) {
         val cCollision = mCollision.get(entityId)
 
         for (wallEntity in wallEntityBag) {
+            if (wallEntity == entityId) {
+                continue
+            }
             val cWallXy = mXy.get(wallEntity)
             val cWallCollision = mCollision.get(wallEntity)
             val mtv = CollisionUtils.minimumTranslationVector(cXy.x, cXy.y, cCollision.bounds, cWallXy.x, cWallXy.y, cWallCollision.bounds)

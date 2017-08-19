@@ -67,7 +67,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         mCamera.create(uiCameraId)
         sTags.register(Tags.UI_CAMERA.toString(), uiCameraId)
 
-        npcList.forEach { addNpcTile(it.key, it.key + 1, 1) }
+        npcList.forEach { addNpcTile(it.key, it.key + 1, 2) }
 
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {
@@ -79,6 +79,8 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     }
 
     private fun addNpcTile(npcId: Int, x: Int, y: Int) {
+        val tileSize = config.resolution.tileSize.toFloat()
+
         val entityId = world.create()
 
         if (npcId == 0) {
@@ -87,14 +89,16 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         } else {
             val cTextInteraction = mTextInteraction.create(entityId)
             cTextInteraction.textList.add("Hi, my name is ${npcList.getNpc(npcId).unitInstance.nickname}.")
+
+            mWall.create(entityId)
+            val cCollision = mCollision.create(entityId)
+            cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize / 2, tileSize / 2)
         }
 
         val tilesetMetadata = npcList.getNpc(npcId).tilesetMetadata
 
         val cEnvObjTile = mEnvObjTile.create(entityId)
         cEnvObjTile.tilesetMetadata = tilesetMetadata
-
-        val tileSize = config.resolution.tileSize.toFloat()
 
         val cXy = mXy.create(entityId)
         cXy.x = tileSize * x
