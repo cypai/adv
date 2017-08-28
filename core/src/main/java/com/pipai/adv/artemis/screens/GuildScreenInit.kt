@@ -11,8 +11,12 @@ import com.pipai.adv.artemis.components.CameraFollowComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
+import com.pipai.adv.artemis.components.MainTextboxFlagComponent
+import com.pipai.adv.artemis.components.MultipleTextComponent
 import com.pipai.adv.artemis.components.NpcComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.PartialTextComponent
+import com.pipai.adv.artemis.components.TextInteractionComponent
 import com.pipai.adv.artemis.components.WallCollisionFlagComponent
 import com.pipai.adv.artemis.components.WallComponent
 import com.pipai.adv.artemis.components.XYComponent
@@ -25,7 +29,6 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
-import com.pipai.adv.artemis.components.TextInteractionComponent
 
 @Wire
 class GuildScreenInit(private val world: World, private val config: AdvConfig,
@@ -42,6 +45,9 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mNpc: ComponentMapper<NpcComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
     private lateinit var mTextInteraction: ComponentMapper<TextInteractionComponent>
+    private lateinit var mPartialText: ComponentMapper<PartialTextComponent>
+    private lateinit var mMultipleText: ComponentMapper<MultipleTextComponent>
+    private lateinit var mMainTextboxFlag: ComponentMapper<MainTextboxFlagComponent>
 
     private lateinit var sTags: TagManager
 
@@ -50,6 +56,12 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     }
 
     fun initialize() {
+        val mainTextboxEntity = world.create()
+        val cPartialText = mPartialText.create(mainTextboxEntity)
+        cPartialText.setToText("Hi, my name is Len!")
+        val cMultipleText = mMultipleText.create(mainTextboxEntity)
+        cMultipleText.textList.add("Please press Z to close.")
+        mMainTextboxFlag.create(mainTextboxEntity)
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)

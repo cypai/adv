@@ -23,6 +23,8 @@ import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 import com.pipai.adv.artemis.system.input.InteractionInputSystem
+import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
+import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
@@ -57,6 +59,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         CharacterMovementInputSystem(game.advConfig),
                         ZoomInputSystem(),
                         InteractionInputSystem(game.advConfig),
+                        PartialTextUpdateSystem(),
 
                         NpcCollisionSystem())
                 .withPassive(-1,
@@ -64,7 +67,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-2,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
                 .withPassive(-3,
-                        FpsRenderingSystem(game.batchHelper))
+                        FpsRenderingSystem(game.batchHelper),
+                        MainTextboxUiSystem(game))
                 .build()
 
         world = World(config)
@@ -74,6 +78,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(MainTextboxUiSystem::class.java))
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game.advConfig, npcList, map)

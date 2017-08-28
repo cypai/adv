@@ -22,7 +22,7 @@ class FpsRenderingSystem(private val batch: BatchHelper) : BaseSystem() {
         val uiCamera = mCamera.get(uiCameraId).camera
 
         val spr = batch.spr
-        val font = batch.font
+        val font = batch.smallFont
         spr.projectionMatrix = uiCamera.combined
         spr.begin()
         font.color = Color.WHITE
