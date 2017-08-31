@@ -26,7 +26,7 @@ public class MoveBackendTest {
 
         BattleBackend backend = new BattleBackend(npcList, map);
 
-        MoveCommand cmd = new MoveCommand(1, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
+        MoveCommand cmd = new MoveCommand(id, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
 
         Assert.assertTrue(backend.canBeExecuted(cmd).getExecutable());
 
@@ -45,7 +45,7 @@ public class MoveBackendTest {
     }
 
     @Test
-    public void testBadMove() {
+    public void testCantMoveToFullSpace() {
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 1).setFullEnvObject(FullEnvObject.FULL_WALL);
@@ -55,10 +55,11 @@ public class MoveBackendTest {
 
         BattleBackend backend = new BattleBackend(npcList, map);
 
-        MoveCommand cmd = new MoveCommand(1, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
+        MoveCommand cmd = new MoveCommand(id, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
 
         ExecutableStatus executable = backend.canBeExecuted(cmd);
         Assert.assertFalse(executable.getExecutable());
+        Assert.assertEquals("Destination is not empty", executable.getReason());
 
         try {
             backend.execute(cmd);
