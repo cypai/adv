@@ -28,6 +28,24 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
     private val heldKeys: HeldKeys = HeldKeys()
     private var keyDownDirection: MutableList<Direction> = mutableListOf()
 
+    fun enable() {
+        isEnabled = true
+
+        val charId = sTags.getEntityId(Tags.CONTROLLABLE_CHARACTER.toString())
+        val cAnimationFrames = mAnimationFrames.get(charId)
+        cAnimationFrames.freeze = false
+    }
+
+    fun disable() {
+        isEnabled = false
+
+        val charId = sTags.getEntityId(Tags.CONTROLLABLE_CHARACTER.toString())
+        val cAnimationFrames = mAnimationFrames.get(charId)
+        cAnimationFrames.tMax = 0
+        cAnimationFrames.frame = 0
+        cAnimationFrames.freeze = true
+    }
+
     override protected fun processSystem() {
         val charId = sTags.getEntityId(Tags.CONTROLLABLE_CHARACTER.toString())
         translateCharacter(charId)

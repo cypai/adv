@@ -45,9 +45,6 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mNpc: ComponentMapper<NpcComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
     private lateinit var mTextInteraction: ComponentMapper<TextInteractionComponent>
-    private lateinit var mPartialText: ComponentMapper<PartialTextComponent>
-    private lateinit var mMultipleText: ComponentMapper<MultipleTextComponent>
-    private lateinit var mMainTextboxFlag: ComponentMapper<MainTextboxFlagComponent>
 
     private lateinit var sTags: TagManager
 
@@ -56,12 +53,6 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     }
 
     fun initialize() {
-        val mainTextboxEntity = world.create()
-        val cPartialText = mPartialText.create(mainTextboxEntity)
-        cPartialText.setToText("Hi, my name is Len!")
-        val cMultipleText = mMultipleText.create(mainTextboxEntity)
-        cMultipleText.textList.add("Please press Z to close.")
-        mMainTextboxFlag.create(mainTextboxEntity)
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
@@ -103,6 +94,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         } else {
             val cTextInteraction = mTextInteraction.create(entityId)
             cTextInteraction.textList.add("Hi, my name is ${npc.unitInstance.nickname}.")
+            cTextInteraction.textList.add("Nice to meet you! I hope that this guild will become successful one day under your leadership.")
 
             mWall.create(entityId)
             val cCollision = mCollision.create(entityId)

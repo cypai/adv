@@ -123,12 +123,12 @@ class MainTextboxUiSystem(private val game: AdvGame) : IteratingSystem(allOf()),
 
     private fun disableSystems() {
         world.getSystemSafe(InteractionInputSystem::class.java)?.isEnabled = false
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.isEnabled = false
+        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.disable()
     }
 
     private fun enableSystems() {
         world.getSystemSafe(InteractionInputSystem::class.java)?.isEnabled = true
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.isEnabled = true
+        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.enable()
     }
 
     override fun dispose() {

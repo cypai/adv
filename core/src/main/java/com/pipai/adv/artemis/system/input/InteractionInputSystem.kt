@@ -5,6 +5,9 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.EnvObjTileComponent
+import com.pipai.adv.artemis.components.MainTextboxFlagComponent
+import com.pipai.adv.artemis.components.MultipleTextComponent
+import com.pipai.adv.artemis.components.PartialTextComponent
 import com.pipai.adv.artemis.components.TextInteractionComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
@@ -27,10 +30,14 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
     private val mText by mapper<TextInteractionComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
 
+    private val mPartialText by mapper<PartialTextComponent>()
+    private val mMultipleText by mapper<MultipleTextComponent>()
+    private val mMainTextboxFlag by mapper<MainTextboxFlagComponent>()
+
     private val sTags by system<TagManager>()
 
     override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Keys.Z) {
+        if (isEnabled && keycode == Keys.Z) {
             checkInteractions()
         }
         return false
@@ -50,11 +57,22 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
             val isFacing = DirectionUtils.isInGeneralDirection(facingDirection, relativeDirection)
 
             if (isFacing && MathUtils.distance2(cXy.x, cXy.y, cEntityXy.x, cEntityXy.y) < DISTANCE2_THRESHOLD) {
-                for (text in mText.get(entity).textList) {
-                    logger.info(text)
-                }
+                logger.info("Started")
+                startMainTextbox(mText.get(entity).textList)
                 break
             }
+        }
+    }
+
+    private fun startMainTextbox(textList: List<String>) {
+        if (textList.size > 0) {
+            val id = world.create()
+            val cPartialText = mPartialText.create(id)
+            cPartialText.setToText(textList.get(0))
+            val cMultipleText = mMultipleText.create(id)
+            cMultipleText.textList.addAll(textList)
+            cMultipleText.textList.removeAt(0)
+            mMainTextboxFlag.create(id)
         }
     }
 
