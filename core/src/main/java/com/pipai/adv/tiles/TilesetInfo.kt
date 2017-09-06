@@ -20,6 +20,8 @@ enum class MapTileType {
 // Encodes tileset offsets
 data class TilePosition(val x: Int, val y: Int)
 
+data class TileDescriptor(val tileset: String, val tilePosition: TilePosition)
+
 interface Tileset {
     fun dispose()
 

@@ -12,11 +12,12 @@ import com.pipai.adv.tiles.GrassyTileset
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.NoEnvObjectTilesetMetadata
+import com.pipai.adv.tiles.TextureManager
 
 data class AdvGameGlobals(val save: AdvSave,
                           val schemaList: SchemaList,
                           val mapTilesetList: MapTilesetList,
+                          val textureManager: TextureManager,
                           val pccManager: PccManager)
 
 class AdvGameInitializer() {
@@ -24,8 +25,10 @@ class AdvGameInitializer() {
         val schemaList = initializeSchemaList()
         val save = generateNewSave(schemaList)
         val tilesetList = initializeMapTilesetList()
+        val textureManager = TextureManager()
+        textureManager.loadAllTextures()
         val pccManager = initializePccManager(save, schemaList)
-        return AdvGameGlobals(save, schemaList, tilesetList, pccManager)
+        return AdvGameGlobals(save, schemaList, tilesetList, textureManager, pccManager)
     }
 
     private fun generateNewSave(schemas: SchemaList): AdvSave {

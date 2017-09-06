@@ -1,6 +1,7 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
+import com.pipai.adv.tiles.TileDescriptor
 
 class AnimationFramesComponent : Component() {
     var freeze = false
@@ -9,4 +10,8 @@ class AnimationFramesComponent : Component() {
     var t = 0
     var tMax = 0
     var tStartNoise = 0
+}
+
+class TileDescriptorComponent : Component() {
+    lateinit var descriptor: TileDescriptor
 }
