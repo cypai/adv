@@ -1,9 +1,13 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
+import com.badlogic.gdx.Screen
 
-class TextInteractionComponent : Component() {
+class InteractionComponent : Component() {
+    val interactionList: MutableList<Interaction> = mutableListOf()
+}
 
-    val textList: MutableList<String> = mutableListOf()
-
+sealed class Interaction {
+    data class TextInteraction(val text: String): Interaction()
+    data class ScreenChangeInteraction(val screenGenerator: () -> Screen): Interaction()
 }

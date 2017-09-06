@@ -1,8 +1,6 @@
 package com.pipai.adv.artemis.system.ui
 
-import com.artemis.systems.IteratingSystem
-import com.badlogic.gdx.Input.Keys
-import com.badlogic.gdx.InputProcessor
+import com.artemis.BaseSystem
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -10,22 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.components.MainTextboxFlagComponent
-import com.pipai.adv.artemis.components.MultipleTextComponent
-import com.pipai.adv.artemis.components.PartialTextComponent
-import com.pipai.adv.artemis.system.input.InteractionInputSystem
-import com.pipai.adv.utils.allOf
-import com.pipai.adv.utils.getSystemSafe
-import com.pipai.adv.utils.require
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
-import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 
-class MainTextboxUiSystem(private val game: AdvGame) : IteratingSystem(allOf()), InputProcessor {
-
-    private val mPartialText by require<PartialTextComponent>()
-    private val mMultipleText by require<MultipleTextComponent>()
-    private val mMainTextboxFlag by require<MainTextboxFlagComponent>()
+class MainTextboxUiSystem(private val game: AdvGame) : BaseSystem() {
 
     private val sEvent by system<EventSystem>()
 
@@ -38,9 +24,8 @@ class MainTextboxUiSystem(private val game: AdvGame) : IteratingSystem(allOf()),
     private lateinit var frame: Image
     private lateinit var textLabel: Label
 
-    private var isShowing = false
-    private var speedup = false
-    private var nextText = false
+    private var text: String = ""
+    private var fullText: String = ""
 
     init {
         createMainTextbox()
@@ -90,83 +75,34 @@ class MainTextboxUiSystem(private val game: AdvGame) : IteratingSystem(allOf()),
         stage.addActor(table)
     }
 
-    override fun process(entityId: Int) {
-        if (!isShowing) {
-            isShowing = true
-            disableSystems()
+    fun setToText(text: String) {
+        this.text = ""
+        fullText = text
+    }
+
+    fun showFullText() {
+        text = fullText
+    }
+
+    fun isDone(): Boolean {
+        return text.length == fullText.length
+    }
+
+    override fun processSystem() {
+        if (fullText.length == 0) {
+            isEnabled = false
+            return
         }
-
-        val cPartialText = mPartialText.get(entityId)
-
-        if (nextText) {
-            if (cPartialText.currentText.length < cPartialText.fullText.length) {
-                cPartialText.currentText = cPartialText.fullText
-            } else {
-                val cMultipleText = mMultipleText.get(entityId)
-                val textList = cMultipleText.textList
-                if (textList.size > 0) {
-                    cPartialText.setToText(textList.first())
-                    textList.removeAt(0)
-                } else {
-                    world.delete(entityId)
-                    isShowing = false
-                    enableSystems()
-                }
-            }
-            nextText = false
+        if (text.length < fullText.length) {
+            val substringIndex = Math.min(text.length + 1, fullText.length)
+            text = fullText.substring(0, substringIndex)
         }
-
-        textLabel.setText(cPartialText.currentText)
+        textLabel.setText(text)
         stage.act()
         stage.draw()
-    }
-
-    private fun disableSystems() {
-        world.getSystemSafe(InteractionInputSystem::class.java)?.isEnabled = false
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.disable()
-    }
-
-    private fun enableSystems() {
-        world.getSystemSafe(InteractionInputSystem::class.java)?.isEnabled = true
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.enable()
     }
 
     override fun dispose() {
         stage.dispose()
     }
-
-    override fun keyDown(keycode: Int): Boolean {
-        if (isShowing) {
-            when (keycode) {
-                Keys.Z -> {
-                    nextText = true
-                }
-                Keys.X -> {
-                    speedup = true
-                }
-            }
-        }
-        return false
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        when (keycode) {
-            Keys.X -> {
-                speedup = false
-            }
-        }
-        return false
-    }
-
-    override fun keyTyped(character: Char) = false
-
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
-
-    override fun mouseMoved(screenX: Int, screenY: Int) = false
-
-    override fun scrolled(amount: Int): Boolean = false
 }

@@ -5,17 +5,20 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.EnvObjTileComponent
-import com.pipai.adv.artemis.components.MainTextboxFlagComponent
+import com.pipai.adv.artemis.components.Interaction
+import com.pipai.adv.artemis.components.Interaction.TextInteraction
+import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.MultipleTextComponent
 import com.pipai.adv.artemis.components.PartialTextComponent
-import com.pipai.adv.artemis.components.TextInteractionComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.utils.DirectionUtils
 import com.pipai.adv.utils.MathUtils
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.fetch
+import com.pipai.adv.utils.getSystemSafe
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import com.pipai.utils.getLogger
@@ -27,18 +30,34 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
     private val DISTANCE2_THRESHOLD = config.resolution.tileSize * config.resolution.tileSize
 
     private val mXy by mapper<XYComponent>()
-    private val mText by mapper<TextInteractionComponent>()
+    private val mInteraction by mapper<InteractionComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
 
     private val mPartialText by mapper<PartialTextComponent>()
     private val mMultipleText by mapper<MultipleTextComponent>()
-    private val mMainTextboxFlag by mapper<MainTextboxFlagComponent>()
 
     private val sTags by system<TagManager>()
+    private val sMainTextbox by system<MainTextboxUiSystem>()
+
+    private val currentInteractions: MutableList<Interaction> = mutableListOf()
+    private var state: State = State.READY
 
     override fun keyDown(keycode: Int): Boolean {
-        if (isEnabled && keycode == Keys.Z) {
-            checkInteractions()
+        if (isEnabled) {
+            if (keycode == Keys.Z) {
+                when (state) {
+                    State.READY -> {
+                        checkInteractions()
+                    }
+                    State.TEXT -> {
+                        if (sMainTextbox.isDone()) {
+                            finishTextInteraction()
+                        } else {
+                            sMainTextbox.showFullText()
+                        }
+                    }
+                }
+            }
         }
         return false
     }
@@ -48,7 +67,7 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
         val cXy = mXy.get(charId)
         val facingDirection = mEnvObjTile.get(charId).direction
 
-        val entities = world.fetch(allOf(XYComponent::class, TextInteractionComponent::class))
+        val entities = world.fetch(allOf(XYComponent::class, InteractionComponent::class))
 
         for (entity in entities) {
             val cEntityXy = mXy.get(entity)
@@ -57,23 +76,53 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
             val isFacing = DirectionUtils.isInGeneralDirection(facingDirection, relativeDirection)
 
             if (isFacing && MathUtils.distance2(cXy.x, cXy.y, cEntityXy.x, cEntityXy.y) < DISTANCE2_THRESHOLD) {
-                logger.info("Started")
-                startMainTextbox(mText.get(entity).textList)
+                startInteractions(mInteraction.get(entity).interactionList)
                 break
             }
         }
     }
 
-    private fun startMainTextbox(textList: List<String>) {
-        if (textList.size > 0) {
-            val id = world.create()
-            val cPartialText = mPartialText.create(id)
-            cPartialText.setToText(textList.get(0))
-            val cMultipleText = mMultipleText.create(id)
-            cMultipleText.textList.addAll(textList)
-            cMultipleText.textList.removeAt(0)
-            mMainTextboxFlag.create(id)
+    private fun startInteractions(interactions: List<Interaction>) {
+        currentInteractions.addAll(interactions)
+        handleInteraction(interactions.first())
+    }
+
+    private fun nextInteraction() {
+        currentInteractions.removeAt(0)
+        if (currentInteractions.size > 0) {
+            handleInteraction(currentInteractions.first())
+        } else {
+            state = State.READY
         }
+    }
+
+    private fun handleInteraction(interaction: Interaction) {
+        when (interaction) {
+            is TextInteraction -> {
+                handleTextInteraction(interaction)
+            }
+        }
+    }
+
+    private fun handleTextInteraction(interaction: TextInteraction) {
+        disableSystems()
+        sMainTextbox.setToText(interaction.text)
+        sMainTextbox.isEnabled = true
+        state = State.TEXT
+    }
+
+    private fun finishTextInteraction() {
+        enableSystems()
+        sMainTextbox.isEnabled = false
+        nextInteraction()
+    }
+
+    private fun disableSystems() {
+        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.disable()
+    }
+
+    private fun enableSystems() {
+        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.enable()
     }
 
     override fun keyUp(keycode: Int): Boolean = false
@@ -89,4 +138,8 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
     override fun mouseMoved(screenX: Int, screenY: Int) = false
 
     override fun scrolled(amount: Int): Boolean = false
+
+    enum class State {
+        READY, TEXT
+    }
 }

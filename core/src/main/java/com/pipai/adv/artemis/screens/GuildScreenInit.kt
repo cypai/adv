@@ -11,12 +11,10 @@ import com.pipai.adv.artemis.components.CameraFollowComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
-import com.pipai.adv.artemis.components.MainTextboxFlagComponent
-import com.pipai.adv.artemis.components.MultipleTextComponent
+import com.pipai.adv.artemis.components.Interaction.TextInteraction
+import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.NpcComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.PartialTextComponent
-import com.pipai.adv.artemis.components.TextInteractionComponent
 import com.pipai.adv.artemis.components.WallCollisionFlagComponent
 import com.pipai.adv.artemis.components.WallComponent
 import com.pipai.adv.artemis.components.XYComponent
@@ -44,7 +42,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mWallCollisionFlag: ComponentMapper<WallCollisionFlagComponent>
     private lateinit var mNpc: ComponentMapper<NpcComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
-    private lateinit var mTextInteraction: ComponentMapper<TextInteractionComponent>
+    private lateinit var mInteraction: ComponentMapper<InteractionComponent>
 
     private lateinit var sTags: TagManager
 
@@ -92,9 +90,10 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
             mCameraFollow.create(entityId)
         } else {
-            val cTextInteraction = mTextInteraction.create(entityId)
-            cTextInteraction.textList.add("Hi, my name is ${npc.unitInstance.nickname}.")
-            cTextInteraction.textList.add("Nice to meet you! I hope that this guild will become successful one day under your leadership.")
+            val cInteraction = mInteraction.create(entityId)
+            cInteraction.interactionList.add(TextInteraction("Hi, my name is ${npc.unitInstance.nickname}."))
+            cInteraction.interactionList.add(
+                    TextInteraction("Nice to meet you! I hope that this guild will become successful one day under your leadership."))
 
             mWall.create(entityId)
             val cCollision = mCollision.create(entityId)
