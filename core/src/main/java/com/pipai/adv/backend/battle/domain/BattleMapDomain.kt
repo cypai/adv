@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.domain
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.google.common.base.Preconditions
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
@@ -94,6 +95,7 @@ sealed class EnvObject : DeepCopyable<EnvObject> {
     // TrapEnvironmentObject
 }
 
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 sealed class EnvObjTilesetMetadata : DeepCopyable<EnvObjTilesetMetadata> {
 
     companion object {

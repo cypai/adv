@@ -1,13 +1,24 @@
 package com.pipai.adv.npc
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.utils.DeepCopyable
 import com.pipai.adv.utils.ShallowCopyable
 
-class NpcList : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
+class NpcList() : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
+
+    constructor(@JsonProperty npcs: Map<Int, Npc>) : this() {
+        this.npcs.putAll(npcs)
+        nextId = npcs.keys.max() ?: 0
+    }
+
     private var nextId = 0
     private val npcs: MutableMap<Int, Npc> = mutableMapOf()
+
+    fun getNpcs(): Map<Int, Npc> {
+        return npcs.toMap()
+    }
 
     override operator fun iterator(): Iterator<Map.Entry<Int, Npc>> {
         return npcs.asIterable().iterator()
