@@ -8,50 +8,54 @@ import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
+import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.GrassyTileset
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.TextureManager
 
-data class AdvGameGlobals(val save: AdvSave,
+data class AdvGameGlobals(var save: AdvSave?,
+                          val saveManager: SaveManager,
                           val schemaList: SchemaList,
                           val mapTilesetList: MapTilesetList,
                           val textureManager: TextureManager,
-                          val pccManager: PccManager)
+                          val pccManager: PccManager) {
+
+    fun writeSave(slot: Int) {
+        saveManager.save(slot, save!!)
+    }
+
+    fun load(slot: Int) {
+        val loadedSave = saveManager.load(slot)
+        loadSave(loadedSave)
+    }
+
+    fun loadSave(save: AdvSave) {
+        this.save = save
+
+        val pccMetadataList: MutableList<PccMetadata> = mutableListOf()
+
+        save.globalNpcList.map { it.value.tilesetMetadata }
+                .filter { it is PccTilesetMetadata }
+                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
+
+        schemaList.map { it.tilesetMetadata }
+                .filter { it is PccTilesetMetadata }
+                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
+
+        pccManager.loadPccTextures(pccMetadataList)
+    }
+}
 
 class AdvGameInitializer() {
     fun initializeGlobals(): AdvGameGlobals {
         val schemaList = initializeSchemaList()
-        val save = generateNewSave(schemaList)
         val tilesetList = initializeMapTilesetList()
         val textureManager = TextureManager()
         textureManager.loadAllTextures()
-        val pccManager = initializePccManager(save, schemaList)
-        return AdvGameGlobals(save, schemaList, tilesetList, textureManager, pccManager)
-    }
-
-    private fun generateNewSave(schemas: SchemaList): AdvSave {
-        val save = AdvSave()
-
-        val playerPcc: MutableList<PccMetadata> = mutableListOf()
-        playerPcc.add(PccMetadata("body", 2))
-        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
-                PccTilesetMetadata(playerPcc))
-        save.globalNpcList.addNpc(playerNpc)
-
-        val friendPcc: MutableList<PccMetadata> = mutableListOf()
-        friendPcc.add(PccMetadata("body", 1))
-        friendPcc.add(PccMetadata("eye", 7))
-        friendPcc.add(PccMetadata("hair", 0))
-        friendPcc.add(PccMetadata("pants", 13))
-        friendPcc.add(PccMetadata("cloth", 63))
-        friendPcc.add(PccMetadata("etc", 205))
-        val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
-                PccTilesetMetadata(friendPcc))
-        save.globalNpcList.addNpc(friendNpc)
-
-        return save
+        val pccManager = PccManager()
+        return AdvGameGlobals(null, SaveManager(), schemaList, tilesetList, textureManager, pccManager)
     }
 
     private fun initializeSchemaList(): SchemaList {
@@ -72,23 +76,6 @@ class AdvGameInitializer() {
                 GrassyTileset(Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")))
 
         return tilesetList
-    }
-
-    private fun initializePccManager(save: AdvSave, schemaList: SchemaList): PccManager {
-        val pccManager = PccManager()
-        val pccMetadataList: MutableList<PccMetadata> = mutableListOf()
-
-        save.globalNpcList.map { it.value.tilesetMetadata }
-                .filter { it is PccTilesetMetadata }
-                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
-
-        schemaList.map { it.tilesetMetadata }
-                .filter { it is PccTilesetMetadata }
-                .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
-
-        pccManager.loadPccTextures(pccMetadataList)
-
-        return pccManager
     }
 }
 

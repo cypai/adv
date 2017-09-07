@@ -41,7 +41,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
         val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
-        val npcList = globals.save.globalNpcList.shallowCopy()
+        val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = TestMapGenerator()
                 .generate(npcList, listOf(), 30, 20, mapTileset)

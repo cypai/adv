@@ -10,12 +10,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
+import com.pipai.adv.SchemaList
 import com.pipai.adv.ScreenResolution
 import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
 import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.GuildScreen
-import com.pipai.adv.utils.system
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.backend.battle.domain.UnitInstance
+import com.pipai.adv.npc.Npc
+import com.pipai.adv.save.AdvSave
+import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.getLogger
+import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
@@ -63,7 +69,10 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         newGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                game.screen = BattleMapScreen(game)
+                val save = generateTestSave(game.globals.schemaList)
+                game.globals.loadSave(save)
+                game.globals.writeSave(0)
+                game.screen = GuildScreen(game)
                 dispose()
             }
         })
@@ -73,6 +82,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         loadGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
+                game.globals.load(0)
                 game.screen = GuildScreen(game)
                 dispose()
             }
@@ -110,6 +120,29 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
         stage.addActor(loadGameBtn)
         stage.addActor(optionsBtn)
         stage.addActor(quitGameBtn)
+    }
+
+    private fun generateTestSave(schemas: SchemaList): AdvSave {
+        val save = AdvSave()
+
+        val playerPcc: MutableList<PccMetadata> = mutableListOf()
+        playerPcc.add(PccMetadata("body", 2))
+        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
+                PccTilesetMetadata(playerPcc))
+        save.globalNpcList.addNpc(playerNpc)
+
+        val friendPcc: MutableList<PccMetadata> = mutableListOf()
+        friendPcc.add(PccMetadata("body", 1))
+        friendPcc.add(PccMetadata("eye", 7))
+        friendPcc.add(PccMetadata("hair", 0))
+        friendPcc.add(PccMetadata("pants", 13))
+        friendPcc.add(PccMetadata("cloth", 63))
+        friendPcc.add(PccMetadata("etc", 205))
+        val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
+                PccTilesetMetadata(friendPcc))
+        save.globalNpcList.addNpc(friendNpc)
+
+        return save
     }
 
     private fun menuButton(text: String, screenWidth: Float, screenHeight: Float): TextButton {
