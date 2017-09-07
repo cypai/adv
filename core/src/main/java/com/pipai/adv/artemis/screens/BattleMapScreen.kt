@@ -48,7 +48,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         AnimationFrameIncrementSystem())
                 .withPassive(-1,
-                        BattleMapRenderingSystem(game.batchHelper, mapTileset, game.advConfig, globals.pccManager))
+                        BattleMapRenderingSystem(game.batchHelper, mapTileset,
+                                game.advConfig, globals.pccManager, globals.textureManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()

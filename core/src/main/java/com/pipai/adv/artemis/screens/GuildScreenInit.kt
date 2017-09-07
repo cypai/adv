@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.components.Interaction.TextInteraction
 import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.NpcComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.TileDescriptorComponent
 import com.pipai.adv.artemis.components.WallCollisionFlagComponent
 import com.pipai.adv.artemis.components.WallComponent
 import com.pipai.adv.artemis.components.XYComponent
@@ -27,6 +28,8 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
+import com.pipai.adv.tiles.TileDescriptor
+import com.pipai.adv.tiles.TilePosition
 
 @Wire
 class GuildScreenInit(private val world: World, private val config: AdvConfig,
@@ -43,6 +46,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
     private lateinit var mNpc: ComponentMapper<NpcComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
     private lateinit var mInteraction: ComponentMapper<InteractionComponent>
+    private lateinit var mTileDescriptor: ComponentMapper<TileDescriptorComponent>
 
     private lateinit var sTags: TagManager
 
@@ -77,6 +81,23 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
                 handleEnvObj(fullEnvObj, x, y)
             }
         }
+
+        addInteractionObjects()
+    }
+
+    private fun addInteractionObjects() {
+        val signId = world.create()
+        val cTileDescriptor = mTileDescriptor.create(signId)
+        cTileDescriptor.descriptor = TileDescriptor("signs", TilePosition(1, 0))
+        val cSignXy = mXy.create(signId)
+        cSignXy.x = 32f * 6
+        cSignXy.y = 32f * 6
+        mWall.create(signId)
+        val tileSize = config.resolution.tileSize.toFloat()
+        val cCollision = mCollision.create(signId)
+        cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
+        val cInteraction = mInteraction.create(signId)
+        cInteraction.interactionList.add(TextInteraction("Going to test map."))
     }
 
     private fun addNpcTile(npcId: Int, x: Int, y: Int) {

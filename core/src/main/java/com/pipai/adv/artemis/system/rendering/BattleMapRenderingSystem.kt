@@ -7,6 +7,7 @@ import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.TileDescriptorComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.BattleMap
@@ -16,6 +17,7 @@ import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccFrame
 import com.pipai.adv.tiles.PccManager
+import com.pipai.adv.tiles.TextureManager
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.require
@@ -24,7 +26,8 @@ import com.pipai.adv.utils.system
 class BattleMapRenderingSystem(private val batch: BatchHelper,
                                private val mapTileset: MapTileset,
                                private val advConfig: AdvConfig,
-                               private val pccManager: PccManager) : IteratingSystem(allOf()) {
+                               private val pccManager: PccManager,
+                               private val textureManager: TextureManager) : IteratingSystem(allOf()) {
 
     private val mBackend by require<BattleBackendComponent>()
 
@@ -32,6 +35,7 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mXy by mapper<XYComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
+    private val mTileDescriptor by mapper<TileDescriptorComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -64,16 +68,34 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
     }
 
     private fun renderMapObjects() {
-        val tileSize = advConfig.resolution.tileSize.toFloat()
-
         val envObjEntityBag = world.aspectSubscriptionManager.get(allOf(
                 EnvObjTileComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
-        val entities = envObjEntityBag.data.slice(0 until envObjEntityBag.size())
+        val envObjEntities = envObjEntityBag.data.slice(0 until envObjEntityBag.size())
+                .map { Pair(it, RenderType.ENV_OBJ) }
 
-        val sortedEntities = entities.map { it -> Pair(-mXy.get(it).y, it) }.sortedBy { it.first }
+        val tileDescriptorBag = world.aspectSubscriptionManager.get(allOf(
+                TileDescriptorComponent::class, XYComponent::class)).entities
+        val tileDescriptorEntities = tileDescriptorBag.data.slice(0 until tileDescriptorBag.size())
+                .map { Pair(it, RenderType.TILE) }
 
-        for (envObjTilePair in sortedEntities) {
-            renderEnvObjTile(envObjTilePair.second, tileSize)
+        val entities: MutableList<Pair<Int, RenderType>> = mutableListOf()
+        entities.addAll(envObjEntities)
+        entities.addAll(tileDescriptorEntities)
+
+        val sortedEntities = entities.map { Pair(-mXy.get(it.first).y, it) }
+                .sortedBy { it.first }
+                .map { it.second }
+
+        val tileSize = advConfig.resolution.tileSize.toFloat()
+        for (entityPair in sortedEntities) {
+            when (entityPair.second) {
+                RenderType.ENV_OBJ -> {
+                    renderEnvObjTile(entityPair.first, tileSize)
+                }
+                RenderType.TILE -> {
+                    renderTileDescriptor(entityPair.first)
+                }
+            }
         }
     }
 
@@ -95,5 +117,15 @@ class BattleMapRenderingSystem(private val batch: BatchHelper,
                 batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
             }
         }
+    }
+
+    private fun renderTileDescriptor(id: Int) {
+        val cTileDescriptor = mTileDescriptor.get(id)
+        val cXy = mXy.get(id)
+        batch.spr.draw(textureManager.getTile(cTileDescriptor.descriptor), cXy.x, cXy.y)
+    }
+
+    private enum class RenderType {
+        ENV_OBJ, TILE
     }
 }
