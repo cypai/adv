@@ -58,7 +58,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         InputProcessingSystem(),
                         CharacterMovementInputSystem(game.advConfig),
                         ZoomInputSystem(),
-                        InteractionInputSystem(game.advConfig),
+                        InteractionInputSystem(game, this, game.advConfig),
                         PartialTextUpdateSystem(),
 
                         NpcCollisionSystem())
@@ -81,7 +81,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
         inputProcessor.activateInput()
 
-        GuildScreenInit(world, game.advConfig, npcList, map)
+        GuildScreenInit(world, game, game.advConfig, npcList, map)
                 .initialize()
     }
 

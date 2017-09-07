@@ -5,12 +5,14 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
+import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.components.CameraFollowComponent
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.CollisionComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
+import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
 import com.pipai.adv.artemis.components.Interaction.TextInteraction
 import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.NpcComponent
@@ -19,6 +21,7 @@ import com.pipai.adv.artemis.components.TileDescriptorComponent
 import com.pipai.adv.artemis.components.WallCollisionFlagComponent
 import com.pipai.adv.artemis.components.WallComponent
 import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
@@ -32,7 +35,7 @@ import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
 
 @Wire
-class GuildScreenInit(private val world: World, private val config: AdvConfig,
+class GuildScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig,
                       private val npcList: NpcList, private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
@@ -98,6 +101,7 @@ class GuildScreenInit(private val world: World, private val config: AdvConfig,
         cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
         val cInteraction = mInteraction.create(signId)
         cInteraction.interactionList.add(TextInteraction("Going to test map."))
+        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game) }))
     }
 
     private fun addNpcTile(npcId: Int, x: Int, y: Int) {

@@ -3,9 +3,12 @@ package com.pipai.adv.artemis.system.input
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.Screen
 import com.pipai.adv.AdvConfig
+import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.Interaction
+import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
 import com.pipai.adv.artemis.components.Interaction.TextInteraction
 import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.MultipleTextComponent
@@ -23,7 +26,9 @@ import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import com.pipai.utils.getLogger
 
-class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem(), InputProcessor {
+class InteractionInputSystem(private val game: AdvGame,
+                             private val currentScreen: Screen,
+                             private val config: AdvConfig) : NoProcessingSystem(), InputProcessor {
 
     private val logger = getLogger()
 
@@ -100,6 +105,10 @@ class InteractionInputSystem(private val config: AdvConfig) : NoProcessingSystem
         when (interaction) {
             is TextInteraction -> {
                 handleTextInteraction(interaction)
+            }
+            is ScreenChangeInteraction -> {
+                game.screen = interaction.screenGenerator()
+                currentScreen.dispose()
             }
         }
     }
