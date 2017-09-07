@@ -9,7 +9,7 @@ import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.fetch
 import com.pipai.adv.utils.require
 import com.pipai.adv.utils.mapper
-import com.pipai.utils.CollisionUtils
+import com.pipai.adv.utils.CollisionUtils
 
 class NpcCollisionSystem : IteratingSystem(allOf()) {
 

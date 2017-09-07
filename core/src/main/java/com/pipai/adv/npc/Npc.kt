@@ -2,8 +2,8 @@ package com.pipai.adv.npc
 
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.utils.DeepCopyable
-import com.pipai.utils.ShallowCopyable
+import com.pipai.adv.utils.DeepCopyable
+import com.pipai.adv.utils.ShallowCopyable
 
 class NpcList : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
     private var nextId = 0

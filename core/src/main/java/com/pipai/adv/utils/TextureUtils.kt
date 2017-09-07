@@ -1,4 +1,4 @@
-package com.pipai.utils
+package com.pipai.adv.utils
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion

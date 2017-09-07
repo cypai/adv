@@ -23,7 +23,7 @@ import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class GuildScreen(game: AdvGame) : SwitchableScreen(game) {

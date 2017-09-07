@@ -1,4 +1,4 @@
-package com.pipai.utils
+package com.pipai.adv.utils
 
 import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Rectangle

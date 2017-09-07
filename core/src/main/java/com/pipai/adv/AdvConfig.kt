@@ -1,8 +1,8 @@
 package com.pipai.adv
 
 import com.badlogic.gdx.files.FileHandle
-import com.pipai.utils.getLogger
-import com.pipai.utils.valueOfOrDefault
+import com.pipai.adv.utils.getLogger
+import com.pipai.adv.utils.valueOfOrDefault
 import java.util.Properties
 
 enum class AspectRatio {

@@ -24,7 +24,7 @@ import com.pipai.adv.utils.fetch
 import com.pipai.adv.utils.getSystemSafe
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 
 class InteractionInputSystem(private val game: AdvGame,
                              private val currentScreen: Screen,

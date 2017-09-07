@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 
 class PccManager {
 

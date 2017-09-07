@@ -15,7 +15,7 @@ import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
 import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.utils.system
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 

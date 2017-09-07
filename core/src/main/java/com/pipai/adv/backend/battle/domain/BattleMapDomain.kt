@@ -3,8 +3,8 @@ package com.pipai.adv.backend.battle.domain
 import com.google.common.base.Preconditions
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
-import com.pipai.utils.DeepCopyable
-import com.pipai.utils.deepCopy
+import com.pipai.adv.utils.DeepCopyable
+import com.pipai.adv.utils.deepCopy
 
 data class GridPosition(val x: Int, val y: Int)
 

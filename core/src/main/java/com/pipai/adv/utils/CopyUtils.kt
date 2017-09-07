@@ -1,4 +1,4 @@
-package com.pipai.utils
+package com.pipai.adv.utils
 
 interface ShallowCopyable<T : ShallowCopyable<T>> {
     fun shallowCopy(): T

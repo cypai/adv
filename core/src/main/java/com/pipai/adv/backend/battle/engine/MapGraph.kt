@@ -2,7 +2,7 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 import java.util.*
 import com.pipai.adv.utils.MathUtils
 

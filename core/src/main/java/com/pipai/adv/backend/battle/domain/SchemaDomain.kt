@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.domain
 
-import com.pipai.utils.DeepCopyable
+import com.pipai.adv.utils.DeepCopyable
 
 data class UnitStats(
         val hpMax: Int,

@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
-import com.pipai.utils.getLogger
+import com.pipai.adv.utils.getLogger
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 
