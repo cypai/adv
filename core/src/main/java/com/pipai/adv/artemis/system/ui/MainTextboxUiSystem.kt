@@ -66,7 +66,7 @@ class MainTextboxUiSystem(private val game: AdvGame) : BaseSystem() {
         table.width = textboxWidth - 2 * tablePadding
         table.height = textboxHeight - 2 * tablePadding
 
-        textLabel = Label("", skin.get("defaultLabelStyle", LabelStyle::class.java))
+        textLabel = Label("", skin)
         textLabel.setWrap(true)
         table.add(textLabel).expand().top().fillX()
 

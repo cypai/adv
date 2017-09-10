@@ -13,8 +13,8 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.SchemaList
 import com.pipai.adv.ScreenResolution
 import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
-import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.GuildScreen
+import com.pipai.adv.artemis.screens.NewGameScreen
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.npc.Npc
@@ -36,7 +36,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
     val stage = Stage(ScreenViewport())
 
-    private val background = Texture(Gdx.files.internal("assets/binassets/graphics/textures/mainmenu.jpg"))
+    private val background = game.skin.get("mainMenuBg", Texture::class.java)
 
     private val skin = Skin(Gdx.files.internal("assets/binassets/graphics/skins/neutralizer-ui.json"))
 
@@ -69,10 +69,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         newGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                val save = generateTestSave(game.globals.schemaList)
-                game.globals.loadSave(save)
-                game.globals.writeSave(0)
-                game.screen = GuildScreen(game)
+                game.screen = NewGameScreen(game)
                 dispose()
             }
         })
@@ -122,29 +119,6 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
         stage.addActor(quitGameBtn)
     }
 
-    private fun generateTestSave(schemas: SchemaList): AdvSave {
-        val save = AdvSave()
-
-        val playerPcc: MutableList<PccMetadata> = mutableListOf()
-        playerPcc.add(PccMetadata("body", 2))
-        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
-                PccTilesetMetadata(playerPcc))
-        save.globalNpcList.addNpc(playerNpc)
-
-        val friendPcc: MutableList<PccMetadata> = mutableListOf()
-        friendPcc.add(PccMetadata("body", 1))
-        friendPcc.add(PccMetadata("eye", 7))
-        friendPcc.add(PccMetadata("hair", 0))
-        friendPcc.add(PccMetadata("pants", 13))
-        friendPcc.add(PccMetadata("cloth", 63))
-        friendPcc.add(PccMetadata("etc", 205))
-        val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
-                PccTilesetMetadata(friendPcc))
-        save.globalNpcList.addNpc(friendNpc)
-
-        return save
-    }
-
     private fun menuButton(text: String, screenWidth: Float, screenHeight: Float): TextButton {
         val btn = TextButton(text, skin, "default")
         btn.width = screenWidth * BUTTON_WIDTH_RATIO
@@ -161,7 +135,6 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
     }
 
     override fun dispose() {
-        background.dispose()
         skin.dispose()
         stage.dispose()
     }

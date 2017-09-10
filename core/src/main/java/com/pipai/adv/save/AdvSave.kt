@@ -33,6 +33,7 @@ class AdvSave() {
 
     fun changePlayerGuildName(name: String) {
         guilds.put(name, guilds[playerGuild]!!)
+        guilds.remove(playerGuild)
         playerGuild = name
     }
 

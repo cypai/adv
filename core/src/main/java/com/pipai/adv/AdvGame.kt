@@ -3,6 +3,8 @@ package com.pipai.adv
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Pixmap.Format
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.NinePatch
@@ -12,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.utils.getLogger
@@ -77,12 +80,27 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         bgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
         skin.add("bg", bgTexture)
 
+        val mainMenuBgTexture = Texture(Gdx.files.internal("assets/binassets/graphics/textures/mainmenu.jpg"))
+        mainMenuBgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
+        skin.add("mainMenuBg", mainMenuBgTexture)
+
         val frameTexture = Texture(Gdx.files.internal("assets/binassets/graphics/textures/frame.png"))
         val framePatch = NinePatch(frameTexture, 5, 5, 5, 5)
         skin.add("frameTexture", frameTexture)
         skin.add("frame", framePatch)
 
-        skin.add("defaultLabelStyle", LabelStyle(font, Color.BLACK))
+        val pixmap = Pixmap(1, 1, Format.RGBA8888)
+        pixmap.setColor(Color.WHITE)
+        pixmap.fill()
+        skin.add("white", Texture(pixmap));
+
+        skin.add("default", LabelStyle(font, Color.BLACK))
+
+        val whiteDrawable = skin.newDrawable("white", Color.WHITE)
+        val blackDrawable = skin.newDrawable("white", Color.BLACK)
+        val textFieldStyle = TextFieldStyle(font, Color.BLACK,
+                blackDrawable, blackDrawable, whiteDrawable)
+        skin.add("default", textFieldStyle)
     }
 
     override fun render() {
