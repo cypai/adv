@@ -60,7 +60,9 @@ nbactions.xml
 nb-configuration.xml
 
 ## Gradle
-
+gradle/
+gradlew
+gradlew.bat
 .gradle
 gradle-app.setting
 build/
