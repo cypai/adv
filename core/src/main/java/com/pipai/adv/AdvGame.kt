@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
@@ -57,10 +58,10 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
 
         val fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("assets/binassets/graphics/fonts/SourceSansPro-Regular.ttf"))
         val fontParameter = FreeTypeFontParameter()
-        fontParameter.size = 32
+        fontParameter.size = 28
         font = fontGenerator.generateFont(fontParameter)
 
-        fontParameter.size = 16
+        fontParameter.size = 20
         smallFont = fontGenerator.generateFont(fontParameter)
         fontGenerator.dispose()
 
@@ -95,12 +96,24 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("white", Texture(pixmap));
 
         skin.add("default", LabelStyle(font, Color.BLACK))
+        skin.add("small", LabelStyle(smallFont, Color.BLACK))
 
         val whiteDrawable = skin.newDrawable("white", Color.WHITE)
+        val grayDrawable = skin.newDrawable("white", Color.LIGHT_GRAY)
         val blackDrawable = skin.newDrawable("white", Color.BLACK)
         val textFieldStyle = TextFieldStyle(font, Color.BLACK,
-                blackDrawable, blackDrawable, whiteDrawable)
+                blackDrawable, grayDrawable, whiteDrawable)
         skin.add("default", textFieldStyle)
+
+        val smallTextFieldStyle = TextFieldStyle(smallFont, Color.BLACK,
+                blackDrawable, grayDrawable, whiteDrawable)
+        skin.add("small", smallTextFieldStyle)
+
+        val clearLightDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.2f))
+        val clearGrayDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.4f))
+        val textButtonStyle = TextButton.TextButtonStyle(clearLightDrawable, clearGrayDrawable, clearLightDrawable, smallFont)
+        textButtonStyle.fontColor = Color.BLACK
+        skin.add("default", textButtonStyle)
     }
 
     override fun render() {

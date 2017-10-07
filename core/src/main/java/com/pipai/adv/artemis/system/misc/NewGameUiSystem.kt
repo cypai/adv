@@ -17,6 +17,7 @@ import com.pipai.adv.SchemaList
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
+import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.PccMetadata
@@ -31,6 +32,9 @@ class NewGameUiSystem(private val game: AdvGame,
     private val table = Table()
     private lateinit var nameText: TextField
     private lateinit var guildText: TextField
+
+    val pccCustomizer = PccCustomizer(globals.pccManager, game.skin,
+            100f, 100f, config.resolution.width / 3f, config.resolution.height / 3f)
 
     init {
         createMainForm()
@@ -103,6 +107,7 @@ class NewGameUiSystem(private val game: AdvGame,
     override fun processSystem() {
         stage.act()
         stage.draw()
+        pccCustomizer.render()
     }
 
     override fun dispose() {
@@ -154,7 +159,8 @@ class NewGameUiSystem(private val game: AdvGame,
     override fun keyTyped(character: Char) = false
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        stage.setKeyboardFocus(null)
+        stage.keyboardFocus = null
+        pccCustomizer.stage.keyboardFocus = null
         return false
     }
 

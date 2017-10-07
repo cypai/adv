@@ -47,6 +47,7 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java).stage)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java).pccCustomizer.stage)
         inputProcessor.activateInput()
     }
 
