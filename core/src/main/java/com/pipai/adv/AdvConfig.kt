@@ -44,12 +44,11 @@ class AdvConfig(val configFile: FileHandle) {
         val yaml = Yaml()
 
         if (configFile.exists()) {
-            val properties = Properties()
-            val text = configFile.reader().readText()
-            val map = yaml.load(text) as Map<*, *>
-            System.out.println(map.toString())
 
-            resolution = valueOfOrDefault(properties["resolution"] as String, DEFAULT_RESOLUTION)
+            val text = configFile.reader().readText()
+            val configMap = yaml.load(text) as Map<String, Any>
+
+            resolution = valueOfOrDefault(configMap["resolution"] as String, DEFAULT_RESOLUTION)
         } else {
             resolution = DEFAULT_RESOLUTION
         }
