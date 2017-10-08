@@ -4,6 +4,9 @@ import com.badlogic.gdx.files.FileHandle
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.valueOfOrDefault
 import java.util.Properties
+import org.yaml.snakeyaml.Yaml
+
+
 
 enum class AspectRatio {
     AR_4_3,
@@ -38,9 +41,13 @@ class AdvConfig(val configFile: FileHandle) {
     var resolution: ScreenResolution
 
     init {
+        val yaml = Yaml()
+
         if (configFile.exists()) {
             val properties = Properties()
-            configFile.reader().use { properties.load(it) }
+            val text = configFile.reader().readText()
+            val map = yaml.load(text) as Map<*, *>
+            System.out.println(map.toString())
 
             resolution = valueOfOrDefault(properties["resolution"] as String, DEFAULT_RESOLUTION)
         } else {
