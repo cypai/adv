@@ -15,7 +15,7 @@ public class AdvConfigTest extends GdxMockedTest {
             "config.yml");
     private static final FileHandle BAD_TEST_FILE = GdxTestUtilsKt.getTestResourceFileHandle(AdvConfigTest.class,
             "bad-config.properties");
-    private static final FileHandle TEST_WRITE_FILE = Gdx.files.local("test-config.properties");
+    private static final FileHandle TEST_WRITE_FILE = Gdx.files.local("test-config.yml");
 
     @After
     public void teardown() {

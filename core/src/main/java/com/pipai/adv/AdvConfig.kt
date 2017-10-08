@@ -41,23 +41,27 @@ class AdvConfig(val configFile: FileHandle) {
     var resolution: ScreenResolution
 
     init {
-        val yaml = Yaml()
 
         if (configFile.exists()) {
-
-            val text = configFile.reader().readText()
-            val configMap = yaml.load(text) as Map<String, Any>
-
-            resolution = valueOfOrDefault(configMap["resolution"] as String, DEFAULT_RESOLUTION)
+            val yaml = Yaml()
+            val text = configFile.reader().use { it.readText() }
+            try {
+                val configMap = yaml.load(text) as Map<String, Any>
+                resolution = valueOfOrDefault(configMap["resolution"].toString(), DEFAULT_RESOLUTION)
+            } catch (e : Exception) {
+                resolution = DEFAULT_RESOLUTION
+            }
         } else {
             resolution = DEFAULT_RESOLUTION
         }
     }
 
     fun writeToFile() {
-        val properties = Properties()
-        properties.put("resolution", resolution.toString())
+        val yaml = Yaml()
+        val configMap = mapOf("resolution" to resolution.toString())
+        val output = yaml.dump(configMap)
 
-        configFile.writer(false, "UTF-8").use { properties.store(it, "ADV Config") }
+        configFile.writer(false, "UTF-8").use { it.write(output) }
     }
+
 }
