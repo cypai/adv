@@ -1,7 +1,6 @@
 package com.pipai.adv.tiles
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.getLogger
@@ -16,7 +15,7 @@ class PccManager {
         for (metadata in pccMetadataList) {
             val key = metadata.toString()
             if (!pccTilesets.containsKey(key)) {
-                val file = Gdx.files.internal("assets/binassets/graphics/pccs/${metadata.type}/${metadata.type}_${metadata.index}.png")
+                val file = Gdx.files.internal("assets/binassets/graphics/pccs/${metadata.type}/${metadata.type}_${metadata.filename}.png")
                 if (file.exists()) {
                     pccTilesets.put(key, FileTileset(file, 32, 48))
                 } else {
@@ -69,6 +68,6 @@ class PccManager {
 
 }
 
-data class PccMetadata(val type: String, val index: Int)
+data class PccMetadata(val type: String, val filename: String)
 
 data class PccFrame(val direction: Direction, val index: Int)

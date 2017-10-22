@@ -40,8 +40,8 @@ class PccCustomizer(private val pccManager: PccManager,
         table.left().top()
         table.add(verticalGroup).padLeft(10f).padTop(10f)
 
-        pccParts.add(PccMetadata("body", 1))
-        pccParts.add(PccMetadata("etc", 1))
+        pccParts.add(PccMetadata("body", "body_1.png"))
+        pccParts.add(PccMetadata("etc", "etc_1.png"))
         rebuildList()
     }
 
@@ -57,7 +57,7 @@ class PccCustomizer(private val pccManager: PccManager,
         addButton.width(20f)
         addButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                addPart(PccMetadata("etc", 1), pccParts.size)
+                addPart(PccMetadata("etc", "etc_1.png"), pccParts.size)
             }
         })
         verticalGroup.addActor(addButton)
@@ -89,14 +89,13 @@ class PccCustomizer(private val pccManager: PccManager,
             }
         })
 
-        val pccIndexField = TextField(metadata.index.toString(), skin.get("small", TextField.TextFieldStyle::class.java))
-        pccIndexField.addListener(object : FocusListener() {
+        val pccFilenameField = TextField(metadata.filename, skin.get("small", TextField.TextFieldStyle::class.java))
+        pccFilenameField.addListener(object : FocusListener() {
             override fun keyboardFocusChanged(event: FocusEvent?, actor: Actor?, focused: Boolean) {
                 if (!focused) {
                     val pccPart = pccParts[index]
-                    val pccIndex = pccIndexField.text.toIntOrNull() ?: pccPart.index
-                    pccIndexField.text = pccIndex.toString()
-                    pccParts[index] = PccMetadata(pccPart.type, pccIndex)
+                    val pccFilename = pccFilenameField.text
+                    pccParts[index] = PccMetadata(pccPart.type, pccFilename)
                 }
             }
         })
@@ -110,7 +109,7 @@ class PccCustomizer(private val pccManager: PccManager,
         listTable.add(Label(metadata.type, skin.get("small", Label.LabelStyle::class.java)))
                 .width(80f).minWidth(80f).padLeft(4f)
 
-        listTable.add(pccIndexField)
+        listTable.add(pccFilenameField)
                 .width(32f).minWidth(32f).padLeft(4f)
         return listTable
     }

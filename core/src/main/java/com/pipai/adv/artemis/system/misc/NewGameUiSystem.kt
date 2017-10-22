@@ -133,19 +133,19 @@ class NewGameUiSystem(private val game: AdvGame,
         save.changePlayerGuildName(guildText.text)
 
         val playerPcc: MutableList<PccMetadata> = mutableListOf()
-        playerPcc.add(PccMetadata("body", 2))
+        playerPcc.add(PccMetadata("body", "body_2.png"))
         val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, nameText.text),
                 PccTilesetMetadata(playerPcc))
         val playerId = save.globalNpcList.addNpc(playerNpc)
         save.addToGuild(guildText.text, playerId)
 
         val friendPcc: MutableList<PccMetadata> = mutableListOf()
-        friendPcc.add(PccMetadata("body", 1))
-        friendPcc.add(PccMetadata("eye", 7))
-        friendPcc.add(PccMetadata("hair", 0))
-        friendPcc.add(PccMetadata("pants", 13))
-        friendPcc.add(PccMetadata("cloth", 63))
-        friendPcc.add(PccMetadata("etc", 205))
+        friendPcc.add(PccMetadata("body", "body_1.png"))
+        friendPcc.add(PccMetadata("eye", "eye_7.png"))
+        friendPcc.add(PccMetadata("hair", "hair_0.png"))
+        friendPcc.add(PccMetadata("pants", "pants_13.png"))
+        friendPcc.add(PccMetadata("cloth", "cloth_63.png"))
+        friendPcc.add(PccMetadata("etc", "etc_205.png"))
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Len"),
                 PccTilesetMetadata(friendPcc))
         val friendId = save.globalNpcList.addNpc(friendNpc)
