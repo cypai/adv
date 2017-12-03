@@ -1,5 +1,6 @@
 package com.pipai.adv
 
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.files.FileHandle
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.valueOfOrDefault
@@ -34,11 +35,19 @@ enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: As
 
 private val DEFAULT_RESOLUTION = ScreenResolution.RES_1024_768
 
+enum class Control {
+    MOVE_UP,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    INTERACT
+}
 class AdvConfig(val configFile: FileHandle) {
 
     private val logger = getLogger()
 
     var resolution: ScreenResolution
+    var controlKeysMap = emptyMap<Control, List<Input.Keys>>()
 
     init {
 
