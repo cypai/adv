@@ -1,1 +1,14 @@
 resolution: RES_1280_720
+controlKeys:
+	MOVE_UP:
+		- UP
+		- W
+	MOVE_DOWN:
+		- DOWN
+		- S
+	MOVE_LEFT:
+		- LEFT
+		- A
+	MOVE_RIGHT:
+		- RIGHT
+		- D
