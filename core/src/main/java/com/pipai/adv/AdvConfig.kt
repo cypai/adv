@@ -56,7 +56,10 @@ class AdvConfig(val configFile: FileHandle) {
             val text = configFile.reader().use { it.readText() }
             try {
                 val configMap = yaml.load(text) as Map<String, Any>
-                resolution = valueOfOrDefault(configMap["resolution"].toString(), DEFAULT_RESOLUTION)
+                var config = configMap["resolution"]
+                resolution = valueOfOrDefault(config.toString(), DEFAULT_RESOLUTION)
+                config = configMap["controlKeys"]
+                if (config is Map<String, String>) //how do I convert Any to the Map I want?
             } catch (e : Exception) {
                 resolution = DEFAULT_RESOLUTION
             }
