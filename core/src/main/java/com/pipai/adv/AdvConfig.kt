@@ -35,12 +35,14 @@ enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: As
 
 private val DEFAULT_RESOLUTION = ScreenResolution.RES_1024_768
 
-enum class Control {
-    MOVE_UP,
-    MOVE_DOWN,
+class Control (controlKeysMap: Map<String, List<String>>) {
+
+    val MOVE_UP = controlKeysMap["MOVE_UP"]
+    val MOVE_DOWN,
     MOVE_LEFT,
     MOVE_RIGHT,
     INTERACT
+    //if the string matches one of input.Keys, put it in the list. If not, throw error? just don't use?
 }
 class AdvConfig(val configFile: FileHandle) {
 
@@ -56,10 +58,9 @@ class AdvConfig(val configFile: FileHandle) {
             val text = configFile.reader().use { it.readText() }
             try {
                 val configMap = yaml.load(text) as Map<String, Any>
-                var config = configMap["resolution"]
-                resolution = valueOfOrDefault(config.toString(), DEFAULT_RESOLUTION)
-                config = configMap["controlKeys"]
-                if (config is Map<String, String>) //how do I convert Any to the Map I want?
+                resolution = valueOfOrDefault(configMap["resolution"].toString(), DEFAULT_RESOLUTION)
+
+                controlKeysMap = configMap["controlKeys"] as Map<Control, List<Input.Keys>> //how do I make sure that the contents of the map are right
             } catch (e : Exception) {
                 resolution = DEFAULT_RESOLUTION
             }
