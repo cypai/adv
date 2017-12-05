@@ -6,6 +6,7 @@ import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.valueOfOrDefault
 import java.util.Properties
 import org.yaml.snakeyaml.Yaml
+import kotlin.reflect.full.declaredMemberProperties
 
 
 
@@ -35,21 +36,40 @@ enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: As
 
 private val DEFAULT_RESOLUTION = ScreenResolution.RES_1024_768
 
-class Control (controlKeysMap: Map<String, List<String>>) {
+fun <R: Any?> readProperty(instance: Any, propertyName: String): R {
+    val clazz = instance.javaClass.kotlin
+    @Suppress("UNCHECKED_CAST")
+    return clazz.declaredMemberProperties.first { it.name == propertyName }.get(instance) as R
+}
 
-    val MOVE_UP = controlKeysMap["MOVE_UP"]
-    val MOVE_DOWN,
-    MOVE_LEFT,
-    MOVE_RIGHT,
-    INTERACT
-    //if the string matches one of input.Keys, put it in the list. If not, throw error? just don't use?
+class KeyConfig (keyConfigsMap: Map<String, List<String>>) {
+    val defaultKeyConfigsMap = mapOf(
+            "MOVE_UP" to listOf(Input.Keys.UP, Input.Keys.W),
+            "MOVE_DOWN" to listOf(Input.Keys.DOWN, Input.Keys.S),
+            "MOVE_LEFT" to listOf(Input.Keys.LEFT, Input.Keys.A),
+            "MOVE_RIGHT" to listOf(Input.Keys.RIGHT, Input.Keys.D),
+            "INTERACT" to listOf(Input.Keys.Z)
+            )
+    val MOVE_UP = keyConfigsMap["MOVE_UP"]
+    val MOVE_DOWN = keyConfigsMap["MOVE_DOWN"]
+    val MOVE_LEFT = keyConfigsMap["MOVE_LEFT"]
+    val MOVE_RIGHT = keyConfigsMap["MOVE_RIGHT"]
+    val INTERACT = keyConfigsMap["INTERACT"]
+
+    fun isValidKey(str: String): Boolean {
+        val key: Int = readProperty(Input.Keys(), str)
+        return (key is Int) //probably doesn't work.
+    }
+    fun restoreDefaults () {
+
+    }
 }
 class AdvConfig(val configFile: FileHandle) {
 
     private val logger = getLogger()
 
     var resolution: ScreenResolution
-    var controlKeysMap = emptyMap<Control, List<Input.Keys>>()
+    var KeyConfigsMap = emptyMap<KeyConfig, List<Input.Keys>>()
 
     init {
 
@@ -60,7 +80,7 @@ class AdvConfig(val configFile: FileHandle) {
                 val configMap = yaml.load(text) as Map<String, Any>
                 resolution = valueOfOrDefault(configMap["resolution"].toString(), DEFAULT_RESOLUTION)
 
-                controlKeysMap = configMap["controlKeys"] as Map<Control, List<Input.Keys>> //how do I make sure that the contents of the map are right
+                KeyConfigsMap = configMap["controlKeys"] as Map<KeyConfig, List<Input.Keys>> //how do I make sure that the contents of the map are right
             } catch (e : Exception) {
                 resolution = DEFAULT_RESOLUTION
             }
