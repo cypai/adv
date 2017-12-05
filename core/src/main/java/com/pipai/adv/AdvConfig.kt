@@ -36,27 +36,33 @@ enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: As
 
 private val DEFAULT_RESOLUTION = ScreenResolution.RES_1024_768
 
-fun <R: Any?> readProperty(instance: Any, propertyName: String): R {
-    val clazz = instance.javaClass.kotlin
-    @Suppress("UNCHECKED_CAST")
-    return clazz.declaredMemberProperties.first { it.name == propertyName }.get(instance) as R
+enum class Controls {
+    MOVE_UP,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    INTERACT
 }
 
-class KeyConfig (keyConfigsMap: Map<String, List<String>>) {
+class KeyConfig (strKeyConfigsMap: Map<String, List<String>>) {
     val defaultKeyConfigsMap = mapOf(
-            "MOVE_UP" to listOf(Input.Keys.UP, Input.Keys.W),
-            "MOVE_DOWN" to listOf(Input.Keys.DOWN, Input.Keys.S),
-            "MOVE_LEFT" to listOf(Input.Keys.LEFT, Input.Keys.A),
-            "MOVE_RIGHT" to listOf(Input.Keys.RIGHT, Input.Keys.D),
-            "INTERACT" to listOf(Input.Keys.Z)
+            Controls.MOVE_UP to listOf(Input.Keys.UP, Input.Keys.W),
+            Controls.MOVE_DOWN to listOf(Input.Keys.DOWN, Input.Keys.S),
+            Controls.MOVE_LEFT to listOf(Input.Keys.LEFT, Input.Keys.A),
+            Controls.MOVE_RIGHT to listOf(Input.Keys.RIGHT, Input.Keys.D),
+            Controls.INTERACT to listOf(Input.Keys.Z)
             )
-    val MOVE_UP = keyConfigsMap["MOVE_UP"]
-    val MOVE_DOWN = keyConfigsMap["MOVE_DOWN"]
-    val MOVE_LEFT = keyConfigsMap["MOVE_LEFT"]
-    val MOVE_RIGHT = keyConfigsMap["MOVE_RIGHT"]
-    val INTERACT = keyConfigsMap["INTERACT"]
+    val keyConfigsMap: Map<Controls, List<Int>> = mapOf()
+    init {
+        
+    }
 
     fun isValidKey(str: String): Boolean {
+        fun <R: Any?> readProperty(instance: Any, propertyName: String): R {
+            val clazz = instance.javaClass.kotlin
+            @Suppress("UNCHECKED_CAST")
+            return clazz.declaredMemberProperties.first { it.name == propertyName }.get(instance) as R
+        }
         val key: Int = readProperty(Input.Keys(), str)
         return (key is Int) //probably doesn't work.
     }
