@@ -12,9 +12,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
@@ -114,6 +114,13 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         val textButtonStyle = TextButton.TextButtonStyle(clearLightDrawable, clearGrayDrawable, clearLightDrawable, smallFont)
         textButtonStyle.fontColor = Color.BLACK
         skin.add("default", textButtonStyle)
+
+        val listStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK, grayDrawable)
+        skin.add("default", listStyle)
+        val scrollPaneStyle = ScrollPane.ScrollPaneStyle(whiteDrawable, grayDrawable, blackDrawable, grayDrawable, blackDrawable)
+        skin.add("default", scrollPaneStyle)
+        val selectBoxStyle = SelectBox.SelectBoxStyle(smallFont, Color.BLACK, whiteDrawable, scrollPaneStyle, listStyle)
+        skin.add("default", selectBoxStyle)
     }
 
     override fun render() {

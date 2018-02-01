@@ -106,12 +106,22 @@ class PccCustomizer(private val pccManager: PccManager,
                 .width(20f).minWidth(20f).padLeft(4f)
         listTable.add(shiftUpButton)
                 .width(20f).minWidth(20f).padLeft(4f)
-        listTable.add(Label(metadata.type, skin.get("small", Label.LabelStyle::class.java)))
+
+        listTable.add(generateCategoryDropDown(metadata.type))
                 .width(80f).minWidth(80f).padLeft(4f)
 
         listTable.add(pccFilenameField)
                 .width(32f).minWidth(32f).padLeft(4f)
         return listTable
+    }
+
+    private fun generateCategoryDropDown(defaultSelected: String?): SelectBox<String> {
+        val dropDownList = SelectBox<String>(skin)
+        dropDownList.setItems("body", "etc", "pants")
+        if (defaultSelected != null && dropDownList.items.contains(defaultSelected)) {
+            dropDownList.selected = defaultSelected
+        }
+        return dropDownList
     }
 
     fun addPart(metadata: PccMetadata, index: Int) {
