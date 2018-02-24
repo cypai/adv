@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
+import com.kotcrab.vis.ui.VisUI
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.utils.getLogger
@@ -76,16 +77,18 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
     }
 
     private fun initSkin() {
+        VisUI.load()
+
         skin = Skin()
-        val bgTexture = Texture(Gdx.files.internal("assets/binassets/graphics/textures/paper.jpg"))
+        val bgTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/paper.jpg"))
         bgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
         skin.add("bg", bgTexture)
 
-        val mainMenuBgTexture = Texture(Gdx.files.internal("assets/binassets/graphics/textures/mainmenu.jpg"))
+        val mainMenuBgTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/mainmenu.jpg"))
         mainMenuBgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
         skin.add("mainMenuBg", mainMenuBgTexture)
 
-        val frameTexture = Texture(Gdx.files.internal("assets/binassets/graphics/textures/frame.png"))
+        val frameTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/frame.png"))
         val framePatch = NinePatch(frameTexture, 5, 5, 5, 5)
         skin.add("frameTexture", frameTexture)
         skin.add("frame", framePatch)
@@ -116,6 +119,7 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("default", textButtonStyle)
 
         val listStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK, grayDrawable)
+        listStyle.background = whiteDrawable
         skin.add("default", listStyle)
         val scrollPaneStyle = ScrollPane.ScrollPaneStyle(whiteDrawable, grayDrawable, blackDrawable, grayDrawable, blackDrawable)
         skin.add("default", scrollPaneStyle)

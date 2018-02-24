@@ -11,11 +11,18 @@ class PccManager {
 
     private val pccTilesets: MutableMap<String, FileTileset> = mutableMapOf()
 
+    fun listPccs(type: String): List<PccMetadata> {
+        return Gdx.files.local("assets/binassets/graphics/pccs/$type/").list()
+                .map { it.name() }
+                .sorted()
+                .map { PccMetadata(type, it) }
+    }
+
     fun loadPccTextures(pccMetadataList: List<PccMetadata>) {
         for (metadata in pccMetadataList) {
             val key = metadata.toString()
             if (!pccTilesets.containsKey(key)) {
-                val file = Gdx.files.internal("assets/binassets/graphics/pccs/${metadata.type}/${metadata.type}_${metadata.filename}.png")
+                val file = Gdx.files.local("assets/binassets/graphics/pccs/${metadata.type}/${metadata.filename}")
                 if (file.exists()) {
                     pccTilesets.put(key, FileTileset(file, 32, 48))
                 } else {

@@ -1,13 +1,18 @@
 package com.pipai.adv.gui
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
+import com.badlogic.gdx.utils.Array
+import com.pipai.adv.backend.battle.domain.Direction
+import com.pipai.adv.tiles.PccFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
+
 
 class PccCustomizer(private val pccManager: PccManager,
                     private val skin: Skin,
@@ -110,17 +115,40 @@ class PccCustomizer(private val pccManager: PccManager,
         listTable.add(generateCategoryDropDown(metadata.type))
                 .width(80f).minWidth(80f).padLeft(4f)
 
-        listTable.add(pccFilenameField)
-                .width(32f).minWidth(32f).padLeft(4f)
+        listTable.add(generatePartsDropDown(metadata.type))
+                .minWidth(80f).padLeft(4f)
+
         return listTable
     }
 
     private fun generateCategoryDropDown(defaultSelected: String?): SelectBox<String> {
         val dropDownList = SelectBox<String>(skin)
-        dropDownList.setItems("body", "etc", "pants")
+        dropDownList.setItems("body", "cloth", "etc", "eye", "hair", "pants", "subhair")
         if (defaultSelected != null && dropDownList.items.contains(defaultSelected)) {
             dropDownList.selected = defaultSelected
         }
+        return dropDownList
+    }
+
+    private fun generatePartsDropDown(type: String): ImageSelectBox<PccMetadata> {
+        val arr = Array<PccMetadata>()
+        pccManager.listPccs(type).forEach { arr.add(it) }
+
+        val view = object : ImageList.ImageListItemView<PccMetadata> {
+            override fun getItemImage(item: PccMetadata): TextureRegion {
+                return pccManager.getPccFrame(item, PccFrame(Direction.S, 0))
+            }
+
+            override fun getItemText(item: PccMetadata): String {
+                return item.filename
+            }
+
+            override fun getSpacing(): Float = 30f
+        }
+
+        pccManager.loadPccTextures(arr.toList())
+        val dropDownList = ImageSelectBox(skin, view)
+        dropDownList.setItems(arr)
         return dropDownList
     }
 
