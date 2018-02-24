@@ -12,6 +12,7 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.tiles.PccFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.utils.PccComparator
 
 
 class PccCustomizer(private val pccManager: PccManager,
@@ -132,7 +133,9 @@ class PccCustomizer(private val pccManager: PccManager,
 
     private fun generatePartsDropDown(type: String): ImageSelectBox<PccMetadata> {
         val arr = Array<PccMetadata>()
-        pccManager.listPccs(type).forEach { arr.add(it) }
+        pccManager.listPccs(type)
+                .sortedWith(PccComparator())
+                .forEach { arr.add(it) }
 
         val view = object : ImageList.ImageListItemView<PccMetadata> {
             override fun getItemImage(item: PccMetadata): TextureRegion {
