@@ -27,6 +27,17 @@ object CollisionUtils {
         }
     }
 
+    fun withinBounds(x: Float, y: Float, collisionX: Float, collisionY: Float, bounds: CollisionBounds): Boolean {
+        return when (bounds) {
+            is CollisionBoundingBox -> {
+                return x >= collisionX + bounds.xOffset
+                        && x <= collisionX + bounds.xOffset + bounds.width
+                        && y >= collisionY + bounds.yOffset
+                        && y <= collisionY + bounds.yOffset + bounds.height
+            }
+        }
+    }
+
     fun minimumTranslationVector(x1: Float, y1: Float, bounds1: CollisionBounds,
                                  x2: Float, y2: Float, bounds2: CollisionBounds): Vector2 = when (bounds1) {
 

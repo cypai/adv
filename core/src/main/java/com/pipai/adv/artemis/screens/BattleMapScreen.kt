@@ -9,10 +9,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.init.BattleMapScreenInit
-import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
-import com.pipai.adv.artemis.system.input.ExitInputProcessor
-import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
@@ -48,8 +45,11 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         InputProcessingSystem(),
                         CameraMovementInputSystem(),
                         ZoomInputSystem(),
+                        InputEventSystem(),
 
-                        AnimationFrameIncrementSystem())
+                        AnimationFrameIncrementSystem(),
+
+                        SelectedUnitSystem())
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.textureManager))
@@ -63,6 +63,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
+        inputProcessor.addProcessor(world.getSystem(InputEventSystem::class.java))
         inputProcessor.activateInput()
 
         BattleMapScreenInit(world, game.advConfig, game.globals.save!!, npcList, partyList, map)
