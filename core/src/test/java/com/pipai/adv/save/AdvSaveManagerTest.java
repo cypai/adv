@@ -31,7 +31,7 @@ public class AdvSaveManagerTest extends GdxMockedTest {
         save.changePlayerGuildName("Test Guild");
 
         List<PccMetadata> playerPcc = new ArrayList<>();
-        playerPcc.add(new PccMetadata("body", 2));
+        playerPcc.add(new PccMetadata("body", "body_2.png"));
         Npc playerNpc = new Npc(
                 new UnitInstance(TestFixturesKt.getSchemaList().getSchema("Human").getSchema(), "Amber"),
                 new PccTilesetMetadata(playerPcc));
@@ -52,7 +52,7 @@ public class AdvSaveManagerTest extends GdxMockedTest {
         Assert.assertEquals(1, ((PccTilesetMetadata) npc0.getTilesetMetadata()).getPccMetadata().size());
         PccMetadata pcc = ((PccTilesetMetadata) npc0.getTilesetMetadata()).getPccMetadata().get(0);
         Assert.assertEquals("body", pcc.getType());
-        Assert.assertEquals(2, pcc.getIndex());
+        Assert.assertEquals("body_2.png", pcc.getFilename());
 
         Assert.assertEquals("Amber", npc0.getUnitInstance().getNickname());
         Assert.assertEquals("Human", npc0.getUnitInstance().getSchema().getName());
