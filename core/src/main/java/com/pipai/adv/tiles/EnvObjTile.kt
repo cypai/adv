@@ -6,7 +6,6 @@ interface EnvObjTile<in T> {
     fun tile(params: T): List<TextureRegion>
 }
 
-
 class MapTile(private val tileset: MapTileset, private val tilePosition: TilePosition) : EnvObjTile<Unit> {
     override fun tile(params: Unit): List<TextureRegion> {
         return listOf(tileset.tile(tilePosition))

@@ -87,7 +87,6 @@ sealed class FullEnvObject : DeepCopyable<FullEnvObject> {
     }
 }
 
-
 sealed class EnvObject : DeepCopyable<EnvObject> {
     abstract fun getTilesetMetadata(): EnvObjTilesetMetadata
 
@@ -96,7 +95,7 @@ sealed class EnvObject : DeepCopyable<EnvObject> {
     // TrapEnvironmentObject
 }
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 sealed class EnvObjTilesetMetadata : DeepCopyable<EnvObjTilesetMetadata> {
 
     companion object {

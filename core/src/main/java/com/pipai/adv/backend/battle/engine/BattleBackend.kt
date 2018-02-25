@@ -195,7 +195,6 @@ class BattleLog {
     val log: MutableList<BattleLogEvent> = mutableListOf()
 }
 
-
 interface BattleLogEvent {
     fun description(): String
     fun userFriendlyDescription(): String = ""

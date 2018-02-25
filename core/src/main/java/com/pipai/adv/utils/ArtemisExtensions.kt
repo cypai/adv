@@ -27,6 +27,7 @@ SOFTWARE.
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+
 package com.pipai.adv.utils
 
 import com.artemis.*
@@ -56,7 +57,6 @@ inline fun <reified T : BaseSystem> World.system() =
  * many ms per frame, etc)
  */
 interface RenderSystemMarker
-
 
 /**
  * Denotes that a component property should not be copied
@@ -117,7 +117,6 @@ inline fun <T> IntBag.forEachIndexed(action: (Int, T) -> Unit): Unit {
 inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
     for (i in indices) action(this.get(i))
 }
-
 
 //public inline fun <T> Array<out T>.forEach(action: (T) -> Unit): Unit {
 //    for (element in this) action(element)
@@ -234,7 +233,6 @@ private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
 
 private fun getCache(clazz: Class<*>): PropertyCache =
         cacheByType.getOrPut(clazz, { PropertyCache(clazz.kotlin) })
-
 
 /**
  * Cache that stores properties of component implementations.

@@ -15,7 +15,6 @@ import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.PccComparator
 
-
 class PccCustomizer(pcc: List<PccMetadata>,
                     private val pccManager: PccManager,
                     private val skin: Skin,
@@ -130,7 +129,6 @@ class PccCustomizer(pcc: List<PccMetadata>,
         listTable.add(partsDropDown)
                 .minWidth(200f).padLeft(4f)
 
-
         categoryDropDown.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (actor is SelectBox<*>) {
@@ -141,7 +139,6 @@ class PccCustomizer(pcc: List<PccMetadata>,
                 }
             }
         })
-
 
         partsDropDown.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {

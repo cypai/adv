@@ -58,5 +58,4 @@ class InputEventSystem : NoProcessingSystem(), InputProcessor {
         return false
     }
 
-
 }
