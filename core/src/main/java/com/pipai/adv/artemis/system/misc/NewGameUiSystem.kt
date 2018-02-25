@@ -33,10 +33,19 @@ class NewGameUiSystem(private val game: AdvGame,
     private lateinit var nameText: TextField
     private lateinit var guildText: TextField
 
-    val pccCustomizer = PccCustomizer(globals.pccManager, game.skin,
-            100f, 100f, config.resolution.width / 3f, config.resolution.height / 3f)
+    val pccCustomizer: PccCustomizer
 
     init {
+        val defaultPcc: MutableList<PccMetadata> = mutableListOf()
+        defaultPcc.add(PccMetadata("body", "body_1.png"))
+        defaultPcc.add(PccMetadata("eye", "eye_0.png"))
+        defaultPcc.add(PccMetadata("hair", "hair_0.png"))
+        defaultPcc.add(PccMetadata("pants", "pants_13.png"))
+        defaultPcc.add(PccMetadata("cloth", "cloth_63.png"))
+        defaultPcc.add(PccMetadata("etc", "etc_205.png"))
+
+        pccCustomizer = PccCustomizer(defaultPcc, globals.pccManager, game.skin,
+                100f, 100f, config.resolution.width / 3f, config.resolution.height / 3f)
         createMainForm()
     }
 
@@ -144,6 +153,17 @@ class NewGameUiSystem(private val game: AdvGame,
                 PccTilesetMetadata(friendPcc))
         val friendId = save.globalNpcList.addNpc(friendNpc)
         save.addToGuild(guildText.text, friendId)
+
+        val rivalPcc: MutableList<PccMetadata> = mutableListOf()
+        rivalPcc.add(PccMetadata("body", "body_1.png"))
+        rivalPcc.add(PccMetadata("eye", "eye_0.png"))
+        rivalPcc.add(PccMetadata("cloth", "cloth_155.png"))
+        rivalPcc.add(PccMetadata("hair", "hair_4.png"))
+        rivalPcc.add(PccMetadata("subhair", "subhair_12.png"))
+        val rivalNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Miriam"),
+                PccTilesetMetadata(rivalPcc))
+        val rivalId = save.globalNpcList.addNpc(rivalNpc)
+        save.addToGuild(guildText.text, rivalId)
 
         return save
     }

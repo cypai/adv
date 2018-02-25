@@ -16,12 +16,13 @@ import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.PccComparator
 
 
-class PccCustomizer(private val pccManager: PccManager,
+class PccCustomizer(pcc: List<PccMetadata>,
+                    private val pccManager: PccManager,
                     private val skin: Skin,
                     val x: Float, val y: Float,
                     val width: Float, val height: Float) {
 
-    private val pccParts: MutableList<PccMetadata> = mutableListOf()
+    private val pccParts: MutableList<PccMetadata> = pcc.toMutableList()
 
     val stage = Stage()
     private val table = Table()
@@ -48,8 +49,6 @@ class PccCustomizer(private val pccManager: PccManager,
         table.left().top()
         table.add(verticalGroup).padLeft(10f).padTop(10f)
 
-        pccParts.add(PccMetadata("body", "body_0.png"))
-        pccParts.add(PccMetadata("eye", "eye_0.png"))
         rebuildList()
     }
 

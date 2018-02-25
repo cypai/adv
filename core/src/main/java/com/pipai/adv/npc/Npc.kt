@@ -20,6 +20,8 @@ class NpcList() : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
         return npcs.toMap()
     }
 
+    fun size(): Int = npcs.size
+
     override operator fun iterator(): Iterator<Map.Entry<Int, Npc>> {
         return npcs.asIterable().iterator()
     }

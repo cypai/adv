@@ -1,7 +1,6 @@
 package com.pipai.adv.map
 
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.MapCellTileInfo
@@ -20,9 +19,11 @@ class TestMapGenerator : MapGenerator {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
-        if (party.size > 0) {
-            map.getCell(1, 1).fullEnvObject = NpcEnvObject(party[0], npcList.getNpc(party[0])!!.tilesetMetadata)
-            map.getCell(1, 2).fullEnvObject = NpcEnvObject(party[1], npcList.getNpc(party[1])!!.tilesetMetadata)
+
+        var currentY = 1
+        for (index in party) {
+            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], npcList.getNpc(party[index])!!.tilesetMetadata)
+            currentY++
         }
         generateWallBoundary(map)
         return map
