@@ -11,6 +11,8 @@ import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.misc.NewGameUiSystem
+import com.pipai.adv.artemis.system.misc.PccPreviewSystem
+import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
@@ -29,6 +31,8 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
 
         val globals = game.globals
 
+        val uiSystem = NewGameUiSystem(game, game.advConfig, globals)
+
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
@@ -36,19 +40,24 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
                         GroupManager(),
                         EventSystem(),
 
+                        uiSystem,
                         InputProcessingSystem(),
-                        NewGameUiSystem(game, game.advConfig, globals),
+                        PccPreviewSystem(uiSystem.pccCustomizer),
                         AnimationFrameIncrementSystem())
+                .withPassive(-2,
+                        PccRenderingSystem(game.batchHelper, game.advConfig, globals.pccManager))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java).stage)
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java).pccCustomizer.stage)
+        inputProcessor.addAlwaysOnProcessor(uiSystem)
+        inputProcessor.addAlwaysOnProcessor(uiSystem.stage)
+        inputProcessor.addAlwaysOnProcessor(uiSystem.pccCustomizer.stage)
         inputProcessor.activateInput()
+
+        NewGameScreenInit(world, game, game.advConfig, uiSystem.pccCustomizer).initialize()
     }
 
     override fun render(delta: Float) {

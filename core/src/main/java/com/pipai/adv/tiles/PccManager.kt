@@ -7,6 +7,11 @@ import com.pipai.adv.utils.getLogger
 
 class PccManager {
 
+    companion object {
+        val PCC_WIDTH = 32
+        val PCC_HEIGHT = 48
+    }
+
     private val logger = getLogger()
 
     private val pccTilesets: MutableMap<String, FileTileset> = mutableMapOf()
@@ -24,7 +29,7 @@ class PccManager {
             if (!pccTilesets.containsKey(key)) {
                 val file = Gdx.files.local("assets/binassets/graphics/pccs/${metadata.type}/${metadata.filename}")
                 if (file.exists()) {
-                    pccTilesets.put(key, FileTileset(file, 32, 48))
+                    pccTilesets.put(key, FileTileset(file, PCC_WIDTH, PCC_HEIGHT))
                 } else {
                     logger.warn("Unable to load PCC ${metadata} because ${file.path()} does not exist")
                 }

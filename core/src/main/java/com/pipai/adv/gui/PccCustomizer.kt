@@ -18,14 +18,15 @@ import com.pipai.adv.utils.PccComparator
 
 class PccCustomizer(private val pccManager: PccManager,
                     private val skin: Skin,
-                    x: Float, y: Float,
-                    width: Float, height: Float) {
+                    val x: Float, val y: Float,
+                    val width: Float, val height: Float) {
 
     private val pccParts: MutableList<PccMetadata> = mutableListOf()
 
     val stage = Stage()
     private val table = Table()
     private val verticalGroup = VerticalGroup()
+    private val changeListeners: MutableList<(List<PccMetadata>) -> Unit> = mutableListOf()
 
     init {
         table.x = x
@@ -52,6 +53,10 @@ class PccCustomizer(private val pccManager: PccManager,
         rebuildList()
     }
 
+    fun addChangeListener(listener: (List<PccMetadata>) -> Unit) {
+        changeListeners.add(listener)
+    }
+
     fun getPcc() = pccParts.toList()
 
     private fun rebuildList() {
@@ -65,6 +70,7 @@ class PccCustomizer(private val pccManager: PccManager,
         addButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 addPart(PccMetadata("etc", "etc_1.png"), pccParts.size)
+                invokeChange()
             }
         })
         verticalGroup.addActor(addButton)
@@ -79,6 +85,7 @@ class PccCustomizer(private val pccManager: PccManager,
         deleteButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 removePart(index)
+                invokeChange()
             }
         })
 
@@ -86,6 +93,7 @@ class PccCustomizer(private val pccManager: PccManager,
         shiftDownButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 shiftDown(index)
+                invokeChange()
             }
         })
 
@@ -93,6 +101,7 @@ class PccCustomizer(private val pccManager: PccManager,
         shiftUpButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 shiftUp(index)
+                invokeChange()
             }
         })
 
@@ -129,6 +138,7 @@ class PccCustomizer(private val pccManager: PccManager,
                     @Suppress("UNCHECKED_CAST")
                     val dropDown = actor as SelectBox<String>
                     setPartsDropDownParts(partsDropDown, dropDown.selection.first())
+                    invokeChange()
                 }
             }
         })
@@ -140,11 +150,17 @@ class PccCustomizer(private val pccManager: PccManager,
                     @Suppress("UNCHECKED_CAST")
                     val dropDown = actor as ImageSelectBox<PccMetadata>
                     pccParts[index] = dropDown.selection.first()
+                    invokeChange()
                 }
             }
         })
 
         return listTable
+    }
+
+    private fun invokeChange() {
+        val currentPcc = getPcc()
+        changeListeners.forEach { it.invoke(currentPcc) }
     }
 
     private fun generateCategoryDropDown(defaultSelected: String?): SelectBox<String> {
