@@ -7,6 +7,7 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
@@ -33,6 +34,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
 
     private lateinit var sTags: TagManager
+    private lateinit var sSelectedUnit: SelectedUnitSystem
 
     private var playerUnitIndex = 0
 
@@ -67,6 +69,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 handleEnvObj(fullEnvObj, x, y)
             }
         }
+
+        sSelectedUnit.selectNext()
     }
 
     private fun handleEnvObj(envObj: FullEnvObject, x: Int, y: Int) {

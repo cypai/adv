@@ -1,24 +1,30 @@
 package com.pipai.adv.artemis.system.input
 
+import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
-import com.pipai.adv.artemis.components.CollisionComponent
-import com.pipai.adv.artemis.components.NpcIdComponent
-import com.pipai.adv.artemis.components.PlayerUnitComponent
-import com.pipai.adv.artemis.components.XYComponent
+import com.badlogic.gdx.math.Interpolation
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.KeyDownEvent
 import com.pipai.adv.artemis.events.MouseDownEvent
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.utils.CollisionUtils
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
+import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class SelectedUnitSystem : NoProcessingSystem() {
+
+    private val mCamera by mapper<OrthographicCameraComponent>()
+    private val mInterpolation by mapper<InterpolationComponent>()
 
     private val mNpcId by mapper<NpcIdComponent>()
     private val mPlayerUnit by mapper<PlayerUnitComponent>()
     private val mXy by mapper<XYComponent>()
     private val mCollision by mapper<CollisionComponent>()
+
+    private val sTags by system<TagManager>()
 
     // entityId of the selected unit
     var selectedUnit: Int? = null
@@ -58,14 +64,22 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
     private fun select(playerUnitEntityId: Int?) {
         selectedUnit = playerUnitEntityId
-        if (playerUnitEntityId == null) {
-            System.out.println("Cleared selection")
-        } else {
-            System.out.println("Selected ${mNpcId.get(playerUnitEntityId).npcId}")
+        if (playerUnitEntityId != null) {
+            val cPlayerXy = mXy.get(playerUnitEntityId)
+
+            val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
+            val cCamera = mCamera.get(cameraId)
+            val cInterpolation = mInterpolation.create(cameraId)
+            cInterpolation.interpolation = Interpolation.sineOut
+            cInterpolation.start.x = cCamera.camera.position.x
+            cInterpolation.start.y = cCamera.camera.position.y
+            cInterpolation.end.x = cPlayerXy.x
+            cInterpolation.end.y = cPlayerXy.y
+            cInterpolation.maxT = 20
         }
     }
 
-    private fun selectNext() {
+    fun selectNext() {
         val playerUnits = fetchPlayerUnits()
                 .map { Pair(mPlayerUnit.get(it).index, it) }
                 .sortedBy { it.first }

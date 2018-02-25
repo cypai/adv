@@ -10,6 +10,8 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.init.BattleMapScreenInit
 import com.pipai.adv.artemis.system.input.*
+import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
+import com.pipai.adv.artemis.system.misc.InterpolationSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.gui.BatchHelper
@@ -44,10 +46,12 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         InputProcessingSystem(),
                         CameraMovementInputSystem(),
+                        CameraInterpolationSystem(),
                         ZoomInputSystem(),
                         InputEventSystem(),
 
                         AnimationFrameIncrementSystem(),
+                        InterpolationSystem(),
 
                         SelectedUnitSystem())
                 .withPassive(-1,
