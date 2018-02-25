@@ -10,11 +10,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
 import com.pipai.adv.artemis.system.init.GuildScreenInit
-import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
-import com.pipai.adv.artemis.system.input.ExitInputProcessor
-import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.input.InteractionInputSystem
-import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
@@ -65,7 +61,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-1,
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,
-                        BattleMapRenderingSystem(game.batchHelper, mapTileset,
+                        BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.textureManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper),

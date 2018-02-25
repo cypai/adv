@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Interpolation
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.KeyDownEvent
 import com.pipai.adv.artemis.events.MouseDownEvent
+import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.backend.battle.engine.ActionPointState
@@ -14,6 +15,7 @@ import com.pipai.adv.utils.CollisionUtils
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
+import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class SelectedUnitSystem : NoProcessingSystem() {
@@ -28,12 +30,10 @@ class SelectedUnitSystem : NoProcessingSystem() {
     private val mCollision by mapper<CollisionComponent>()
 
     private val sTags by system<TagManager>()
+    private val sEvent by system<EventSystem>()
 
     // entityId of the selected unit
     var selectedUnit: Int? = null
-        private set
-
-    var selectedMapGraph: MapGraph? = null
         private set
 
     @Subscribe
@@ -91,7 +91,7 @@ class SelectedUnitSystem : NoProcessingSystem() {
                     backend.getNpcPositions()[npcId]!!,
                     unitInstance.schema.baseStats.mobility,
                     battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
-            selectedMapGraph = mapGraph
+            sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
         }
     }
 

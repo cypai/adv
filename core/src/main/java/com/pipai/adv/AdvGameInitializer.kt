@@ -3,17 +3,11 @@ package com.pipai.adv
 import com.badlogic.gdx.Gdx
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
-import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
-import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
-import com.pipai.adv.tiles.GrassyTileset
-import com.pipai.adv.tiles.MapTileset
-import com.pipai.adv.tiles.PccManager
-import com.pipai.adv.tiles.PccMetadata
-import com.pipai.adv.tiles.TextureManager
+import com.pipai.adv.tiles.*
 
 data class AdvGameGlobals(var save: AdvSave?,
                           val saveManager: SaveManager,
@@ -62,9 +56,9 @@ class AdvGameInitializer() {
         val schemaList = SchemaList()
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
-        schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 5),
+        schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 10),
                 EnvObjTilesetMetadata.NONE)
-        schemaList.addSchema("Slime", UnitStats(15, 20, 5, 5, 20, 15, 5, 0, 3),
+        schemaList.addSchema("Slime", UnitStats(15, 20, 5, 5, 20, 15, 5, 0, 7),
                 EnvObjTilesetMetadata.NONE)
         return schemaList
     }

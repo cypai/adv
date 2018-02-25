@@ -54,7 +54,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         SelectedUnitSystem())
                 .withPassive(-1,
-                        BattleMapRenderingSystem(game.batchHelper, mapTileset,
+                        BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.textureManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
