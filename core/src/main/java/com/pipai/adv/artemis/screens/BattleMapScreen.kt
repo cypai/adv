@@ -32,8 +32,10 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
+        val partyList = (0 until npcList.size()).toList()
+
         val map = TestMapGenerator()
-                .generate(npcList, (0 until npcList.size()).toList(), 30, 20, mapTileset)
+                .generate(npcList, partyList, 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -62,7 +64,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, npcList, map)
+        BattleMapScreenInit(world, game.advConfig, npcList, partyList, map)
                 .initialize()
     }
 

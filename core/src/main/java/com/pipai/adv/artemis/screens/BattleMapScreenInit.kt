@@ -5,11 +5,7 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
-import com.pipai.adv.artemis.components.AnimationFramesComponent
-import com.pipai.adv.artemis.components.BattleBackendComponent
-import com.pipai.adv.artemis.components.EnvObjTileComponent
-import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
@@ -21,7 +17,8 @@ import com.pipai.adv.npc.NpcList
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
-                          private val npcList: NpcList, private val map: BattleMap) {
+                          private val npcList: NpcList, private val partyList: List<Int>,
+                          private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
@@ -44,6 +41,11 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         val camera = mCamera.create(cameraId).camera
         sTags.register(Tags.CAMERA.toString(), cameraId)
         camera.zoom = world.getSystem(ZoomInputSystem::class.java).currentZoom()
+
+        val npcPositions = cBackend.backend.getNpcPositions()
+        val playerPosition = npcPositions[partyList[0]]!!
+        camera.position.x = playerPosition.x.toFloat() * config.resolution.tileSize
+        camera.position.y = playerPosition.y.toFloat() * config.resolution.tileSize
 
         val uiCameraId = world.create()
         mCamera.create(uiCameraId)
