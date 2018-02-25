@@ -1,4 +1,4 @@
-package com.pipai.adv.artemis.system.init
+package com.pipai.adv.artemis.screens
 
 import com.artemis.ComponentMapper
 import com.artemis.World
@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap

@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
-import com.pipai.adv.artemis.system.init.BattleMapScreenInit
 import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.InterpolationSystem
