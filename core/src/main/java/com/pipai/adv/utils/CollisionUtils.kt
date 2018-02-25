@@ -28,7 +28,7 @@ object CollisionUtils {
     }
 
     fun withinBounds(x: Float, y: Float, collisionX: Float, collisionY: Float, bounds: CollisionBounds): Boolean {
-        return when (bounds) {
+        when (bounds) {
             is CollisionBoundingBox -> {
                 return x >= collisionX + bounds.xOffset
                         && x <= collisionX + bounds.xOffset + bounds.width
