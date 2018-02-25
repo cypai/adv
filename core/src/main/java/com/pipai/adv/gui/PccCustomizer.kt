@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
 import com.badlogic.gdx.utils.Array
@@ -113,11 +114,35 @@ class PccCustomizer(private val pccManager: PccManager,
         listTable.add(shiftUpButton)
                 .width(20f).minWidth(20f).padLeft(4f)
 
-        listTable.add(generateCategoryDropDown(metadata.type))
+        val categoryDropDown = generateCategoryDropDown(metadata.type)
+        listTable.add(categoryDropDown)
                 .width(80f).minWidth(80f).padLeft(4f)
 
-        listTable.add(generatePartsDropDown(metadata.type))
-                .minWidth(80f).padLeft(4f)
+        val partsDropDown = generatePartsDropDown(metadata.type, pccParts[index])
+        listTable.add(partsDropDown)
+                .minWidth(200f).padLeft(4f)
+
+
+        categoryDropDown.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (actor is SelectBox<*>) {
+                    @Suppress("UNCHECKED_CAST")
+                    val dropDown = actor as SelectBox<String>
+                    setPartsDropDownParts(partsDropDown, dropDown.selection.first())
+                }
+            }
+        })
+
+
+        partsDropDown.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (actor is ImageSelectBox<*>) {
+                    @Suppress("UNCHECKED_CAST")
+                    val dropDown = actor as ImageSelectBox<PccMetadata>
+                    pccParts[index] = dropDown.selection.first()
+                }
+            }
+        })
 
         return listTable
     }
@@ -131,11 +156,7 @@ class PccCustomizer(private val pccManager: PccManager,
         return dropDownList
     }
 
-    private fun generatePartsDropDown(type: String): ImageSelectBox<PccMetadata> {
-        val arr = Array<PccMetadata>()
-        pccManager.listPccs(type)
-                .sortedWith(PccComparator())
-                .forEach { arr.add(it) }
+    private fun generatePartsDropDown(type: String, defaultSelected: PccMetadata?): ImageSelectBox<PccMetadata> {
 
         val view = object : ImageList.ImageListItemView<PccMetadata> {
             override fun getItemImage(item: PccMetadata): TextureRegion {
@@ -148,11 +169,22 @@ class PccCustomizer(private val pccManager: PccManager,
 
             override fun getSpacing(): Float = 30f
         }
+        val dropDownList = ImageSelectBox(skin, view)
+        setPartsDropDownParts(dropDownList, type)
+        if (defaultSelected != null) {
+            dropDownList.selection.set(defaultSelected)
+        }
+        return dropDownList
+    }
+
+    private fun setPartsDropDownParts(dropDownList: ImageSelectBox<PccMetadata>, type: String) {
+        val arr = Array<PccMetadata>()
+        pccManager.listPccs(type)
+                .sortedWith(PccComparator())
+                .forEach { arr.add(it) }
 
         pccManager.loadPccTextures(arr.toList())
-        val dropDownList = ImageSelectBox(skin, view)
         dropDownList.setItems(arr)
-        return dropDownList
     }
 
     fun addPart(metadata: PccMetadata, index: Int) {
