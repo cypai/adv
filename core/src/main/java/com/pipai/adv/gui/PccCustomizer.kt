@@ -48,8 +48,8 @@ class PccCustomizer(private val pccManager: PccManager,
         table.left().top()
         table.add(verticalGroup).padLeft(10f).padTop(10f)
 
-        pccParts.add(PccMetadata("body", "body_1.png"))
-        pccParts.add(PccMetadata("etc", "etc_1.png"))
+        pccParts.add(PccMetadata("body", "body_0.png"))
+        pccParts.add(PccMetadata("eye", "eye_0.png"))
         rebuildList()
     }
 
@@ -69,7 +69,7 @@ class PccCustomizer(private val pccManager: PccManager,
         addButton.width(20f)
         addButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                addPart(PccMetadata("etc", "etc_1.png"), pccParts.size)
+                addPart(PccMetadata("etc", "etc_0.png"), pccParts.size)
                 invokeChange()
             }
         })
