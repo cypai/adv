@@ -52,6 +52,7 @@ sealed class FullEnvObject : DeepCopyable<FullEnvObject> {
     }
 
     data class NpcEnvObject(val npcId: Int,
+                            var team: Team,
                             private val envObjTilesetMetadata: EnvObjTilesetMetadata) : FullEnvObject() {
 
         override fun deepCopy() = copy(npcId)

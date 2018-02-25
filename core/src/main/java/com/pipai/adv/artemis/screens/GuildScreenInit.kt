@@ -6,21 +6,10 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.components.AnimationFramesComponent
-import com.pipai.adv.artemis.components.BattleBackendComponent
-import com.pipai.adv.artemis.components.CameraFollowComponent
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
-import com.pipai.adv.artemis.components.CollisionComponent
-import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
 import com.pipai.adv.artemis.components.Interaction.TextInteraction
-import com.pipai.adv.artemis.components.InteractionComponent
-import com.pipai.adv.artemis.components.NpcComponent
-import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.TileDescriptorComponent
-import com.pipai.adv.artemis.components.WallCollisionFlagComponent
-import com.pipai.adv.artemis.components.WallComponent
-import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
@@ -61,7 +50,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(npcList, map)
+        cBackend.backend = BattleBackend(game.globals.save!!, npcList, map)
 
         val cameraId = world.create()
         val camera = mCamera.create(cameraId).camera

@@ -9,7 +9,7 @@ data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) :
 }
 
 class NoMovingToFullCellRule : CommandRule {
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus {
+    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is MoveCommand) {
             val destination = command.path.last()
             if (state.battleMap.getCell(destination).fullEnvObject != null) {
@@ -28,14 +28,14 @@ class MovementExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          state: BattleState,
-                         unitPositions: Map<Int, GridPosition>): List<PreviewComponent> {
+                         cache: BattleBackendCache): List<PreviewComponent> {
 
         return listOf()
     }
 
     override fun execute(command: BattleCommand,
                          state: BattleState,
-                         unitPositions: MutableMap<Int, GridPosition>) {
+                         cache: BattleBackendCache) {
 
         val cmd = command as MoveCommand
 
@@ -49,8 +49,6 @@ class MovementExecutionRule : CommandExecutionRule {
 
         startingCell.fullEnvObject = null
         endingCell.fullEnvObject = npc
-
-        unitPositions[npc.npcId] = endPosition
 
         state.battleLog.log.add(MoveEvent(state.npcList.getNpc(npc.npcId)!!, startPosition, endPosition))
     }

@@ -14,9 +14,11 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetad
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
+import com.pipai.adv.save.AdvSave
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
+                          private val save: AdvSave,
                           private val npcList: NpcList, private val partyList: List<Int>,
                           private val map: BattleMap) {
 
@@ -25,8 +27,11 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
+    private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
 
     private lateinit var sTags: TagManager
+
+    private var playerUnitIndex = 0
 
     init {
         world.inject(this)
@@ -35,7 +40,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     fun initialize() {
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(npcList, map)
+        cBackend.backend = BattleBackend(save, npcList, map)
+        sTags.register(Tags.BACKEND.toString(), backendId)
 
         val cameraId = world.create()
         val camera = mCamera.create(cameraId).camera
@@ -75,6 +81,9 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cAnimationFrames.frameMax = 3
                 cAnimationFrames.tMax = 30
                 cAnimationFrames.tStartNoise = 5
+                val cPlayerUnit = mPlayerUnit.create(id)
+                cPlayerUnit.index = playerUnitIndex
+                playerUnitIndex++
             }
             is MapTilesetMetadata -> {
                 val cEnvObjTile = mEnvObjTile.create(id)

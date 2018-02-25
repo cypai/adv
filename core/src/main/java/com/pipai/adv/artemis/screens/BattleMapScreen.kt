@@ -30,6 +30,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         val globals = game.globals
         val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
+        // Local battle copy of the npcList to store temp NPCs (such as enemies), which are not needed after the battle
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val partyList = (0 until npcList.size()).toList()
@@ -64,7 +65,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, npcList, partyList, map)
+        BattleMapScreenInit(world, game.advConfig, game.globals.save!!, npcList, partyList, map)
                 .initialize()
     }
 

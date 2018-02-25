@@ -6,3 +6,7 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 class BattleBackendComponent : Component() {
     lateinit var backend: BattleBackend
 }
+
+class PlayerUnitComponent : Component() {
+    var index = 0
+}

@@ -4,6 +4,7 @@ import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.MapCellTileInfo
+import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
@@ -22,7 +23,7 @@ class TestMapGenerator : MapGenerator {
 
         var currentY = 1
         for (index in party) {
-            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], npcList.getNpc(party[index])!!.tilesetMetadata)
+            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], Team.PLAYER, npcList.getNpc(party[index])!!.tilesetMetadata)
             currentY++
         }
         generateWallBoundary(map)

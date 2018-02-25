@@ -3,33 +3,54 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.npc.NpcList
+import com.pipai.adv.save.AdvSave
 
-class BattleBackend(private val npcList: NpcList, private val battleMap: BattleMap) {
+class BattleBackend(private val save: AdvSave, private val npcList: NpcList, private val battleMap: BattleMap) {
 
     private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
-    private var npcPositions: MutableMap<Int, GridPosition> = mutableMapOf()
+    private lateinit var cache: BattleBackendCache
 
     val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), NoMovingToFullCellRule())
     val commandExecutionRules: List<CommandExecutionRule> = listOf(MovementExecutionRule(), ReduceApExecutionRule())
 
     init {
+        refreshCache()
+    }
+
+    private fun refreshCache() {
+        val npcPositions: MutableMap<Int, GridPosition> = mutableMapOf()
+        val teamNpcs: MutableMap<Team, MutableList<Int>> = mutableMapOf()
+        val npcTeams: MutableMap<Int, Team> = mutableMapOf()
+
+        teamNpcs.put(Team.PLAYER, mutableListOf())
+        teamNpcs.put(Team.AI, mutableListOf())
         for (x in 0 until battleMap.width) {
             for (y in 0 until battleMap.height) {
                 val maybeNpc = battleMap.getCell(x, y).fullEnvObject
                 if (maybeNpc != null && maybeNpc is NpcEnvObject) {
-                    npcPositions.put(maybeNpc.npcId, GridPosition(x, y))
+                    val npcId = maybeNpc.npcId
+                    npcPositions.put(npcId, GridPosition(x, y))
+                    if (save.npcInPlayerGuild(npcId)) {
+                        teamNpcs[Team.PLAYER]!!.add(npcId)
+                        npcTeams[npcId] = Team.PLAYER
+                    } else {
+                        teamNpcs[Team.AI]!!.add(npcId)
+                        npcTeams[npcId] = Team.AI
+                    }
                 }
             }
         }
+        cache = BattleBackendCache(npcPositions, teamNpcs.mapValues { it.value.toList() }, npcTeams)
     }
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
-    fun getNpcPositions(): Map<Int, GridPosition> = npcPositions
+    fun getNpcPositions(): Map<Int, GridPosition> = cache.npcPositions
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
         for (rule in commandRules) {
-            val status = rule.canBeExecuted(command, state, npcPositions)
+            val status = rule.canBeExecuted(command, state, cache)
             if (!status.executable) {
                 return status
             }
@@ -39,7 +60,7 @@ class BattleBackend(private val npcList: NpcList, private val battleMap: BattleM
 
     fun preview(command: BattleCommand): List<PreviewComponent> {
         val previews: MutableList<PreviewComponent> = mutableListOf()
-        commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, npcPositions)) })
+        commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, cache)) })
         return previews
     }
 
@@ -48,12 +69,17 @@ class BattleBackend(private val npcList: NpcList, private val battleMap: BattleM
         if (!executionStatus.executable) {
             throw IllegalArgumentException("$command cannot be executed because: ${executionStatus.reason}")
         }
-        commandExecutionRules.forEach({ it.execute(command, state, npcPositions) })
+        commandExecutionRules.forEach({ it.execute(command, state, cache) })
+        refreshCache()
     }
 }
 
+data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
+                              val teamNpcs: Map<Team, List<Int>>,
+                              val npcTeams: Map<Int, Team>)
+
 class NoActionIfNpcNotExistsRule : CommandRule {
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus {
+    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is ActionCommand) {
             if (!state.npcList.npcExists(command.unitId)) {
                 return ExecutableStatus(false, "Npc does not exist")
@@ -64,7 +90,7 @@ class NoActionIfNpcNotExistsRule : CommandRule {
 }
 
 class NoActionIfNotEnoughApRule : CommandRule {
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus {
+    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is ActionCommand) {
             if (!hasEnoughAp(command.unitId, command.requiredAp, state.apState)) {
                 return ExecutableStatus(false, "Not enough action points available")
@@ -72,6 +98,7 @@ class NoActionIfNotEnoughApRule : CommandRule {
         }
         return ExecutableStatus.COMMAND_OK
     }
+
     private fun hasEnoughAp(npcId: Int, requiredAp: Int, apState: ActionPointState): Boolean {
         var npcAp: Int = apState.getNpcAp(npcId)
         return npcAp >= requiredAp
@@ -85,14 +112,14 @@ class ReduceApExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          state: BattleState,
-                         unitPositions: Map<Int, GridPosition>): List<PreviewComponent> {
+                         cache: BattleBackendCache): List<PreviewComponent> {
 
         return listOf()
     }
 
     override fun execute(command: BattleCommand,
                          state: BattleState,
-                         unitPositions: MutableMap<Int, GridPosition>) {
+                         cache: BattleBackendCache) {
         if (command is ActionCommand) {
             val newAp = state.apState.getNpcAp(command.unitId) - command.requiredAp
             state.apState.setNpcAp(command.unitId, newAp)
@@ -119,7 +146,7 @@ class ActionPointState(npcList: NpcList) {
     private var apMap: MutableMap<Int, Int> = mutableMapOf()
 
     init {
-        npcList.forEach{ apMap.put(it.key, startingNumAPs) }
+        npcList.forEach { apMap.put(it.key, startingNumAPs) }
     }
 
     fun npcIdExists(npcId: Int): Boolean {
@@ -128,7 +155,7 @@ class ActionPointState(npcList: NpcList) {
 
     fun getNpcAp(npcId: Int): Int {
         val npcAp = apMap.get(npcId)
-        if (npcAp != null){
+        if (npcAp != null) {
             return npcAp
         }
         throw IllegalArgumentException("Cannot get AP of null NPC")
@@ -142,26 +169,24 @@ class ActionPointState(npcList: NpcList) {
     }
 }
 
-class BattleUnitEval
-
 enum class BattleTurn {
     PLAYER, ENEMY
 }
 
 interface CommandRule {
-    fun canBeExecuted(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): ExecutableStatus
+    fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus
 }
 
 interface CommandExecutionRule {
     fun matches(command: BattleCommand): Boolean
-    fun preview(command: BattleCommand, state: BattleState, unitPositions: Map<Int, GridPosition>): List<PreviewComponent>
-    fun execute(command: BattleCommand, state: BattleState, unitPositions: MutableMap<Int, GridPosition>)
+    fun preview(command: BattleCommand, state: BattleState, cache: BattleBackendCache): List<PreviewComponent>
+    fun execute(command: BattleCommand, state: BattleState, cache: BattleBackendCache)
 }
 
 interface BattleCommand {
 }
 
-interface ActionCommand: BattleCommand {
+interface ActionCommand : BattleCommand {
     val unitId: Int
     val requiredAp: Int
 }

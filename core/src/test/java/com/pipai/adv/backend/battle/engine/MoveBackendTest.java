@@ -2,14 +2,11 @@ package com.pipai.adv.backend.battle.engine;
 
 import java.util.Arrays;
 
+import com.pipai.adv.backend.battle.domain.*;
+import com.pipai.adv.save.AdvSave;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.pipai.adv.backend.battle.domain.BattleMap;
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata;
-import com.pipai.adv.backend.battle.domain.FullEnvObject;
-import com.pipai.adv.backend.battle.domain.GridPosition;
-import com.pipai.adv.backend.battle.domain.UnitStats;
 import com.pipai.adv.npc.Npc;
 import com.pipai.adv.npc.NpcList;
 import com.pipai.test.fixtures.TestFixturesKt;
@@ -18,13 +15,14 @@ public class MoveBackendTest {
 
     @Test
     public void testMove() {
+        AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
-        BattleBackend backend = new BattleBackend(npcList, map);
+        BattleBackend backend = new BattleBackend(save, npcList, map);
 
         MoveCommand cmd = new MoveCommand(id, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
 
@@ -46,14 +44,15 @@ public class MoveBackendTest {
 
     @Test
     public void testCantMoveToFullSpace() {
+        AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 1).setFullEnvObject(FullEnvObject.FULL_WALL);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
-        BattleBackend backend = new BattleBackend(npcList, map);
+        BattleBackend backend = new BattleBackend(save, npcList, map);
 
         MoveCommand cmd = new MoveCommand(id, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
 
@@ -82,13 +81,14 @@ public class MoveBackendTest {
 
     @Test
     public void testCantMoveMoreThanApAllow() {
+        AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
-        BattleBackend backend = new BattleBackend(npcList, map);
+        BattleBackend backend = new BattleBackend(save, npcList, map);
 
         MoveCommand cmd = new MoveCommand(id, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
         Assert.assertTrue(backend.canBeExecuted(cmd).getExecutable());
@@ -106,13 +106,14 @@ public class MoveBackendTest {
 
     @Test
     public void testCantMoveNonexistentNpc() {
+        AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
         int id = npcList.addNpc(npc);
-        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, EnvObjTilesetMetadata.NONE));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
-        BattleBackend backend = new BattleBackend(npcList, map);
+        BattleBackend backend = new BattleBackend(save, npcList, map);
 
         MoveCommand cmd = new MoveCommand(id + 1, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
         ExecutableStatus executable = backend.canBeExecuted(cmd);

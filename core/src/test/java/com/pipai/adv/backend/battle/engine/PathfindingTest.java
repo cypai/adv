@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.pipai.adv.backend.battle.domain.*;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.pipai.adv.backend.battle.domain.BattleMap;
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata;
-import com.pipai.adv.backend.battle.domain.FullEnvObject;
-import com.pipai.adv.backend.battle.domain.GridPosition;
 
 public class PathfindingTest {
 
@@ -149,7 +145,7 @@ public class PathfindingTest {
     public void testCannotMoveToNonEmpty() {
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 0).setFullEnvObject(FullEnvObject.SOLID_FULL_WALL);
-        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(0, EnvObjTilesetMetadata.NONE));
+        map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(0, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
         MapGraph graph = new MapGraph(map, new GridPosition(1, 1), 10, 1, 1, false);
         Assert.assertFalse("Failed to return false on moving to solid tile", graph.canMoveTo(new GridPosition(3, 0)));

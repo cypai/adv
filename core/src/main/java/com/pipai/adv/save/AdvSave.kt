@@ -46,6 +46,8 @@ class AdvSave() {
 
     fun guildExists(name: String): Boolean = guilds.keys.contains(name)
 
+    fun npcInPlayerGuild(npcId: Int): Boolean = guilds[playerGuild]?.contains(npcId) ?: false
+
     fun serialize(): String {
         val guildsLine = mapper.writeValueAsString(guilds)
         val npcListLine = mapper.writeValueAsString(globalNpcList)
