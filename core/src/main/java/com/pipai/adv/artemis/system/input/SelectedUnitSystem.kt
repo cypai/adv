@@ -8,6 +8,8 @@ import com.pipai.adv.artemis.events.KeyDownEvent
 import com.pipai.adv.artemis.events.MouseDownEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.backend.battle.engine.ActionPointState
+import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.utils.CollisionUtils
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
@@ -19,6 +21,7 @@ class SelectedUnitSystem : NoProcessingSystem() {
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mInterpolation by mapper<InterpolationComponent>()
 
+    private val mBackend by mapper<BattleBackendComponent>()
     private val mNpcId by mapper<NpcIdComponent>()
     private val mPlayerUnit by mapper<PlayerUnitComponent>()
     private val mXy by mapper<XYComponent>()
@@ -28,6 +31,9 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
     // entityId of the selected unit
     var selectedUnit: Int? = null
+        private set
+
+    var selectedMapGraph: MapGraph? = null
         private set
 
     @Subscribe
@@ -76,6 +82,16 @@ class SelectedUnitSystem : NoProcessingSystem() {
             cInterpolation.end.x = cPlayerXy.x
             cInterpolation.end.y = cPlayerXy.y
             cInterpolation.maxT = 20
+
+            val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
+            val battleState = backend.getBattleState()
+            val npcId = mNpcId.get(playerUnitEntityId).npcId
+            val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
+            val mapGraph = MapGraph(backend.getBattleMapState(),
+                    backend.getNpcPositions()[npcId]!!,
+                    unitInstance.schema.baseStats.mobility,
+                    battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
+            selectedMapGraph = mapGraph
         }
     }
 

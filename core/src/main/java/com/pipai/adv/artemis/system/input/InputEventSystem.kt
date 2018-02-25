@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.events.KeyDownEvent
 import com.pipai.adv.artemis.events.MouseDownEvent
+import com.pipai.adv.artemis.events.MouseHoverEvent
 import com.pipai.adv.artemis.events.MouseUpEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
@@ -51,6 +52,9 @@ class InputEventSystem : NoProcessingSystem(), InputProcessor {
     }
 
     override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
+        val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
+        sEvent.dispatch(MouseHoverEvent(pickRay.origin.x, pickRay.origin.y))
         return false
     }
 

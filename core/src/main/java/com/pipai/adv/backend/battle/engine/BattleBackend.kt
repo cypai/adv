@@ -47,6 +47,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
     fun getNpcPositions(): Map<Int, GridPosition> = cache.npcPositions
+    fun getBattleState() = state.copy()
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
         for (rule in commandRules) {
@@ -142,7 +143,10 @@ data class BattleState(var turn: BattleTurn,
 
 class ActionPointState(npcList: NpcList) {
 
-    val startingNumAPs = 2
+    companion object {
+        val startingNumAPs = 2
+    }
+
     private var apMap: MutableMap<Int, Int> = mutableMapOf()
 
     init {
