@@ -6,13 +6,16 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
+import com.pipai.adv.utils.getLogger
 
 class BattleBackend(private val save: AdvSave, private val npcList: NpcList, private val battleMap: BattleMap) {
+
+    private val logger = getLogger()
 
     private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
     private lateinit var cache: BattleBackendCache
 
-    val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), NoMovingToFullCellRule())
+    val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), MoveCommandSanityRule())
     val commandExecutionRules: List<CommandExecutionRule> = listOf(MovementExecutionRule(), ReduceApExecutionRule())
 
     init {
@@ -50,6 +53,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun getBattleState() = state.copy()
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
+        logger.debug("Checking executable status of $command")
         for (rule in commandRules) {
             val status = rule.canBeExecuted(command, state, cache)
             if (!status.executable) {
@@ -60,18 +64,24 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     }
 
     fun preview(command: BattleCommand): List<PreviewComponent> {
+        logger.debug("Previewing $command")
         val previews: MutableList<PreviewComponent> = mutableListOf()
         commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, cache)) })
         return previews
     }
 
-    fun execute(command: BattleCommand) {
+    fun execute(command: BattleCommand): List<BattleLogEvent> {
         val executionStatus = canBeExecuted(command)
+        logger.debug("Executing $command")
         if (!executionStatus.executable) {
             throw IllegalArgumentException("$command cannot be executed because: ${executionStatus.reason}")
         }
+        state.battleLog.beginExecution()
         commandExecutionRules.forEach({ it.execute(command, state, cache) })
         refreshCache()
+        val events = state.battleLog.getEventsDuringExecution()
+        events.forEach { logger.debug("BATTLE EVENT: ${it::class.simpleName} ${it.description()}") }
+        return events
     }
 }
 
@@ -196,16 +206,26 @@ interface ActionCommand : BattleCommand {
 }
 
 class BattleLog {
-    val log: MutableList<BattleLogEvent> = mutableListOf()
+    private val log: MutableList<BattleLogEvent> = mutableListOf()
+
+    private var executionIndex = 0
+
+    fun addEvent(event: BattleLogEvent) {
+        log.add(event)
+    }
+
+    fun beginExecution() {
+        executionIndex = log.size
+    }
+
+    fun getEventsDuringExecution(): List<BattleLogEvent> {
+        return log.takeLast(log.size - executionIndex)
+    }
 }
 
 interface BattleLogEvent {
     fun description(): String
     fun userFriendlyDescription(): String = ""
-}
-
-data class CommandEvent(val command: BattleCommand) : BattleLogEvent {
-    override fun description() = "Command was received: $command"
 }
 
 sealed class PreviewComponent {

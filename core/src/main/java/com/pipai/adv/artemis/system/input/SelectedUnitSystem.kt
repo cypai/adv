@@ -38,6 +38,8 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
     @Subscribe
     fun mouseDownListener(event: MouseDownEvent) {
+        if (event.button != Input.Buttons.LEFT) return
+
         val playerUnitEntities = fetchPlayerUnits()
 
         var minY = Float.MAX_VALUE

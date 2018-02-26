@@ -8,11 +8,14 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.InterpolationSystem
+import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
+import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
@@ -52,10 +55,14 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         AnimationFrameIncrementSystem(),
                         InterpolationSystem(),
 
-                        SelectedUnitSystem())
+                        NpcIdSystem(),
+                        SelectedUnitSystem(),
+                        BattleAnimationSystem(game))
                 .withPassive(-1,
                         BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.textureManager))
+                .withPassive(-2,
+                        BattleUiSystem(game))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()

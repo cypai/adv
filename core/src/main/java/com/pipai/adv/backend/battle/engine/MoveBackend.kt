@@ -8,9 +8,16 @@ data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) :
     override val requiredAp: Int = 1
 }
 
-class NoMovingToFullCellRule : CommandRule {
+class MoveCommandSanityRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is MoveCommand) {
+            val origin = command.path.first()
+            val originObject = state.battleMap.getCell(origin).fullEnvObject
+            if (originObject == null || originObject !is NpcEnvObject) {
+                return ExecutableStatus(false, "Origin has no movable NPC")
+            } else if (originObject.npcId != command.unitId) {
+                return ExecutableStatus(false, "NPC at origin is not the stated NPC")
+            }
             val destination = command.path.last()
             if (state.battleMap.getCell(destination).fullEnvObject != null) {
                 return ExecutableStatus(false, "Destination is not empty")
@@ -50,14 +57,15 @@ class MovementExecutionRule : CommandExecutionRule {
         startingCell.fullEnvObject = null
         endingCell.fullEnvObject = npc
 
-        state.battleLog.log.add(MoveEvent(state.npcList.getNpc(npc.npcId)!!, startPosition, endPosition))
+        state.battleLog.addEvent(MoveEvent(npc.npcId, state.npcList.getNpc(npc.npcId)!!, startPosition, endPosition))
     }
 }
 
-data class MoveEvent(val npc: Npc,
+data class MoveEvent(val npcId: Int,
+                     val npc: Npc,
                      val startPosition: GridPosition,
                      val endPosition: GridPosition) : BattleLogEvent {
 
-    override fun description() = "$npc moved from $startPosition to $endPosition"
+    override fun description() = "$npc (id $npcId) moved from $startPosition to $endPosition"
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} is moving..."
 }
