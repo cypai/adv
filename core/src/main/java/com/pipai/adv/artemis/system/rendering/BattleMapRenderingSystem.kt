@@ -19,10 +19,7 @@ import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.PccFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.TextureManager
-import com.pipai.adv.utils.allOf
-import com.pipai.adv.utils.mapper
-import com.pipai.adv.utils.require
-import com.pipai.adv.utils.system
+import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class BattleMapRenderingSystem(private val skin: Skin,
@@ -37,6 +34,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mXy by mapper<XYComponent>()
+    private val mDrawable by mapper<DrawableComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
 
@@ -122,19 +120,19 @@ class BattleMapRenderingSystem(private val skin: Skin,
     }
 
     private fun renderMapObjects() {
-        val envObjEntityBag = world.aspectSubscriptionManager.get(allOf(
-                EnvObjTileComponent::class, XYComponent::class, AnimationFramesComponent::class)).entities
-        val envObjEntities = envObjEntityBag.data.slice(0 until envObjEntityBag.size())
+        val envObjEntities = world.fetch(allOf(EnvObjTileComponent::class, XYComponent::class, AnimationFramesComponent::class))
                 .map { Pair(it, RenderType.ENV_OBJ) }
 
-        val tileDescriptorBag = world.aspectSubscriptionManager.get(allOf(
-                TileDescriptorComponent::class, XYComponent::class)).entities
-        val tileDescriptorEntities = tileDescriptorBag.data.slice(0 until tileDescriptorBag.size())
+        val tileDescriptorEntities = world.fetch(allOf(TileDescriptorComponent::class, XYComponent::class))
                 .map { Pair(it, RenderType.TILE) }
+
+        val drawableEntities = world.fetch(allOf(DrawableComponent::class, XYComponent::class))
+                .map { Pair(it, RenderType.DRAWABLE) }
 
         val entities: MutableList<Pair<Int, RenderType>> = mutableListOf()
         entities.addAll(envObjEntities)
         entities.addAll(tileDescriptorEntities)
+        entities.addAll(drawableEntities)
 
         val sortedEntities = entities.map { Pair(-mXy.get(it.first).y, it) }
                 .sortedBy { it.first }
@@ -143,12 +141,9 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val tileSize = advConfig.resolution.tileSize.toFloat()
         for (entityPair in sortedEntities) {
             when (entityPair.second) {
-                RenderType.ENV_OBJ -> {
-                    renderEnvObjTile(entityPair.first, tileSize)
-                }
-                RenderType.TILE -> {
-                    renderTileDescriptor(entityPair.first)
-                }
+                RenderType.ENV_OBJ -> renderEnvObjTile(entityPair.first, tileSize)
+                RenderType.TILE -> renderTileDescriptor(entityPair.first)
+                RenderType.DRAWABLE -> renderDrawable(entityPair.first)
             }
         }
     }
@@ -179,7 +174,13 @@ class BattleMapRenderingSystem(private val skin: Skin,
         batch.spr.draw(textureManager.getTile(cTileDescriptor.descriptor), cXy.x, cXy.y)
     }
 
+    private fun renderDrawable(id: Int) {
+        val cDrawable = mDrawable.get(id)
+        val cXy = mXy.get(id)
+        cDrawable.drawable.draw(batch.spr, cXy.x, cXy.y, cDrawable.width, cDrawable.height)
+    }
+
     private enum class RenderType {
-        ENV_OBJ, TILE
+        ENV_OBJ, TILE, DRAWABLE
     }
 }

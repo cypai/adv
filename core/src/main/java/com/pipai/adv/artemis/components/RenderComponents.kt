@@ -1,6 +1,7 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.tiles.TileDescriptor
 
 class AnimationFramesComponent : Component() {
@@ -14,4 +15,10 @@ class AnimationFramesComponent : Component() {
 
 class TileDescriptorComponent : Component() {
     lateinit var descriptor: TileDescriptor
+}
+
+class DrawableComponent : Component() {
+    lateinit var drawable: Drawable
+    var width: Float = 0f
+    var height: Float = 0f
 }

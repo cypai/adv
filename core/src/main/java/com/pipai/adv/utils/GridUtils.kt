@@ -13,4 +13,8 @@ object GridUtils {
         return Vector2(gridPosition.x.toFloat() * tileSize, gridPosition.y.toFloat() * tileSize)
     }
 
+    fun gridPositionToLocalOffset(gridPosition: GridPosition, tileSize: Float, offsetX: Float, offsetY: Float): Vector2 {
+        return Vector2(gridPosition.x.toFloat() * tileSize + offsetX, gridPosition.y.toFloat() * tileSize + offsetY)
+    }
+
 }

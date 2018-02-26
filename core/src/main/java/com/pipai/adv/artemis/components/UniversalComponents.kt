@@ -14,15 +14,36 @@ class XYComponent : Component() {
         this.x = x
         this.y = y
     }
+
+    fun setXy(vec: Vector2) {
+        this.x = vec.x
+        this.y = vec.y
+    }
 }
 
-class InterpolationComponent : Component() {
+class PathInterpolationComponent : Component() {
     lateinit var interpolation: Interpolation
     var t = 0
     var maxT = 0
+    var tIncrement = 1
 
-    var start = Vector2()
-    var end = Vector2()
+    var onEnd = PathInterpolationEndStrategy.REMOVE
+
+    val endpoints: MutableList<Vector2> = mutableListOf()
+    var endpointIndex = 0
+
+    fun getCurrentPos(): Vector2 {
+        val a = t.toFloat() / maxT.toFloat()
+        val start = endpoints[endpointIndex]
+        val end = endpoints[endpointIndex + 1]
+        return Vector2(
+                interpolation.apply(start.x, end.x, a),
+                interpolation.apply(start.y, end.y, a))
+    }
+}
+
+enum class PathInterpolationEndStrategy {
+    REMOVE, DESTROY, RESTART
 }
 
 class OrthographicCameraComponent : Component() {

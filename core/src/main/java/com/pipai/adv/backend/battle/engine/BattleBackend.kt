@@ -230,8 +230,6 @@ interface BattleLogEvent {
 
 sealed class PreviewComponent {
 
-    data class MovePreviewComponent(val mapGraph: MapGraph) : PreviewComponent()
-
     data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent()
 
     data class ToCritPreviewComponent(val toCrit: Int) : PreviewComponent()

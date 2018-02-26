@@ -3,6 +3,7 @@ package com.pipai.adv.artemis.system.input
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.Vector2
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.KeyDownEvent
 import com.pipai.adv.artemis.events.MouseDownEvent
@@ -21,7 +22,7 @@ import net.mostlyoriginal.api.event.common.Subscribe
 class SelectedUnitSystem : NoProcessingSystem() {
 
     private val mCamera by mapper<OrthographicCameraComponent>()
-    private val mInterpolation by mapper<InterpolationComponent>()
+    private val mPath by mapper<PathInterpolationComponent>()
 
     private val mBackend by mapper<BattleBackendComponent>()
     private val mNpcId by mapper<NpcIdComponent>()
@@ -77,12 +78,10 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
             val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
             val cCamera = mCamera.get(cameraId)
-            val cInterpolation = mInterpolation.create(cameraId)
+            val cInterpolation = mPath.create(cameraId)
             cInterpolation.interpolation = Interpolation.sineOut
-            cInterpolation.start.x = cCamera.camera.position.x
-            cInterpolation.start.y = cCamera.camera.position.y
-            cInterpolation.end.x = cPlayerXy.x
-            cInterpolation.end.y = cPlayerXy.y
+            cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
+            cInterpolation.endpoints.add(Vector2(cPlayerXy.x, cPlayerXy.y))
             cInterpolation.maxT = 20
 
             val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend

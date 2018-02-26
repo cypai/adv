@@ -11,8 +11,9 @@ import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
-import com.pipai.adv.artemis.system.misc.InterpolationSystem
+import com.pipai.adv.artemis.system.misc.PathInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
+import com.pipai.adv.artemis.system.misc.XyInterpolationSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
@@ -53,17 +54,18 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         InputEventSystem(),
 
                         AnimationFrameIncrementSystem(),
-                        InterpolationSystem(),
+                        PathInterpolationSystem(),
+                        XyInterpolationSystem(),
 
                         NpcIdSystem(),
                         SelectedUnitSystem(),
                         BattleAnimationSystem(game))
-                .withPassive(-1,
+                .withPassive(-2,
                         BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.textureManager))
-                .withPassive(-2,
-                        BattleUiSystem(game))
                 .withPassive(-3,
+                        BattleUiSystem(game))
+                .withPassive(-4,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
 
