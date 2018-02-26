@@ -25,7 +25,6 @@ import com.pipai.adv.utils.require
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-
 class BattleMapRenderingSystem(private val skin: Skin,
                                private val batch: BatchHelper,
                                private val mapTileset: MapTileset,
