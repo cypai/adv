@@ -18,13 +18,13 @@ class TilesetTile(private val tileset: FileTileset, private val tilePosition: Ti
     }
 }
 
-class PccTile(private val pccManager: PccManager, private var metadata: List<PccMetadata>) : EnvObjTile<PccFrame> {
+class PccTile(private val pccManager: PccManager, private var metadata: List<PccMetadata>) : EnvObjTile<UnitAnimationFrame> {
 
     init {
         pccManager.loadPccTextures(metadata)
     }
 
-    override fun tile(params: PccFrame): List<TextureRegion> {
+    override fun tile(params: UnitAnimationFrame): List<TextureRegion> {
         return metadata.map { pccManager.getPccFrame(it, params) }
     }
 }

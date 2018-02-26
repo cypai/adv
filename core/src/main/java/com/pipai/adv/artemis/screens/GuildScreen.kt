@@ -40,7 +40,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = TestMapGenerator()
-                .generate(npcList, listOf(), 30, 20, mapTileset)
+                .generate(game.globals.schemaList, npcList, listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -62,7 +62,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,
                         BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
-                                game.advConfig, globals.pccManager, globals.textureManager))
+                                game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game))

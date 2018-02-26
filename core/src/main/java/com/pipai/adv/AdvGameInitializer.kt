@@ -14,7 +14,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val schemaList: SchemaList,
                           val mapTilesetList: MapTilesetList,
                           val textureManager: TextureManager,
-                          val pccManager: PccManager) {
+                          val pccManager: PccManager,
+                          val animatedTilesetManager: AnimatedTilesetManager) {
 
     fun writeSave(slot: Int) {
         saveManager.save(slot, save!!)
@@ -49,7 +50,11 @@ class AdvGameInitializer() {
         val textureManager = TextureManager()
         textureManager.loadAllTextures()
         val pccManager = PccManager()
-        return AdvGameGlobals(null, SaveManager(), schemaList, tilesetList, textureManager, pccManager)
+        val animatedTilesetManager = AnimatedTilesetManager()
+        val animatedUnitTilesets = schemaList.filter { it.tilesetMetadata is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata }
+                .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
+        animatedTilesetManager.loadTextures(animatedUnitTilesets)
+        return AdvGameGlobals(null, SaveManager(), schemaList, tilesetList, textureManager, pccManager, animatedTilesetManager)
     }
 
     private fun initializeSchemaList(): SchemaList {
@@ -59,7 +64,7 @@ class AdvGameInitializer() {
         schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 10),
                 EnvObjTilesetMetadata.NONE)
         schemaList.addSchema("Slime", UnitStats(15, 20, 5, 5, 20, 15, 5, 0, 7),
-                EnvObjTilesetMetadata.NONE)
+                EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
         return schemaList
     }
 

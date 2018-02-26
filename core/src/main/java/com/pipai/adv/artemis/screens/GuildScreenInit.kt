@@ -64,7 +64,11 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         mCamera.create(uiCameraId)
         sTags.register(Tags.UI_CAMERA.toString(), uiCameraId)
 
-        npcList.forEach { addNpcTile(it.key, it.key + 1, 2) }
+        npcList.forEach {
+            if (game.globals.save!!.npcInPlayerGuild(it.key)) {
+                addNpcTile(it.key, it.key + 1, 2)
+            }
+        }
 
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {

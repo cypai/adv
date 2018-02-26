@@ -114,6 +114,10 @@ sealed class EnvObjTilesetMetadata : DeepCopyable<EnvObjTilesetMetadata> {
     data class PccTilesetMetadata(val pccMetadata: List<PccMetadata>) : EnvObjTilesetMetadata() {
         override fun deepCopy() = copy()
     }
+
+    data class AnimatedUnitTilesetMetadata(val filename: String) : EnvObjTilesetMetadata() {
+        override fun deepCopy() = copy()
+    }
 }
 
 sealed class BattleMapCellSpecialFlag {

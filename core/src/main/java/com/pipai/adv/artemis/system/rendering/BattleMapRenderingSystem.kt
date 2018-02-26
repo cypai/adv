@@ -10,15 +10,11 @@ import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.gui.BatchHelper
-import com.pipai.adv.tiles.MapTileset
-import com.pipai.adv.tiles.PccFrame
-import com.pipai.adv.tiles.PccManager
-import com.pipai.adv.tiles.TextureManager
+import com.pipai.adv.tiles.*
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.Subscribe
 
@@ -27,6 +23,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
                                private val mapTileset: MapTileset,
                                private val advConfig: AdvConfig,
                                private val pccManager: PccManager,
+                               private val animatedTilesetManager: AnimatedTilesetManager,
                                private val textureManager: TextureManager) : IteratingSystem(allOf()) {
 
     private val mBackend by require<BattleBackendComponent>()
@@ -152,18 +149,24 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val cEnvObjTile = mEnvObjTile.get(id)
         val cXy = mXy.get(id)
         val cAnimationFrames = mAnimationFrames.get(id)
+        val animationFrame = UnitAnimationFrame(cEnvObjTile.direction, cAnimationFrames.frame)
 
         val tilesetMetadata = cEnvObjTile.tilesetMetadata
         when (tilesetMetadata) {
             is PccTilesetMetadata -> {
                 for (pcc in tilesetMetadata.pccMetadata) {
-                    val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cEnvObjTile.direction, cAnimationFrames.frame))
+                    val pccTexture = pccManager.getPccFrame(pcc, animationFrame)
                     val scaleFactor = tileSize / pccTexture.regionWidth
                     batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
                 }
             }
             is MapTilesetMetadata -> {
                 batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
+            }
+            is AnimatedUnitTilesetMetadata -> {
+                val unitTexture = animatedTilesetManager.getTilesetFrame(tilesetMetadata.filename, animationFrame)
+                val scaleFactor = tileSize / unitTexture.regionWidth
+                batch.spr.draw(unitTexture, cXy.x, cXy.y, tileSize, unitTexture.regionHeight * scaleFactor)
             }
         }
     }

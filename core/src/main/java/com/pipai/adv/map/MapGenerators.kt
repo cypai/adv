@@ -1,22 +1,21 @@
 package com.pipai.adv.map
 
-import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.SchemaList
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
-import com.pipai.adv.backend.battle.domain.MapCellTileInfo
-import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(schemas: SchemaList, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: SchemaList, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
@@ -26,6 +25,10 @@ class TestMapGenerator : MapGenerator {
             map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], Team.PLAYER, npcList.getNpc(party[index])!!.tilesetMetadata)
             currentY++
         }
+
+        val slimeSchema = schemas.getSchema("Slime")
+        val slimeId = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
+        map.getCell(3, 3).fullEnvObject = NpcEnvObject(slimeId, Team.AI, slimeSchema.tilesetMetadata)
         generateWallBoundary(map)
         return map
     }

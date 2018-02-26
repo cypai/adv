@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
 import com.badlogic.gdx.utils.Array
 import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.adv.tiles.PccFrame
+import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.PccComparator
@@ -172,7 +172,7 @@ class PccCustomizer(pcc: List<PccMetadata>,
 
         val view = object : ImageList.ImageListItemView<PccMetadata> {
             override fun getItemImage(item: PccMetadata): TextureRegion {
-                return pccManager.getPccFrame(item, PccFrame(Direction.S, 0))
+                return pccManager.getPccFrame(item, UnitAnimationFrame(Direction.S, 0))
             }
 
             override fun getItemText(item: PccMetadata): String {

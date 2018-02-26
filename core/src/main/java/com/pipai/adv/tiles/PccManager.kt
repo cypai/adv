@@ -8,8 +8,8 @@ import com.pipai.adv.utils.getLogger
 class PccManager {
 
     companion object {
-        val PCC_WIDTH = 32
-        val PCC_HEIGHT = 48
+        const val PCC_WIDTH = 32
+        const val PCC_HEIGHT = 48
     }
 
     private val logger = getLogger()
@@ -49,7 +49,7 @@ class PccManager {
 
     fun pccIsLoaded(metadata: PccMetadata): Boolean = pccTilesets.contains(metadata.toString())
 
-    fun getPccFrame(metadata: PccMetadata, frame: PccFrame): TextureRegion {
+    fun getPccFrame(metadata: PccMetadata, frame: UnitAnimationFrame): TextureRegion {
         val key = metadata.toString()
         if (pccTilesets.containsKey(key)) {
             val tileset = pccTilesets.get(key)!!
@@ -82,4 +82,4 @@ class PccManager {
 
 data class PccMetadata(val type: String, val filename: String)
 
-data class PccFrame(val direction: Direction, val index: Int)
+data class UnitAnimationFrame(val direction: Direction, val index: Int)

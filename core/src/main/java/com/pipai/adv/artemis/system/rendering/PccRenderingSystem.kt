@@ -9,7 +9,7 @@ import com.pipai.adv.artemis.components.PccComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.gui.BatchHelper
-import com.pipai.adv.tiles.PccFrame
+import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.mapper
@@ -44,7 +44,7 @@ class PccRenderingSystem(private val batch: BatchHelper,
             val cAnimationFrames = mAnimationFrames.get(entityId)
 
             for (pcc in cPcc.pcc) {
-                val pccTexture = pccManager.getPccFrame(pcc, PccFrame(cPcc.direction, cAnimationFrames.frame))
+                val pccTexture = pccManager.getPccFrame(pcc, UnitAnimationFrame(cPcc.direction, cAnimationFrames.frame))
                 val scaleFactor = tileSize / pccTexture.regionWidth
                 batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
             }

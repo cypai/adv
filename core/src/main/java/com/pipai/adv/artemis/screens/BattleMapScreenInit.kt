@@ -9,8 +9,7 @@ import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
@@ -107,6 +106,26 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cXy.x = config.resolution.tileSize * x.toFloat()
                 cXy.y = config.resolution.tileSize * y.toFloat()
                 mAnimationFrames.create(id)
+            }
+            is AnimatedUnitTilesetMetadata -> {
+                val cEnvObjTile = mEnvObjTile.create(id)
+                cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()
+                val cXy = mXy.create(id)
+                cXy.x = config.resolution.tileSize * x.toFloat()
+                cXy.y = config.resolution.tileSize * y.toFloat()
+
+                val cAnimationFrames = mAnimationFrames.create(id)
+                cAnimationFrames.frameMax = 3
+                cAnimationFrames.tMax = 30
+                cAnimationFrames.tStartNoise = 5
+
+                if (envObj is FullEnvObject.NpcEnvObject) {
+                    mNpcId.create(id).npcId = envObj.npcId
+                    if (save.npcInPlayerGuild(envObj.npcId)) {
+                        mPlayerUnit.create(id).index = playerUnitIndex
+                        playerUnitIndex++
+                    }
+                }
             }
             else -> {
                 // Do nothing
