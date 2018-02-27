@@ -9,11 +9,11 @@ data class UnitStats(
         val dexterity: Int,
         val constitution: Int,
         val intelligence: Int,
-        val resistance: Int,
+        val wisdom: Int,
         val avoid: Int,
         val mobility: Int) {
 
-    fun toMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    fun toMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 data class MutableUnitStats(
@@ -23,11 +23,11 @@ data class MutableUnitStats(
         var dexterity: Int,
         var constitution: Int,
         var intelligence: Int,
-        var resistance: Int,
+        var wisdom: Int,
         var avoid: Int,
         var mobility: Int) {
 
-    fun toUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    fun toUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 class UnitStatsFactory {
@@ -37,7 +37,7 @@ class UnitStatsFactory {
     var dexterity: Int = 0
     var constitution: Int = 0
     var intelligence: Int = 0
-    var resistance: Int = 0
+    var wisdom: Int = 0
     var avoid: Int = 0
     var mobility: Int = 0
 
@@ -71,8 +71,8 @@ class UnitStatsFactory {
         return this
     }
 
-    fun resistance(value: Int): UnitStatsFactory {
-        resistance = value
+    fun wisdom(value: Int): UnitStatsFactory {
+        wisdom = value
         return this
     }
 
@@ -86,9 +86,9 @@ class UnitStatsFactory {
         return this
     }
 
-    fun buildUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    fun buildUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 
-    fun buildMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, resistance, avoid, mobility)
+    fun buildMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 data class UnitSchema(

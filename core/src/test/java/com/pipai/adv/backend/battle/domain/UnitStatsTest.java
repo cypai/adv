@@ -14,7 +14,7 @@ public class UnitStatsTest {
                 .dexterity(4)
                 .constitution(5)
                 .intelligence(6)
-                .resistance(7)
+                .wisdom(7)
                 .avoid(8)
                 .mobility(9);
 
@@ -25,7 +25,7 @@ public class UnitStatsTest {
         Assert.assertEquals(stats.getDexterity(), 4);
         Assert.assertEquals(stats.getConstitution(), 5);
         Assert.assertEquals(stats.getIntelligence(), 6);
-        Assert.assertEquals(stats.getResistance(), 7);
+        Assert.assertEquals(stats.getWisdom(), 7);
         Assert.assertEquals(stats.getAvoid(), 8);
         Assert.assertEquals(stats.getMobility(), 9);
 
@@ -36,7 +36,7 @@ public class UnitStatsTest {
         Assert.assertEquals(mutableStats.getDexterity(), 4);
         Assert.assertEquals(mutableStats.getConstitution(), 5);
         Assert.assertEquals(mutableStats.getIntelligence(), 6);
-        Assert.assertEquals(mutableStats.getResistance(), 7);
+        Assert.assertEquals(mutableStats.getWisdom(), 7);
         Assert.assertEquals(mutableStats.getAvoid(), 8);
         Assert.assertEquals(mutableStats.getMobility(), 9);
     }
