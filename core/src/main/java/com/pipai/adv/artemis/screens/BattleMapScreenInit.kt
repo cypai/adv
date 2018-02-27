@@ -8,6 +8,7 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.ui.BattleSideUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
@@ -30,11 +31,16 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mCollision: ComponentMapper<CollisionComponent>
     private lateinit var mNpcId: ComponentMapper<NpcIdComponent>
     private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
+    private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
 
     private lateinit var sTags: TagManager
     private lateinit var sSelectedUnit: SelectedUnitSystem
 
     private var playerUnitIndex = 0
+
+    companion object {
+        const val UI_VERTICAL_PADDING = 4f
+    }
 
     init {
         world.inject(this)
@@ -64,14 +70,14 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
             for (y in 0 until map.height) {
                 val cell = map.getCell(x, y)
                 val fullEnvObj = cell.fullEnvObject ?: continue
-                handleEnvObj(fullEnvObj, x, y)
+                handleEnvObj(cBackend.backend, fullEnvObj, x, y)
             }
         }
 
         sSelectedUnit.selectNext()
     }
 
-    private fun handleEnvObj(envObj: FullEnvObject, x: Int, y: Int) {
+    private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {
         val id = world.create()
         val tilesetMetadata = envObj.getTilesetMetadata()
 
@@ -95,6 +101,12 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                     mNpcId.create(id).npcId = envObj.npcId
                     if (save.npcInPlayerGuild(envObj.npcId)) {
                         mPlayerUnit.create(id).index = playerUnitIndex
+                        val uiId = world.create()
+                        val cUi = mSideUiBox.create(uiId)
+                        cUi.setToNpc(envObj.npcId, backend)
+                        val cUiXy = mXy.create(uiId)
+                        cUiXy.x = config.resolution.width - BattleSideUiSystem.UI_WIDTH
+                        cUiXy.y = config.resolution.height - (BattleSideUiSystem.UI_HEIGHT + UI_VERTICAL_PADDING) * (playerUnitIndex + 1)
                         playerUnitIndex++
                     }
                 }

@@ -50,6 +50,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
     fun getNpcPositions(): Map<Int, GridPosition> = cache.npcPositions
+    fun getNpcTeams(): Map<Int, Team> = cache.npcTeams
+    fun getTeamNpcs(): Map<Team, List<Int>> = cache.teamNpcs
     fun getBattleState() = state.copy()
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {

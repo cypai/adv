@@ -4,10 +4,10 @@ import com.artemis.BaseSystem
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
+import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -54,10 +54,10 @@ class MainTextboxUiSystem(private val game: AdvGame) : BaseSystem() {
         val framePatch = skin.getPatch("frame")
         framePatch.topHeight = 2f
         frame = Image(framePatch)
-        frame.width = textboxWidth + 4
-        frame.height = textboxHeight + 4
-        frame.x = (x - 1).toFloat()
-        frame.y = (y - 3).toFloat()
+        frame.width = textboxWidth + UiConstants.FRAME_LEFT_PADDING + UiConstants.FRAME_RIGHT_PADDING
+        frame.height = textboxHeight + UiConstants.FRAME_TOP_PADDING + UiConstants.FRAME_BOTTOM_PADDING
+        frame.x = (x - UiConstants.FRAME_LEFT_PADDING).toFloat()
+        frame.y = (y - UiConstants.FRAME_BOTTOM_PADDING).toFloat()
 
         val tablePadding = textboxHeight / 8
 

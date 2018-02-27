@@ -16,7 +16,8 @@ import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.artemis.system.misc.XyInterpolationSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
-import com.pipai.adv.artemis.system.ui.BattleUiSystem
+import com.pipai.adv.artemis.system.ui.BattleFieldUiSystem
+import com.pipai.adv.artemis.system.ui.BattleSideUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
@@ -64,8 +65,10 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
                                 game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-3,
-                        BattleUiSystem(game))
-                .withPassive(-4,
+                        BattleFieldUiSystem(game))
+                .withPassive(-5,
+                        BattleSideUiSystem(game))
+                .withPassive(-6,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
 

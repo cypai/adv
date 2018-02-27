@@ -26,7 +26,7 @@ import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleUiSystem(private val game: AdvGame) : BaseSystem() {
+class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
 
     private val logger = getLogger()
 
