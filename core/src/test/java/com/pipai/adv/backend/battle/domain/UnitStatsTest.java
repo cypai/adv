@@ -9,7 +9,7 @@ public class UnitStatsTest {
     public void testFactory() {
         UnitStatsFactory factory = new UnitStatsFactory()
                 .hpMax(1)
-                .mpMax(2)
+                .tpMax(2)
                 .strength(3)
                 .dexterity(4)
                 .constitution(5)
@@ -20,7 +20,7 @@ public class UnitStatsTest {
 
         UnitStats stats = factory.buildUnitStats();
         Assert.assertEquals(stats.getHpMax(), 1);
-        Assert.assertEquals(stats.getMpMax(), 2);
+        Assert.assertEquals(stats.getTpMax(), 2);
         Assert.assertEquals(stats.getStrength(), 3);
         Assert.assertEquals(stats.getDexterity(), 4);
         Assert.assertEquals(stats.getConstitution(), 5);
@@ -31,7 +31,7 @@ public class UnitStatsTest {
 
         MutableUnitStats mutableStats = factory.buildMutableUnitStats();
         Assert.assertEquals(mutableStats.getHpMax(), 1);
-        Assert.assertEquals(mutableStats.getMpMax(), 2);
+        Assert.assertEquals(mutableStats.getTpMax(), 2);
         Assert.assertEquals(mutableStats.getStrength(), 3);
         Assert.assertEquals(mutableStats.getDexterity(), 4);
         Assert.assertEquals(mutableStats.getConstitution(), 5);

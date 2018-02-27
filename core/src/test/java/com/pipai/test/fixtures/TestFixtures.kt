@@ -9,7 +9,7 @@ import com.pipai.adv.npc.Npc
 
 fun npcFromStats(stats: UnitStats): Npc {
     val schema = UnitSchema("Test Unit", stats)
-    val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.mpMax, null)
+    val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.tpMax, null)
     return Npc(unitInstance, EnvObjTilesetMetadata.NONE)
 }
 

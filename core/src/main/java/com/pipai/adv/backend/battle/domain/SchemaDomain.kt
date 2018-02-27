@@ -4,7 +4,7 @@ import com.pipai.adv.utils.DeepCopyable
 
 data class UnitStats(
         val hpMax: Int,
-        val mpMax: Int,
+        val tpMax: Int,
         val strength: Int,
         val dexterity: Int,
         val constitution: Int,
@@ -13,12 +13,12 @@ data class UnitStats(
         val avoid: Int,
         val mobility: Int) {
 
-    fun toMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
+    fun toMutableUnitStats() = MutableUnitStats(hpMax, tpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 data class MutableUnitStats(
         var hpMax: Int,
-        var mpMax: Int,
+        var tpMax: Int,
         var strength: Int,
         var dexterity: Int,
         var constitution: Int,
@@ -27,12 +27,12 @@ data class MutableUnitStats(
         var avoid: Int,
         var mobility: Int) {
 
-    fun toUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
+    fun toUnitStats() = UnitStats(hpMax, tpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 class UnitStatsFactory {
     var hpMax: Int = 0
-    var mpMax: Int = 0
+    var tpMax: Int = 0
     var strength: Int = 0
     var dexterity: Int = 0
     var constitution: Int = 0
@@ -46,8 +46,8 @@ class UnitStatsFactory {
         return this
     }
 
-    fun mpMax(value: Int): UnitStatsFactory {
-        mpMax = value
+    fun tpMax(value: Int): UnitStatsFactory {
+        tpMax = value
         return this
     }
 
@@ -86,9 +86,9 @@ class UnitStatsFactory {
         return this
     }
 
-    fun buildUnitStats() = UnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
+    fun buildUnitStats() = UnitStats(hpMax, tpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 
-    fun buildMutableUnitStats() = MutableUnitStats(hpMax, mpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
+    fun buildMutableUnitStats() = MutableUnitStats(hpMax, tpMax, strength, dexterity, constitution, intelligence, wisdom, avoid, mobility)
 }
 
 data class UnitSchema(
@@ -99,10 +99,10 @@ data class UnitInstance(
         val schema: UnitSchema,
         var nickname: String,
         var hp: Int,
-        var mp: Int,
+        var tp: Int,
         var weapon: InventoryItem.WeaponInstance?) : DeepCopyable<UnitInstance> {
 
-    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.mpMax, null)
+    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, null)
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
 }
