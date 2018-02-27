@@ -5,6 +5,7 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitSchema
 import com.pipai.adv.backend.battle.domain.UnitStats
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
@@ -12,6 +13,7 @@ import com.pipai.adv.tiles.*
 data class AdvGameGlobals(var save: AdvSave?,
                           val saveManager: SaveManager,
                           val schemaList: SchemaList,
+                          val weaponSchemaIndex: WeaponSchemaIndex,
                           val mapTilesetList: MapTilesetList,
                           val textureManager: TextureManager,
                           val pccManager: PccManager,
@@ -46,6 +48,7 @@ data class AdvGameGlobals(var save: AdvSave?,
 class AdvGameInitializer() {
     fun initializeGlobals(): AdvGameGlobals {
         val schemaList = initializeSchemaList()
+        val weaponSchemaIndex = WeaponSchemaIndex(Gdx.files.internal("assets/data/weapons.csv"))
         val tilesetList = initializeMapTilesetList()
         val textureManager = TextureManager()
         textureManager.loadAllTextures()
@@ -54,7 +57,8 @@ class AdvGameInitializer() {
         val animatedUnitTilesets = schemaList.filter { it.tilesetMetadata is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata }
                 .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
         animatedTilesetManager.loadTextures(animatedUnitTilesets)
-        return AdvGameGlobals(null, SaveManager(), schemaList, tilesetList, textureManager, pccManager, animatedTilesetManager)
+        return AdvGameGlobals(null, SaveManager(), schemaList, weaponSchemaIndex,
+                tilesetList, textureManager, pccManager, animatedTilesetManager)
     }
 
     private fun initializeSchemaList(): SchemaList {

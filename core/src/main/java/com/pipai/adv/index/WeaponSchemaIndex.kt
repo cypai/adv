@@ -36,4 +36,6 @@ class WeaponSchemaIndex(weaponsFile: FileHandle) {
         index = mutIndex.toMap()
     }
 
+    fun getWeaponSchema(weapon: String): WeaponSchema? = index[weapon]
+
 }

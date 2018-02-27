@@ -16,8 +16,10 @@ import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.SchemaList
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.gui.PccCustomizer
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.PccMetadata
@@ -125,7 +127,7 @@ class NewGameUiSystem(private val game: AdvGame,
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Keys.ENTER) {
-            val save = generateSave(globals.schemaList)
+            val save = generateSave(globals.schemaList, globals.weaponSchemaIndex)
             globals.loadSave(save)
             game.globals.writeSave(0)
             game.screen = GuildScreen(game)
@@ -136,7 +138,7 @@ class NewGameUiSystem(private val game: AdvGame,
         return false
     }
 
-    private fun generateSave(schemas: SchemaList): AdvSave {
+    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex): AdvSave {
         val save = AdvSave()
 
         save.changePlayerGuildName(guildText.text)
@@ -144,6 +146,7 @@ class NewGameUiSystem(private val game: AdvGame,
         val playerPcc: List<PccMetadata> = pccCustomizer.getPcc()
         val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, nameText.text),
                 PccTilesetMetadata(playerPcc))
+        playerNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!)
         val playerId = save.globalNpcList.addNpc(playerNpc)
         save.addToGuild(guildText.text, playerId)
 
@@ -151,6 +154,7 @@ class NewGameUiSystem(private val game: AdvGame,
         friendPcc.add(PccMetadata("body", "body_2.png"))
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(friendPcc))
+        friendNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!)
         val friendId = save.globalNpcList.addNpc(friendNpc)
         save.addToGuild(guildText.text, friendId)
 
@@ -162,6 +166,7 @@ class NewGameUiSystem(private val game: AdvGame,
         rivalPcc.add(PccMetadata("subhair", "subhair_12.png"))
         val rivalNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Miriam"),
                 PccTilesetMetadata(rivalPcc))
+        rivalNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Staff")!!)
         val rivalId = save.globalNpcList.addNpc(rivalNpc)
         save.addToGuild(guildText.text, rivalId)
 
