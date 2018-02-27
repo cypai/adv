@@ -1,6 +1,8 @@
 package com.pipai.adv.index
 
 import com.badlogic.gdx.files.FileHandle
+import com.pipai.adv.backend.battle.domain.WeaponAttribute
+import com.pipai.adv.backend.battle.domain.WeaponRange
 import com.pipai.adv.backend.battle.domain.WeaponSchema
 import com.pipai.adv.backend.battle.domain.WeaponType
 import org.apache.commons.csv.CSVFormat
@@ -20,9 +22,16 @@ class WeaponSchemaIndex(weaponsFile: FileHandle) {
             val weaponSchema = WeaponSchema(
                     name,
                     WeaponType.valueOf(record.get("type")),
-                    record.get("atk").toInt(),
-                    record.get("rarity").toInt())
-            mutIndex.put(name, weaponSchema)
+                    WeaponRange.valueOf(record.get("range")),
+                    record.get("patk").toInt(),
+                    record.get("matk").toInt(),
+                    record.get("attributes")
+                            .split("|")
+                            .filter { it.isNotBlank() }
+                            .map { WeaponAttribute.valueOf(it) },
+                    record.get("magazineSize").toInt(),
+                    record.get("description"))
+            mutIndex[name] = weaponSchema
         }
         index = mutIndex.toMap()
     }

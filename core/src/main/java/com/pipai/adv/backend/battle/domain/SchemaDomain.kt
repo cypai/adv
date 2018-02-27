@@ -108,11 +108,23 @@ data class UnitInstance(
 }
 
 enum class WeaponType {
-    BOW, SWORD
+    SWORD, SPEAR, DAGGER, BOW, RIFLE, PISTOL, SHOTGUN, STAFF, SHURIKEN
+}
+
+enum class WeaponRange {
+    MELEE, RANGED
+}
+
+enum class WeaponAttribute {
+    CAN_FAST_RELOAD, CAN_RELOAD, CAN_STEADY
 }
 
 data class WeaponSchema(
         val name: String,
         val type: WeaponType,
-        val atk: Int,
-        val rarity: Int)
+        val range: WeaponRange,
+        val patk: Int,
+        val matk: Int,
+        val attributes: List<WeaponAttribute>,
+        val magazineSize: Int,
+        val description: String)
