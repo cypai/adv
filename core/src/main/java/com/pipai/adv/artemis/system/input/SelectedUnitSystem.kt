@@ -106,8 +106,10 @@ class SelectedUnitSystem : NoProcessingSystem() {
                 val cCamera = mCamera.get(cameraId)
                 val cInterpolation = mPath.create(cameraId)
                 cInterpolation.interpolation = Interpolation.sineOut
+                cInterpolation.endpoints.clear()
                 cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
                 cInterpolation.endpoints.add(Vector2(cUnitXy.x, cUnitXy.y))
+                cInterpolation.t = 0
                 cInterpolation.maxT = 20
 
                 if (nextSelectedTeam == Team.PLAYER) {
