@@ -2,12 +2,11 @@ package com.pipai.adv.artemis.system.input
 
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.math.Vector2
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.*
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.ActionPointState
@@ -31,6 +30,7 @@ class SelectedUnitSystem : NoProcessingSystem() {
     private val mCollision by mapper<CollisionComponent>()
 
     private val sNpcId by system<NpcIdSystem>()
+    private val sCameraInterpolation by system<CameraInterpolationSystem>()
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
 
@@ -56,9 +56,7 @@ class SelectedUnitSystem : NoProcessingSystem() {
         }
         if (minYId != null) {
             val npcId = mNpcId.get(minYId).npcId
-            if (selectedUnit != npcId) {
-                select(npcId)
-            }
+            select(npcId)
         }
     }
 
@@ -81,7 +79,15 @@ class SelectedUnitSystem : NoProcessingSystem() {
         return playerUnitEntityBag.data.slice(0 until playerUnitEntityBag.size())
     }
 
-    private fun select(npcId: Int?) {
+    fun select(npcId: Int?) {
+        if (npcId == selectedUnit && npcId != null) {
+            // Implementation of double-clicking sending camera to unit position
+            val unitEntityId = sNpcId.getNpcEntityId(npcId)!!
+            val cUnitXy = mXy.get(unitEntityId)
+            sCameraInterpolation.sendCameraToPosition(cUnitXy.toVector2())
+            return
+        }
+
         val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
         selectedUnit?.let {
@@ -101,16 +107,7 @@ class SelectedUnitSystem : NoProcessingSystem() {
             val unitEntityId = sNpcId.getNpcEntityId(npcId)
             if (unitEntityId != null) {
                 val cUnitXy = mXy.get(unitEntityId)
-
-                val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
-                val cCamera = mCamera.get(cameraId)
-                val cInterpolation = mPath.create(cameraId)
-                cInterpolation.interpolation = Interpolation.sineOut
-                cInterpolation.endpoints.clear()
-                cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
-                cInterpolation.endpoints.add(Vector2(cUnitXy.x, cUnitXy.y))
-                cInterpolation.t = 0
-                cInterpolation.maxT = 20
+                sCameraInterpolation.sendCameraToPosition(cUnitXy.toVector2())
 
                 if (nextSelectedTeam == Team.PLAYER) {
                     val battleState = backend.getBattleState()

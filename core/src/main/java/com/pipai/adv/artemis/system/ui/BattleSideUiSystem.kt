@@ -2,6 +2,7 @@ package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
@@ -14,6 +15,8 @@ import com.pipai.adv.artemis.events.PlayerUnitSelectedEvent
 import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.input.SelectedUnitSystem
+import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.gui.UiConstants
@@ -24,7 +27,7 @@ import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
+class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private val mSideUiBox by mapper<SideUiBoxComponent>()
     private val mXy by mapper<XYComponent>()
@@ -35,6 +38,8 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
     private val mPath by mapper<PathInterpolationComponent>()
 
     private val sTags by system<TagManager>()
+    private val sSelectedUnit by system<SelectedUnitSystem>()
+    private val sCameraInterpolation by system<CameraInterpolationSystem>()
 
     private val frameDrawable = game.skin.getDrawable("frame")
     private val frameBgDrawable = game.skin.getDrawable("bg")
@@ -287,5 +292,37 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
     }
 
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
+
+    override fun keyDown(keycode: Int): Boolean {
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        return false
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun scrolled(amount: Int): Boolean {
+        return false
+    }
 
 }
