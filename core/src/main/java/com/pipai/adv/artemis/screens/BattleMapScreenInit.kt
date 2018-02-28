@@ -86,7 +86,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
-                cXy.y = config.resolution.tileSize * y.toFloat()
+                cXy.y = config.resolution.tileSize * y.toFloat() + config.resolution.tileSize / 3
                 val cAnimationFrames = mAnimationFrames.create(id)
                 cAnimationFrames.frameMax = 3
                 cAnimationFrames.tMax = 30
@@ -123,7 +123,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()
                 val cXy = mXy.create(id)
                 cXy.x = config.resolution.tileSize * x.toFloat()
-                cXy.y = config.resolution.tileSize * y.toFloat()
+                cXy.y = config.resolution.tileSize * y.toFloat() + config.resolution.tileSize / 3
 
                 val cAnimationFrames = mAnimationFrames.create(id)
                 cAnimationFrames.frameMax = 3
