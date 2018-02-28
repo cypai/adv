@@ -41,6 +41,7 @@ class MovementExecutionRule : CommandExecutionRule {
     }
 
     override fun execute(command: BattleCommand,
+                         previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache) {
 

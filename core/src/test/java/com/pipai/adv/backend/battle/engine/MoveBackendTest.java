@@ -1,15 +1,14 @@
 package com.pipai.adv.backend.battle.engine;
 
-import java.util.Arrays;
-
 import com.pipai.adv.backend.battle.domain.*;
+import com.pipai.adv.npc.Npc;
+import com.pipai.adv.npc.NpcList;
 import com.pipai.adv.save.AdvSave;
+import com.pipai.test.fixtures.TestFixturesKt;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.pipai.adv.npc.Npc;
-import com.pipai.adv.npc.NpcList;
-import com.pipai.test.fixtures.TestFixturesKt;
+import java.util.Arrays;
 
 public class MoveBackendTest {
 
@@ -18,7 +17,7 @@ public class MoveBackendTest {
         AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null);
         int id = npcList.addNpc(npc);
         map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
@@ -48,7 +47,7 @@ public class MoveBackendTest {
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
         map.getCell(3, 1).setFullEnvObject(FullEnvObject.FULL_WALL);
-        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null);
         int id = npcList.addNpc(npc);
         map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
@@ -84,7 +83,7 @@ public class MoveBackendTest {
         AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null);
         int id = npcList.addNpc(npc);
         map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 
@@ -109,7 +108,7 @@ public class MoveBackendTest {
         AdvSave save = new AdvSave();
         NpcList npcList = new NpcList();
         BattleMap map = BattleMap.Factory.createBattleMap(4, 4);
-        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null);
         int id = npcList.addNpc(npc);
         map.getCell(2, 1).setFullEnvObject(new FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE));
 

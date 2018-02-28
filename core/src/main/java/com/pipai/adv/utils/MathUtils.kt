@@ -20,4 +20,8 @@ object MathUtils {
     fun distance2(x1: Float, y1: Float, x2: Float, y2: Float): Float {
         return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)
     }
+
+    fun distance2(x1: Int, y1: Int, x2: Int, y2: Int): Int {
+        return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)
+    }
 }

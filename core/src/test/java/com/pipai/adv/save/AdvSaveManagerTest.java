@@ -37,7 +37,7 @@ public class AdvSaveManagerTest extends GdxMockedTest {
                 new PccTilesetMetadata(playerPcc));
         save.getGlobalNpcList().addNpc(playerNpc);
 
-        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3));
+        Npc npc = TestFixturesKt.npcFromStats(new UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null);
         save.getGlobalNpcList().addNpc(npc);
 
         save.addToGuild("Test Guild", 0);

@@ -146,7 +146,7 @@ class NewGameUiSystem(private val game: AdvGame,
         val playerPcc: List<PccMetadata> = pccCustomizer.getPcc()
         val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, nameText.text),
                 PccTilesetMetadata(playerPcc))
-        playerNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!)
+        playerNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!, 1)
         val playerId = save.globalNpcList.addNpc(playerNpc)
         save.addToGuild(guildText.text, playerId)
 
@@ -154,7 +154,7 @@ class NewGameUiSystem(private val game: AdvGame,
         friendPcc.add(PccMetadata("body", "body_2.png"))
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(friendPcc))
-        friendNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!)
+        friendNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!, 1)
         val friendId = save.globalNpcList.addNpc(friendNpc)
         save.addToGuild(guildText.text, friendId)
 
@@ -166,7 +166,7 @@ class NewGameUiSystem(private val game: AdvGame,
         rivalPcc.add(PccMetadata("subhair", "subhair_12.png"))
         val rivalNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Miriam"),
                 PccTilesetMetadata(rivalPcc))
-        rivalNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Staff")!!)
+        rivalNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Staff")!!, 1)
         val rivalId = save.globalNpcList.addNpc(rivalNpc)
         save.addToGuild(guildText.text, rivalId)
 

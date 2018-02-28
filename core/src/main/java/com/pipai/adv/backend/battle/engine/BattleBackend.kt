@@ -3,6 +3,7 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
@@ -15,8 +16,27 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
     private lateinit var cache: BattleBackendCache
 
-    val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), MoveCommandSanityRule())
-    val commandExecutionRules: List<CommandExecutionRule> = listOf(MovementExecutionRule(), ReduceApExecutionRule())
+    private val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), MoveCommandSanityRule())
+
+    /**
+     * Order matters for CommandExecutionRules. The order in which commands are evaluated will also be returned to the UI
+     * as BattleLogEvents, so it is important to order each execution rule in a way that makes sense.
+     *
+     * Order should look like:
+     * Rules that add PreviewComponents (e.g. Move, NormalAttack, Reload)
+     * Evaluation rules (those that calculate based on PreviewComponents)
+     * Secondary Effect rules
+     * End-of-command rules (e.g. ReduceAP, KO)
+     */
+    private val commandExecutionRules: List<CommandExecutionRule> = listOf(
+            MovementExecutionRule(),
+            NormalAttackExecutionRule(),
+            BaseHitCritExecutionRule(),
+            MeleeHitCritExecutionRule(),
+            RangedHitCritExecutionRule(),
+            AttackCalculationExecutionRule(),
+            AmmoChangeExecutionRule(),
+            ReduceApExecutionRule())
 
     init {
         refreshCache()
@@ -68,7 +88,11 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun preview(command: BattleCommand): List<PreviewComponent> {
         logger.debug("Previewing $command")
         val previews: MutableList<PreviewComponent> = mutableListOf()
-        commandExecutionRules.forEach({ previews.addAll(it.preview(command, state, cache)) })
+        commandExecutionRules.forEach{
+            if (it.matches(command)) {
+                previews.addAll(it.preview(command, state, cache))
+            }
+        }
         return previews
     }
 
@@ -79,7 +103,14 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             throw IllegalArgumentException("$command cannot be executed because: ${executionStatus.reason}")
         }
         state.battleLog.beginExecution()
-        commandExecutionRules.forEach({ it.execute(command, state, cache) })
+        val previewComponents = preview(command)
+        previewComponents.forEach { logger.debug("$it") }
+        commandExecutionRules.forEach{
+            if (it.matches(command)) {
+                logger.debug("Executing rule: ${it::class}")
+                it.execute(command, previewComponents, state, cache)
+            }
+        }
         refreshCache()
         val events = state.battleLog.getEventsDuringExecution()
         events.forEach { logger.debug("BATTLE EVENT: ${it::class.simpleName} ${it.description()}") }
@@ -113,7 +144,7 @@ class NoActionIfNotEnoughApRule : CommandRule {
     }
 
     private fun hasEnoughAp(npcId: Int, requiredAp: Int, apState: ActionPointState): Boolean {
-        var npcAp: Int = apState.getNpcAp(npcId)
+        val npcAp: Int = apState.getNpcAp(npcId)
         return npcAp >= requiredAp
     }
 }
@@ -131,6 +162,7 @@ class ReduceApExecutionRule : CommandExecutionRule {
     }
 
     override fun execute(command: BattleCommand,
+                         previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache) {
         if (command is ActionCommand) {
@@ -196,7 +228,7 @@ interface CommandRule {
 interface CommandExecutionRule {
     fun matches(command: BattleCommand): Boolean
     fun preview(command: BattleCommand, state: BattleState, cache: BattleBackendCache): List<PreviewComponent>
-    fun execute(command: BattleCommand, state: BattleState, cache: BattleBackendCache)
+    fun execute(command: BattleCommand, previews: List<PreviewComponent>, state: BattleState, cache: BattleBackendCache)
 }
 
 interface BattleCommand {
@@ -205,6 +237,16 @@ interface BattleCommand {
 interface ActionCommand : BattleCommand {
     val unitId: Int
     val requiredAp: Int
+}
+
+interface HitCritCommand : BattleCommand {
+    val targetId: Int
+    val baseHit: Int
+    val baseCrit: Int
+}
+
+interface WeaponCommand : BattleCommand {
+    val weapon: InventoryItem.WeaponInstance
 }
 
 class BattleLog {
@@ -232,12 +274,29 @@ interface BattleLogEvent {
 
 sealed class PreviewComponent {
 
-    data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent()
+    data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent() {
+        override val description: String = "Base to hit"
+    }
 
-    data class ToCritPreviewComponent(val toCrit: Int) : PreviewComponent()
+    data class ToCritPreviewComponent(val toCrit: Int) : PreviewComponent() {
+        override val description: String = "Base to crit"
+    }
 
-    data class EstimatedDamagePreviewComponent(val minDamage: Int, val maxDamage: Int) : PreviewComponent()
+    data class ToHitFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
 
-    data class SecondaryEffectPreviewComponent(val chance: Int, val description: String) : PreviewComponent()
+    data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
 
+    data class DamagePreviewComponent(val minDamage: Int, val maxDamage: Int) : PreviewComponent() {
+        override val description: String = "Base damage range"
+    }
+
+    data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
+
+    data class AmmoChangePreviewComponent(val npcId: Int, val newAmount: Int) : PreviewComponent() {
+        override val description: String = "Ammo change"
+    }
+
+    data class SecondaryEffectPreviewComponent(val chance: Int, override val description: String) : PreviewComponent()
+
+    abstract val description: String
 }

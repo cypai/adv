@@ -1,16 +1,18 @@
 package com.pipai.test.fixtures
 
 import com.pipai.adv.SchemaList
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
-import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.adv.backend.battle.domain.UnitSchema
-import com.pipai.adv.backend.battle.domain.UnitStats
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.npc.Npc
 
-fun npcFromStats(stats: UnitStats): Npc {
+fun npcFromStats(stats: UnitStats, weapon: InventoryItem.WeaponInstance?): Npc {
     val schema = UnitSchema("Test Unit", stats)
-    val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.tpMax, null)
+    val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.tpMax, weapon)
     return Npc(unitInstance, EnvObjTilesetMetadata.NONE)
+}
+
+fun swordFixture(): InventoryItem.WeaponInstance {
+    val schema = WeaponSchema("Sword", WeaponType.SWORD, WeaponRange.MELEE, 1, 1, listOf(), 1, "")
+    return InventoryItem.WeaponInstance(schema, 1)
 }
 
 fun getSchemaList(): SchemaList {
