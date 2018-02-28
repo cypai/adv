@@ -5,11 +5,10 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.KeyDownEvent
-import com.pipai.adv.artemis.events.MouseDownEvent
-import com.pipai.adv.artemis.events.MovementTileUpdateEvent
+import com.pipai.adv.artemis.events.*
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.utils.CollisionUtils
@@ -30,10 +29,11 @@ class SelectedUnitSystem : NoProcessingSystem() {
     private val mXy by mapper<XYComponent>()
     private val mCollision by mapper<CollisionComponent>()
 
+    private val sNpcId by system<NpcIdSystem>()
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
 
-    // entityId of the selected unit
+    // npcId of the selected unit
     var selectedUnit: Int? = null
         private set
 
@@ -54,7 +54,10 @@ class SelectedUnitSystem : NoProcessingSystem() {
             }
         }
         if (minYId != null) {
-            select(minYId)
+            val npcId = mNpcId.get(minYId).npcId
+            if (selectedUnit != npcId) {
+                select(npcId)
+            }
         }
     }
 
@@ -71,8 +74,11 @@ class SelectedUnitSystem : NoProcessingSystem() {
         return playerUnitEntityBag.data.slice(0 until playerUnitEntityBag.size())
     }
 
-    private fun select(playerUnitEntityId: Int?) {
-        selectedUnit = playerUnitEntityId
+    private fun select(npcId: Int?) {
+        selectedUnit?.let { sEvent.dispatch(PlayerUnitUnselectedEvent(it)) }
+        npcId?.let { sEvent.dispatch(PlayerUnitSelectedEvent(it)) }
+        selectedUnit = npcId
+        val playerUnitEntityId = npcId?.let { sNpcId.getNpcEntityId(it) }
         if (playerUnitEntityId != null) {
             val cPlayerXy = mXy.get(playerUnitEntityId)
 
@@ -86,7 +92,6 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
             val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
             val battleState = backend.getBattleState()
-            val npcId = mNpcId.get(playerUnitEntityId).npcId
             val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
             val mapGraph = MapGraph(backend.getBattleMapState(),
                     backend.getNpcPositions()[npcId]!!,
@@ -98,13 +103,13 @@ class SelectedUnitSystem : NoProcessingSystem() {
 
     fun selectNext() {
         val playerUnits = fetchPlayerUnits()
-                .map { Pair(mPlayerUnit.get(it).index, it) }
+                .map { Pair(mPlayerUnit.get(it).index, mNpcId.get(it).npcId) }
                 .sortedBy { it.first }
         val currentSelectedUnit = selectedUnit
         if (currentSelectedUnit == null) {
             select(playerUnits.firstOrNull()?.second)
         } else {
-            val currentIndex = mPlayerUnit.get(currentSelectedUnit).index
+            val currentIndex = mPlayerUnit.get(sNpcId.getNpcEntityId(currentSelectedUnit)!!).index
             val next = playerUnits.firstOrNull { it.first > currentIndex }
             if (next == null) {
                 select(playerUnits.minBy { it.first }?.second)

@@ -73,8 +73,6 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 handleEnvObj(cBackend.backend, fullEnvObj, x, y)
             }
         }
-
-        sSelectedUnit.selectNext()
     }
 
     private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {
@@ -105,7 +103,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                         val cUi = mSideUiBox.create(uiId)
                         cUi.setToNpc(envObj.npcId, backend)
                         val cUiXy = mXy.create(uiId)
-                        cUiXy.x = config.resolution.width - BattleSideUiSystem.UI_WIDTH
+                        cUiXy.x = config.resolution.width - BattleSideUiSystem.UI_WIDTH + BattleSideUiSystem.SELECTION_DISTANCE
                         cUiXy.y = config.resolution.height - (BattleSideUiSystem.UI_HEIGHT + UI_VERTICAL_PADDING) * (playerUnitIndex + 1)
                         playerUnitIndex++
                     }

@@ -4,8 +4,12 @@ import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.Vector2
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
+import com.pipai.adv.artemis.events.PlayerUnitSelectedEvent
+import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
@@ -15,6 +19,7 @@ import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.fetch
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
 
@@ -23,6 +28,8 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
 
     private val mBackend by mapper<BattleBackendComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
+
+    private val mPath by mapper<PathInterpolationComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -39,8 +46,39 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
         const val BAR_VERTICAL_PADDING = 12f
         const val BAR_TEXT_PADDING = 8f
         const val POST_BAR_PADDING = 64f
-        const val UI_WIDTH = PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + POST_BAR_PADDING
+        const val SELECTION_DISTANCE = 8f
+        const val UI_WIDTH = PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + POST_BAR_PADDING + SELECTION_DISTANCE
         const val UI_HEIGHT = PADDING + PORTRAIT_HEIGHT + PADDING
+
+        const val SELECTION_TIME = 10
+    }
+
+    @Subscribe
+    fun playerUnitSelectedListener(event: PlayerUnitSelectedEvent) {
+        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .find { mSideUiBox.get(it).npcId == event.npcId }
+        if (uiEntityId != null) {
+            val cXy = mXy.get(uiEntityId)
+            val cPath = mPath.create(uiEntityId)
+            cPath.interpolation = Interpolation.linear
+            cPath.endpoints.add(Vector2(cXy.x, cXy.y))
+            cPath.endpoints.add(Vector2(cXy.x - SELECTION_DISTANCE, cXy.y))
+            cPath.maxT = SELECTION_TIME
+        }
+    }
+
+    @Subscribe
+    fun playerUnitUnselectedListener(event: PlayerUnitUnselectedEvent) {
+        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .find { mSideUiBox.get(it).npcId == event.npcId }
+        if (uiEntityId != null) {
+            val cXy = mXy.get(uiEntityId)
+            val cPath = mPath.create(uiEntityId)
+            cPath.interpolation = Interpolation.linear
+            cPath.endpoints.add(Vector2(cXy.x, cXy.y))
+            cPath.endpoints.add(Vector2(cXy.x + SELECTION_DISTANCE, cXy.y))
+            cPath.maxT = SELECTION_TIME
+        }
     }
 
     override fun processSystem() {
