@@ -29,7 +29,7 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
             val destination = GridUtils.gridPositionToLocal(moveEvent.endPosition, config.resolution.tileSize.toFloat())
             val cXy = mXy.get(entityId)
             cXy.x = destination.x
-            cXy.y = destination.y
+            cXy.y = destination.y + config.resolution.tileOffset
         }
     }
 

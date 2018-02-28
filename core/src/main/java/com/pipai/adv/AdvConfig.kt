@@ -12,17 +12,17 @@ enum class AspectRatio {
 }
 
 enum class ScreenResolution(val width: Int, val height: Int, val aspectRatio: AspectRatio, val description: String?,
-                            val tileSize: Int) {
+                            val tileSize: Int, val tileOffset: Int) {
     // 4:3 Resolutions
-    RES_1024_768(1024, 768, AspectRatio.AR_4_3, null, 32),
-    RES_1280_960(1280, 960, AspectRatio.AR_4_3, null, 32),
+    RES_1024_768(1024, 768, AspectRatio.AR_4_3, null, 32, 10),
+    RES_1280_960(1280, 960, AspectRatio.AR_4_3, null, 32, 10),
 
     // 16:10 Resolutions (rare but should be supported, why not)
-    RES_1280_800(1280, 800, AspectRatio.AR_16_10, null, 32),
+    RES_1280_800(1280, 800, AspectRatio.AR_16_10, null, 32, 10),
 
     // 16:9 Resolutions
-    RES_1280_720(1280, 720, AspectRatio.AR_16_9, "720p", 32),
-    RES_1920_1080(1920, 1080, AspectRatio.AR_16_9, "1080p", 32);
+    RES_1280_720(1280, 720, AspectRatio.AR_16_9, "720p", 32, 10),
+    RES_1920_1080(1920, 1080, AspectRatio.AR_16_9, "1080p", 32, 10);
 
     fun toDebugString(): String {
         return "ScreenResolution[${width}x${height}, ${aspectRatio}, ${description}, TileSize: ${tileSize}]"

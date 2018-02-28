@@ -116,9 +116,8 @@ class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
         val destination = GridUtils.localToGridPosition(event.x, event.y, game.advConfig.resolution.tileSize.toFloat())
         if (theMapGraph.canMoveTo(destination)) {
             val backend = getBackend()
-            val npcId = mNpcId.get(selectedUnit).npcId
 
-            val moveCommand = MoveCommand(npcId, theMapGraph.getPath(destination))
+            val moveCommand = MoveCommand(selectedUnit, theMapGraph.getPath(destination))
 
             val executionStatus = backend.canBeExecuted(moveCommand)
             if (executionStatus.executable) {
