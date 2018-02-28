@@ -15,6 +15,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
+import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager
 
 @Wire
@@ -128,6 +129,10 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cAnimationFrames.frameMax = 3
                 cAnimationFrames.tMax = 30
                 cAnimationFrames.tStartNoise = 5
+
+                val cCollision = mCollision.create(id)
+                cCollision.bounds = CollisionBounds.CollisionBoundingBox(0f, 0f,
+                        AnimatedTilesetManager.TILE_WIDTH.toFloat(), AnimatedTilesetManager.TILE_HEIGHT.toFloat())
 
                 if (envObj is FullEnvObject.NpcEnvObject) {
                     mNpcId.create(id).npcId = envObj.npcId

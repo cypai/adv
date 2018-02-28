@@ -8,8 +8,11 @@ import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
+import com.pipai.adv.artemis.events.NonPlayerUnitSelectedEvent
+import com.pipai.adv.artemis.events.NonPlayerUnitUnselectedEvent
 import com.pipai.adv.artemis.events.PlayerUnitSelectedEvent
 import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
+import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
@@ -61,7 +64,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
-            cPath.endpoints.add(Vector2(cXy.x, cXy.y))
+            cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(cXy.x - SELECTION_DISTANCE, cXy.y))
             cPath.maxT = SELECTION_TIME
         }
@@ -75,9 +78,40 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem() {
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
-            cPath.endpoints.add(Vector2(cXy.x, cXy.y))
+            cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(cXy.x + SELECTION_DISTANCE, cXy.y))
             cPath.maxT = SELECTION_TIME
+        }
+    }
+
+    @Subscribe
+    fun nonPlayerUnitSelectedListener(event: NonPlayerUnitSelectedEvent) {
+        val entityId = world.create()
+        val cUi = mSideUiBox.create(entityId)
+        cUi.setToNpc(event.npcId, getBackend())
+        cUi.orientation = SideUiBoxOrientation.PORTRAIT_RIGHT
+        val cXy = mXy.create(entityId)
+        cXy.x = -UI_WIDTH
+        cXy.y = game.advConfig.resolution.height - BattleSideUiSystem.UI_HEIGHT - BattleMapScreenInit.UI_VERTICAL_PADDING
+        val cPath = mPath.create(entityId)
+        cPath.interpolation = Interpolation.linear
+        cPath.endpoints.add(cXy.toVector2())
+        cPath.endpoints.add(Vector2(0f, cXy.y))
+        cPath.maxT = SELECTION_TIME
+    }
+
+    @Subscribe
+    fun nonPlayerUnitUnselectedListener(event: NonPlayerUnitUnselectedEvent) {
+        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .find { mSideUiBox.get(it).npcId == event.npcId }
+        if (uiEntityId != null) {
+            val cXy = mXy.get(uiEntityId)
+            val cPath = mPath.create(uiEntityId)
+            cPath.interpolation = Interpolation.linear
+            cPath.endpoints.add(cXy.toVector2())
+            cPath.endpoints.add(Vector2(-UI_WIDTH, cXy.y))
+            cPath.maxT = SELECTION_TIME
+            cPath.onEnd = PathInterpolationEndStrategy.DESTROY
         }
     }
 

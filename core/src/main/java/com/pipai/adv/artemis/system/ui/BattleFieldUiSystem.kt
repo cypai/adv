@@ -54,6 +54,10 @@ class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
     @Subscribe
     fun movementTileUpdateListener(event: MovementTileUpdateEvent) {
         mapGraph = event.mapGraph
+
+        if (event.mapGraph == null) {
+            movePreviewEntityId?.let { world.delete(it) }
+        }
     }
 
     @Subscribe

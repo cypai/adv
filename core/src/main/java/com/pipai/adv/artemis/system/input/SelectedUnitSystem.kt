@@ -9,6 +9,7 @@ import com.pipai.adv.artemis.events.*
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
+import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.utils.CollisionUtils
@@ -41,11 +42,11 @@ class SelectedUnitSystem : NoProcessingSystem() {
     fun mouseDownListener(event: MouseDownEvent) {
         if (event.button != Input.Buttons.LEFT) return
 
-        val playerUnitEntities = fetchPlayerUnits()
+        val npcUnitEntities = fetchNpcUnits()
 
         var minY = Float.MAX_VALUE
         var minYId: Int? = null
-        for (entityId in playerUnitEntities) {
+        for (entityId in npcUnitEntities) {
             val cXy = mXy.get(entityId)
             val cCollision = mCollision.get(entityId)
             if (cXy.y < minY && CollisionUtils.withinBounds(event.x, event.y, cXy.x, cXy.y, cCollision.bounds)) {
@@ -68,6 +69,12 @@ class SelectedUnitSystem : NoProcessingSystem() {
         }
     }
 
+    private fun fetchNpcUnits(): List<Int> {
+        val npcUnitEntityBag = world.aspectSubscriptionManager.get(allOf(
+                NpcIdComponent::class, XYComponent::class, CollisionComponent::class)).entities
+        return npcUnitEntityBag.data.slice(0 until npcUnitEntityBag.size())
+    }
+
     private fun fetchPlayerUnits(): List<Int> {
         val playerUnitEntityBag = world.aspectSubscriptionManager.get(allOf(
                 NpcIdComponent::class, PlayerUnitComponent::class, XYComponent::class, CollisionComponent::class)).entities
@@ -75,30 +82,48 @@ class SelectedUnitSystem : NoProcessingSystem() {
     }
 
     private fun select(npcId: Int?) {
-        selectedUnit?.let { sEvent.dispatch(PlayerUnitUnselectedEvent(it)) }
-        npcId?.let { sEvent.dispatch(PlayerUnitSelectedEvent(it)) }
-        selectedUnit = npcId
-        val playerUnitEntityId = npcId?.let { sNpcId.getNpcEntityId(it) }
-        if (playerUnitEntityId != null) {
-            val cPlayerXy = mXy.get(playerUnitEntityId)
+        val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
-            val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
-            val cCamera = mCamera.get(cameraId)
-            val cInterpolation = mPath.create(cameraId)
-            cInterpolation.interpolation = Interpolation.sineOut
-            cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
-            cInterpolation.endpoints.add(Vector2(cPlayerXy.x, cPlayerXy.y))
-            cInterpolation.maxT = 20
-
-            val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
-            val battleState = backend.getBattleState()
-            val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
-            val mapGraph = MapGraph(backend.getBattleMapState(),
-                    backend.getNpcPositions()[npcId]!!,
-                    unitInstance.schema.baseStats.mobility,
-                    battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
-            sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
+        selectedUnit?.let {
+            val currentSelectedTeam = backend.getNpcTeams()[it]!!
+            when (currentSelectedTeam) {
+                Team.PLAYER -> sEvent.dispatch(PlayerUnitUnselectedEvent(it))
+                Team.AI -> sEvent.dispatch(NonPlayerUnitUnselectedEvent(it))
+            }
         }
+
+        npcId?.let {
+            val nextSelectedTeam = backend.getNpcTeams()[it]!!
+            when (nextSelectedTeam) {
+                Team.PLAYER -> sEvent.dispatch(PlayerUnitSelectedEvent(it))
+                Team.AI -> sEvent.dispatch(NonPlayerUnitSelectedEvent(it))
+            }
+            val unitEntityId = sNpcId.getNpcEntityId(npcId)
+            if (unitEntityId != null) {
+                val cUnitXy = mXy.get(unitEntityId)
+
+                val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
+                val cCamera = mCamera.get(cameraId)
+                val cInterpolation = mPath.create(cameraId)
+                cInterpolation.interpolation = Interpolation.sineOut
+                cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
+                cInterpolation.endpoints.add(Vector2(cUnitXy.x, cUnitXy.y))
+                cInterpolation.maxT = 20
+
+                if (nextSelectedTeam == Team.PLAYER) {
+                    val battleState = backend.getBattleState()
+                    val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
+                    val mapGraph = MapGraph(backend.getBattleMapState(),
+                            backend.getNpcPositions()[npcId]!!,
+                            unitInstance.schema.baseStats.mobility,
+                            battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
+                    sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
+                } else {
+                    sEvent.dispatch(MovementTileUpdateEvent(null))
+                }
+            }
+        }
+        selectedUnit = npcId
     }
 
     fun selectNext() {
@@ -109,12 +134,16 @@ class SelectedUnitSystem : NoProcessingSystem() {
         if (currentSelectedUnit == null) {
             select(playerUnits.firstOrNull()?.second)
         } else {
-            val currentIndex = mPlayerUnit.get(sNpcId.getNpcEntityId(currentSelectedUnit)!!).index
-            val next = playerUnits.firstOrNull { it.first > currentIndex }
-            if (next == null) {
-                select(playerUnits.minBy { it.first }?.second)
+            val currentIndex = mPlayerUnit.getSafe(sNpcId.getNpcEntityId(currentSelectedUnit)!!, null)?.index
+            if (currentIndex != null) {
+                val next = playerUnits.firstOrNull { it.first > currentIndex }
+                if (next == null) {
+                    select(playerUnits.minBy { it.first }?.second)
+                } else {
+                    select(next.second)
+                }
             } else {
-                select(next.second)
+                select(playerUnits.firstOrNull()?.second)
             }
         }
     }

@@ -19,6 +19,8 @@ class XYComponent : Component() {
         this.x = vec.x
         this.y = vec.y
     }
+
+    fun toVector2() = Vector2(x, y)
 }
 
 class PathInterpolationComponent : Component() {
