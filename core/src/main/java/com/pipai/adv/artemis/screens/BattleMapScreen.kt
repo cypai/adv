@@ -78,6 +78,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
+        inputProcessor.addProcessor(world.getSystem(BattleSideUiSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(InputEventSystem::class.java))
         inputProcessor.activateInput()
 

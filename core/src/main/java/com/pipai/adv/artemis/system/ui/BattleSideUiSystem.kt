@@ -16,15 +16,11 @@ import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
-import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
-import com.pipai.adv.utils.allOf
-import com.pipai.adv.utils.fetch
-import com.pipai.adv.utils.mapper
-import com.pipai.adv.utils.system
+import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
@@ -39,7 +35,6 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
 
     private val sTags by system<TagManager>()
     private val sSelectedUnit by system<SelectedUnitSystem>()
-    private val sCameraInterpolation by system<CameraInterpolationSystem>()
 
     private val frameDrawable = game.skin.getDrawable("frame")
     private val frameBgDrawable = game.skin.getDrawable("bg")
@@ -306,6 +301,17 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+        val bounds = CollisionBounds.CollisionBoundingBox(0f, 0f, UI_WIDTH, UI_HEIGHT)
+        sideUiEntities.forEach {
+            val cXy = mXy.get(it)
+            if (CollisionUtils.withinBounds(screenX.toFloat(), game.advConfig.resolution.height - screenY.toFloat(),
+                            cXy.x, cXy.y, bounds)) {
+                val cSideUi = mSideUiBox.get(it)
+                sSelectedUnit.select(cSideUi.npcId)
+                return true
+            }
+        }
         return false
     }
 
