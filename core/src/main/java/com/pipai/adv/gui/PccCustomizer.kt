@@ -171,7 +171,7 @@ class PccCustomizer(pcc: List<PccMetadata>,
     private fun generatePartsDropDown(type: String, defaultSelected: PccMetadata?): ImageSelectBox<PccMetadata> {
 
         val view = object : ImageList.ImageListItemView<PccMetadata> {
-            override fun getItemImage(item: PccMetadata): TextureRegion {
+            override fun getItemImage(item: PccMetadata): TextureRegion? {
                 return pccManager.getPccFrame(item, UnitAnimationFrame(Direction.S, 0))
             }
 

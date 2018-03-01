@@ -134,8 +134,7 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
         val layout = layoutPool.obtain()
         for (item in items) {
             val image = itemView.getItemImage(item)
-            val scale = font.lineHeight / image.regionHeight
-            val imageWidth = image.regionWidth * scale
+            val imageWidth = if (image == null) 0f else image.regionWidth * font.lineHeight / image.regionHeight
             layout.setText(font, itemView.getItemText(item))
             maxItemWidth = Math.max(imageWidth + itemView.getSpacing() + layout.width, maxItemWidth)
         }
@@ -197,12 +196,12 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
             val image = itemView.getItemImage(selected)
             val text = itemView.getItemText(selected)
 
-            val scale = font.lineHeight / image.regionHeight
-            val imageWidth = image.regionWidth * scale
-
-            batch.draw(image, drawX, drawY - font.lineHeight - font.descent, imageWidth, font.lineHeight)
+            image?.let {
+                val scale = font.lineHeight / it.regionHeight
+                val imageWidth = it.regionWidth * scale
+                batch.draw(image, drawX, drawY - font.lineHeight - font.descent, imageWidth, font.lineHeight)
+            }
             layout.setText(font, text, 0, text.length, font.color, drawWidth, Align.left, false, "...")
-
             font.draw(batch, layout, drawX + itemView.getSpacing(), drawY)
         }
     }

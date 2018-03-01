@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
+import com.badlogic.gdx.scenes.scene2d.utils.MultiDrawable
+import com.badlogic.gdx.scenes.scene2d.utils.OffsetDrawable
 import com.kotcrab.vis.ui.VisUI
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.gui.BatchHelper
@@ -125,6 +127,13 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("default", scrollPaneStyle)
         val selectBoxStyle = SelectBox.SelectBoxStyle(smallFont, Color.BLACK, whiteDrawable, scrollPaneStyle, listStyle)
         skin.add("default", selectBoxStyle)
+
+        val menuListStyle = List.ListStyle(font, Color.BLACK, Color.BLACK,
+                OffsetDrawable(skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f)), 4f, 4f, -8f, -8f))
+        menuListStyle.background = MultiDrawable(arrayOf(
+                skin.getDrawable("bg"),
+                OffsetDrawable(skin.getDrawable("frame"), -1f, -3f, 4f, 4f)))
+        skin.add("menuList", menuListStyle)
     }
 
     override fun render() {

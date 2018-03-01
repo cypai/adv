@@ -4,9 +4,13 @@ import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.NonPlayerUnitSelectedEvent
@@ -27,6 +31,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
 
     private val mSideUiBox by mapper<SideUiBoxComponent>()
     private val mXy by mapper<XYComponent>()
+    private val mActor by mapper<ActorComponent>()
 
     private val mBackend by mapper<BattleBackendComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
@@ -39,6 +44,14 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
     private val frameDrawable = game.skin.getDrawable("frame")
     private val frameBgDrawable = game.skin.getDrawable("bg")
     private val portraitBgDrawable = game.skin.newDrawable("white", Color.DARK_GRAY)
+
+    val stage = Stage(ScreenViewport())
+    private val primaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<String> {
+        override fun getItemImage(item: String): TextureRegion? = null
+        override fun getItemText(item: String): String = item
+        override fun getSpacing(): Float = 10f
+    })
+    private var primaryActionMenuEntityId: Int = 0
 
     companion object {
         const val PORTRAIT_WIDTH = 80f
@@ -54,6 +67,23 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         const val UI_HEIGHT = PADDING + PORTRAIT_HEIGHT + PADDING
 
         const val SELECTION_TIME = 10
+
+        const val ACTION_UI_WIDTH = 160f
+        const val ACTION_UI_HEIGHT = 220f
+    }
+
+    init {
+        primaryActionMenu.x = PADDING
+        primaryActionMenu.y = PADDING
+        primaryActionMenu.width = ACTION_UI_WIDTH
+        primaryActionMenu.height = ACTION_UI_HEIGHT
+        primaryActionMenu.setItems(listOf("Move", "Attack", "Skill", "Item", "Defend", "Wait"))
+    }
+
+    override fun initialize() {
+        primaryActionMenuEntityId = world.create()
+        val cPrimaryActionMenu = mActor.create(primaryActionMenuEntityId)
+        cPrimaryActionMenu.actor = primaryActionMenu
     }
 
     @Subscribe
@@ -64,10 +94,18 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
+            cPath.endpoints.clear()
             cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(cXy.x - SELECTION_DISTANCE, cXy.y))
             cPath.maxT = SELECTION_TIME
         }
+        val cPrimaryMenuPath = mPath.create(primaryActionMenuEntityId)
+        cPrimaryMenuPath.interpolation = Interpolation.linear
+        cPrimaryMenuPath.endpoints.clear()
+        cPrimaryMenuPath.endpoints.add(Vector2(-ACTION_UI_WIDTH, primaryActionMenu.y))
+        cPrimaryMenuPath.endpoints.add(Vector2(PADDING, primaryActionMenu.y))
+        cPrimaryMenuPath.maxT = SELECTION_TIME
+        stage.addActor(primaryActionMenu)
     }
 
     @Subscribe
@@ -78,10 +116,12 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
+            cPath.endpoints.clear()
             cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(cXy.x + SELECTION_DISTANCE, cXy.y))
             cPath.maxT = SELECTION_TIME
         }
+        stage.clear()
     }
 
     @Subscribe
@@ -95,6 +135,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         cXy.y = game.advConfig.resolution.height - BattleSideUiSystem.UI_HEIGHT - BattleMapScreenInit.UI_VERTICAL_PADDING
         val cPath = mPath.create(entityId)
         cPath.interpolation = Interpolation.linear
+        cPath.endpoints.clear()
         cPath.endpoints.add(cXy.toVector2())
         cPath.endpoints.add(Vector2(0f, cXy.y))
         cPath.maxT = SELECTION_TIME
@@ -108,6 +149,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
+            cPath.endpoints.clear()
             cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(-UI_WIDTH, cXy.y))
             cPath.maxT = SELECTION_TIME
@@ -117,7 +159,6 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
 
     override fun processSystem() {
         val uiCamera = mCamera.get(sTags.getEntityId(Tags.UI_CAMERA.toString()))
-
         val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
 
         game.spriteBatch.projectionMatrix = uiCamera.camera.combined
@@ -136,6 +177,13 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         }
         game.spriteBatch.end()
         game.shapeRenderer.end()
+
+        stage.act()
+        stage.draw()
+    }
+
+    override fun dispose() {
+        stage.dispose()
     }
 
     private fun drawLeftSideUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {

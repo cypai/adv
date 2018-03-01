@@ -102,8 +102,11 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         val layout = layoutPool.obtain()
         for (item in items) {
             val image = itemView.getItemImage(item)
-            val scale = font.lineHeight / image.regionHeight
-            val imageWidth = image.regionWidth * scale
+            var imageWidth = 0f
+            if (image != null) {
+                val scale = font.lineHeight / image.regionHeight
+                imageWidth = image.regionWidth * scale
+            }
             layout.setText(font, itemView.getItemText(item))
             val itemWidth = imageWidth + itemView.getSpacing() + layout.width
             prefWidth = Math.max(itemWidth, prefWidth)
@@ -153,7 +156,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 selectedDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
                 font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
             }
-            drawItem(batch, font, item, x, y + itemY, textOffsetX, -textOffsetY)
+            drawItem(batch, font, item, x, y + itemY, textOffsetX, -textOffsetY, width)
             if (selected) {
                 font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
             }
@@ -161,15 +164,22 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         }
     }
 
-    internal fun drawItem(batch: Batch, font: BitmapFont, item: T, x: Float, y: Float, textOffsetX: Float, textOffsetY: Float): GlyphLayout {
+    private fun drawItem(batch: Batch, font: BitmapFont, item: T, x: Float, y: Float, textOffsetX: Float, textOffsetY: Float, width: Float) {
         val image = itemView.getItemImage(item)
         val text = itemView.getItemText(item)
 
-        val scale = font.lineHeight / image.regionHeight
-        val imageWidth = image.regionWidth * scale
-        batch.draw(image, x, y - font.lineHeight, imageWidth, font.lineHeight)
+        if (image != null) {
+            val scale = font.lineHeight / image.regionHeight
+            val imageWidth = image.regionWidth * scale
+            batch.draw(image, x, y - font.lineHeight, imageWidth, font.lineHeight)
+        }
 
-        return font.draw(batch, text, x + textOffsetX + itemView.getSpacing(), y + textOffsetY)
+        font.draw(batch, text, x + textOffsetX + itemView.getSpacing(), y + textOffsetY)
+
+        val rightText = itemView.getItemRightText(item)
+        val glyphLayout = Pools.get(GlyphLayout::class.java).obtain()
+        glyphLayout.setText(font, rightText)
+        font.draw(batch, rightText, width - glyphLayout.width - 2, y + textOffsetY)
     }
 
     fun setItems(newItems: Array<T>) {
@@ -212,8 +222,9 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     interface ImageListItemView<in T> {
-        fun getItemImage(item: T): TextureRegion
+        fun getItemImage(item: T): TextureRegion?
         fun getItemText(item: T): String
-        fun getSpacing(): Float
+        fun getItemRightText(item: T): String = ""
+        fun getSpacing(): Float = 0f
     }
 }

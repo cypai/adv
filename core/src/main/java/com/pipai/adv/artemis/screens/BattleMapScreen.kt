@@ -10,10 +10,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.*
-import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
-import com.pipai.adv.artemis.system.misc.PathInterpolationSystem
-import com.pipai.adv.artemis.system.misc.NpcIdSystem
-import com.pipai.adv.artemis.system.misc.XyInterpolationSystem
+import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.BattleFieldUiSystem
@@ -57,6 +54,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         AnimationFrameIncrementSystem(),
                         PathInterpolationSystem(),
                         XyInterpolationSystem(),
+                        ActorInterpolationSystem(),
 
                         NpcIdSystem(),
                         SelectedUnitSystem(),
@@ -79,6 +77,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(BattleSideUiSystem::class.java))
+        inputProcessor.addProcessor(world.getSystem(BattleSideUiSystem::class.java).stage)
         inputProcessor.addProcessor(world.getSystem(InputEventSystem::class.java))
         inputProcessor.activateInput()
 

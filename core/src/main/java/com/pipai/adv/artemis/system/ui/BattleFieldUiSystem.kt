@@ -1,19 +1,17 @@
 package com.pipai.adv.artemis.system.ui
 
-import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.MouseDownEvent
 import com.pipai.adv.artemis.events.MouseHoverEvent
 import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.backend.battle.domain.GridPosition
@@ -26,7 +24,7 @@ import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
+class BattleFieldUiSystem(private val game: AdvGame) : NoProcessingSystem() {
 
     private val logger = getLogger()
 
@@ -48,8 +46,6 @@ class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
     private var mapGraph: MapGraph? = null
     private var hoverDestination: GridPosition? = null
     private var movePreviewEntityId: Int? = null
-
-    val stage = Stage(ScreenViewport())
 
     @Subscribe
     fun movementTileUpdateListener(event: MovementTileUpdateEvent) {
@@ -132,14 +128,4 @@ class BattleFieldUiSystem(private val game: AdvGame) : BaseSystem() {
     private fun getBackend(): BattleBackend {
         return mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
     }
-
-    override fun processSystem() {
-        stage.act()
-        stage.draw()
-    }
-
-    override fun dispose() {
-        stage.dispose()
-    }
-
 }
