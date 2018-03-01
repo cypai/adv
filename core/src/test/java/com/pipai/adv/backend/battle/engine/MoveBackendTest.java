@@ -114,9 +114,10 @@ public class MoveBackendTest {
 
         BattleBackend backend = new BattleBackend(save, npcList, map);
 
-        MoveCommand cmd = new MoveCommand(id + 1, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
+        int badId = id + 1;
+        MoveCommand cmd = new MoveCommand(badId, Arrays.asList(new GridPosition(2, 1), new GridPosition(3, 1)));
         ExecutableStatus executable = backend.canBeExecuted(cmd);
         Assert.assertFalse(executable.getExecutable());
-        Assert.assertEquals("Npc does not exist", executable.getReason());
+        Assert.assertEquals("Npc " + badId + " does not exist", executable.getReason());
     }
 }

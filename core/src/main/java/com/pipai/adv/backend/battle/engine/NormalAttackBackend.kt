@@ -20,16 +20,10 @@ class NormalAttackCommandSanityRule : CommandRule {
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is NormalAttackCommand) {
-            val attacker = state.npcList.getNpc(command.unitId)
-                    ?: return ExecutableStatus(false, "Attacker ${command.unitId} does not exist")
-            val target = state.npcList.getNpc(command.targetId)
-                    ?: return ExecutableStatus(false, "Target ${command.unitId} does not exist")
-
-            if (attacker.unitInstance.hp <= 0) {
-                return ExecutableStatus(false, "Attacker ${command.unitId} has < 0 HP")
-            }
-            if (target.unitInstance.hp <= 0) {
-                return ExecutableStatus(false, "Target ${command.unitId} has < 0 HP")
+            val attacker = state.npcList.getNpc(command.unitId)!!
+            val weapon = command.weapon
+            if (attacker.unitInstance.weapon != weapon) {
+                return ExecutableStatus(false, "Attacker is not wielding this weapon")
             }
 
             val range = command.weapon.schema.range
@@ -45,7 +39,6 @@ class NormalAttackCommandSanityRule : CommandRule {
                 return ExecutableStatus(false, "Attacking distance is too great")
             }
 
-            val weapon = command.weapon
             if (weapon.ammo <= 0
                     && (weapon.schema.attributes.contains(WeaponAttribute.CAN_RELOAD)
                             || weapon.schema.attributes.contains(WeaponAttribute.CAN_FAST_RELOAD))) {

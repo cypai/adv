@@ -9,6 +9,20 @@ import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.getLogger
 
+/**
+ * The engine that keeps track of battle game state and executes commands.
+ *
+ * Notes:
+ * npcList contains a list of ALL characters, including player guild members, randomly generated enemies,
+ * defeated characters, etc. This means that not all characters in the list are active participants in battle.
+ *
+ * The BattleBackendCache is a snapshot of the game state before commands are executed. They might not reflect
+ * changes by ExecutionRules.
+ *
+ * teamNpcs and npcTeams should only contain active characters in battle (unless they were KOed as a result of the command)
+ *
+ * currentTurnKos is a list of player characters that were already KOed at the start of the command.
+ */
 class BattleBackend(private val save: AdvSave, private val npcList: NpcList, private val battleMap: BattleMap) {
 
     private val logger = getLogger()
@@ -17,6 +31,9 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private lateinit var cache: BattleBackendCache
 
     private val commandRules: List<CommandRule> = listOf(
+            NpcMustExistRule(),
+            KoCannotTakeActionRule(),
+            KoCannotBeAttackedRule(),
             NoActionIfNpcNotExistsRule(),
             NoActionIfNotEnoughApRule(),
             MoveCommandSanityRule(),
@@ -33,6 +50,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
      * End-of-command rules (e.g. ReduceAP, KO)
      */
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
+            DevHpChangeExecutionRule(),
             MovementExecutionRule(),
             NormalAttackExecutionRule(),
             BaseHitCritExecutionRule(),
@@ -40,7 +58,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             RangedHitCritExecutionRule(),
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
-            ReduceApExecutionRule())
+            ReduceApExecutionRule(),
+            KoExecutionRule())
 
     companion object {
         const val MELEE_WEAPON_DISTANCE = 1.8
@@ -57,26 +76,27 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         val npcPositions: MutableMap<Int, GridPosition> = mutableMapOf()
         val teamNpcs: MutableMap<Team, MutableList<Int>> = mutableMapOf()
         val npcTeams: MutableMap<Int, Team> = mutableMapOf()
+        val currentTurnKos: MutableList<Int> = mutableListOf()
 
         teamNpcs.put(Team.PLAYER, mutableListOf())
         teamNpcs.put(Team.AI, mutableListOf())
         for (x in 0 until battleMap.width) {
             for (y in 0 until battleMap.height) {
-                val maybeNpc = battleMap.getCell(x, y).fullEnvObject
-                if (maybeNpc != null && maybeNpc is NpcEnvObject) {
-                    val npcId = maybeNpc.npcId
+                val envObject = battleMap.getCell(x, y).fullEnvObject
+                if (envObject != null && envObject is NpcEnvObject) {
+                    val npcId = envObject.npcId
                     npcPositions.put(npcId, GridPosition(x, y))
-                    if (save.npcInPlayerGuild(npcId)) {
-                        teamNpcs[Team.PLAYER]!!.add(npcId)
-                        npcTeams[npcId] = Team.PLAYER
-                    } else {
-                        teamNpcs[Team.AI]!!.add(npcId)
-                        npcTeams[npcId] = Team.AI
+                    val team = envObject.team
+                    teamNpcs[team]!!.add(npcId)
+                    npcTeams[npcId] = team
+                    val npc = npcList.getNpc(envObject.npcId)!!
+                    if (npc.unitInstance.hp <= 0) {
+                        currentTurnKos.add(npcId)
                     }
                 }
             }
         }
-        cache = BattleBackendCache(npcPositions, teamNpcs.mapValues { it.value.toList() }, npcTeams)
+        cache = BattleBackendCache(npcPositions, teamNpcs.mapValues { it.value.toList() }, npcTeams, currentTurnKos)
     }
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
@@ -99,7 +119,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun preview(command: BattleCommand): List<PreviewComponent> {
         logger.debug("Previewing $command")
         val previews: MutableList<PreviewComponent> = mutableListOf()
-        commandExecutionRules.forEach{
+        commandExecutionRules.forEach {
             if (it.matches(command)) {
                 previews.addAll(it.preview(command, state, cache))
             }
@@ -116,7 +136,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         state.battleLog.beginExecution()
         val previewComponents = preview(command)
         previewComponents.forEach { logger.debug("$it") }
-        commandExecutionRules.forEach{
+        commandExecutionRules.forEach {
             if (it.matches(command)) {
                 logger.debug("Executing rule: ${it::class}")
                 it.execute(command, previewComponents, state, cache)
@@ -131,7 +151,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
 data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
                               val teamNpcs: Map<Team, List<Int>>,
-                              val npcTeams: Map<Int, Team>)
+                              val npcTeams: Map<Int, Team>,
+                              val currentTurnKos: List<Int>)
 
 class NoActionIfNpcNotExistsRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {

@@ -17,6 +17,14 @@ data class DamageEvent(val npcId: Int,
     }
 }
 
+data class HealEvent(val npcId: Int,
+                     val npc: Npc,
+                     val healAmount: Int) : BattleLogEvent {
+
+    override fun description() = "$npc (id $npcId) was healed for $healAmount"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was healed!"
+}
+
 enum class DamageOutcome {
     HIT, CRIT, MISS
 }
@@ -24,4 +32,14 @@ enum class DamageOutcome {
 data class AmmoChangeEvent(val npcId: Int, val newAmount: Int) : BattleLogEvent {
     override fun description() = "$npcId's weapon ammo count was set to $newAmount"
     override fun userFriendlyDescription() = ""
+}
+
+data class PlayerKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
+    override fun description() = "$npcId was KOed"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was KOed!"
+}
+
+data class NpcKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
+    override fun description() = "$npcId was defeated"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was KOed!"
 }
