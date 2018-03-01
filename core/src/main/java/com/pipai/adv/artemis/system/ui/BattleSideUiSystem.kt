@@ -54,6 +54,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         override fun getSpacing(): Float = 10f
     })
     private var primaryActionMenuEntityId: Int = 0
+    private var primaryActionMenuActive = false
 
     companion object {
         const val PORTRAIT_WIDTH = 80f
@@ -82,7 +83,9 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         primaryActionMenu.height = primaryActionMenu.prefHeight
         primaryActionMenu.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                System.out.println(primaryActionMenu.getSelected())
+                if (primaryActionMenuActive) {
+                    System.out.println(primaryActionMenu.getSelected())
+                }
             }
         })
     }

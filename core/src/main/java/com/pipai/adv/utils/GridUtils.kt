@@ -17,4 +17,8 @@ object GridUtils {
         return Vector2(gridPosition.x.toFloat() * tileSize + offsetX, gridPosition.y.toFloat() * tileSize + offsetY)
     }
 
+    fun gridDistance2(pos1: GridPosition, pos2: GridPosition): Int {
+        return MathUtils.distance2(pos1.x, pos1.y, pos2.x, pos2.y)
+    }
+
 }
