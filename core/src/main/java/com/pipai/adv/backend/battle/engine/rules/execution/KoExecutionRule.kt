@@ -1,32 +1,12 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.rules.execution
 
 import com.pipai.adv.backend.battle.domain.Team
-
-class KoCannotTakeActionRule : CommandRule {
-
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is ActionCommand) {
-            val unit = state.npcList.getNpc(command.unitId)!!
-            if (unit.unitInstance.hp <= 0) {
-                return ExecutableStatus(false, "This character is KOed and cannot take an action")
-            }
-        }
-        return ExecutableStatus.COMMAND_OK
-    }
-}
-
-class KoCannotBeAttackedRule : CommandRule {
-
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is HitCritCommand) {
-            val unit = state.npcList.getNpc(command.targetId)!!
-            if (unit.unitInstance.hp <= 0) {
-                return ExecutableStatus(false, "This character is KOed and cannot be attacked")
-            }
-        }
-        return ExecutableStatus.COMMAND_OK
-    }
-}
+import com.pipai.adv.backend.battle.engine.BattleBackendCache
+import com.pipai.adv.backend.battle.engine.BattleState
+import com.pipai.adv.backend.battle.engine.log.NpcKoEvent
+import com.pipai.adv.backend.battle.engine.log.PlayerKoEvent
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
 class KoExecutionRule : CommandExecutionRule {
     override fun matches(command: BattleCommand): Boolean {

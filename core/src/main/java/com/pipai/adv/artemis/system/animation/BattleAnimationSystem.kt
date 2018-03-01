@@ -3,8 +3,8 @@ package com.pipai.adv.artemis.system.animation
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.handlers.MoveAnimationHandler
-import com.pipai.adv.backend.battle.engine.BattleLogEvent
-import com.pipai.adv.backend.battle.engine.MoveEvent
+import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
+import com.pipai.adv.backend.battle.engine.log.MoveEvent
 import com.pipai.adv.utils.getLogger
 
 class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {

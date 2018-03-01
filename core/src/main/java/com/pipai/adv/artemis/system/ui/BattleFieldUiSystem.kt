@@ -17,7 +17,7 @@ import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.MapGraph
-import com.pipai.adv.backend.battle.engine.MoveCommand
+import com.pipai.adv.backend.battle.engine.commands.MoveCommand
 import com.pipai.adv.utils.GridUtils
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.mapper

@@ -1,6 +1,13 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.log
 
+import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.npc.Npc
+
+interface BattleLogEvent {
+    fun description(): String
+    fun userFriendlyDescription(): String = ""
+}
 
 data class DamageEvent(val npcId: Int,
                        val npc: Npc,
@@ -17,16 +24,16 @@ data class DamageEvent(val npcId: Int,
     }
 }
 
+enum class DamageOutcome {
+    HIT, CRIT, MISS
+}
+
 data class HealEvent(val npcId: Int,
                      val npc: Npc,
                      val healAmount: Int) : BattleLogEvent {
 
     override fun description() = "$npc (id $npcId) was healed for $healAmount"
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was healed!"
-}
-
-enum class DamageOutcome {
-    HIT, CRIT, MISS
 }
 
 data class AmmoChangeEvent(val npcId: Int, val newAmount: Int) : BattleLogEvent {
@@ -42,4 +49,23 @@ data class PlayerKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
 data class NpcKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
     override fun description() = "$npcId was defeated"
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was KOed!"
+}
+
+data class MoveEvent(val npcId: Int,
+                     val npc: Npc,
+                     val startPosition: GridPosition,
+                     val endPosition: GridPosition) : BattleLogEvent {
+
+    override fun description() = "$npc (id $npcId) moved from $startPosition to $endPosition"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} is moving..."
+}
+
+data class NormalAttackEvent(val attackerId: Int,
+                             val attacker: Npc,
+                             val targetId: Int,
+                             val target: Npc,
+                             val weapon: InventoryItem.WeaponInstance) : BattleLogEvent {
+
+    override fun description() = "$attacker (id $attackerId) attacked $target (id $targetId) with $weapon"
+    override fun userFriendlyDescription() = "${attacker.unitInstance.nickname} attacked ${target.unitInstance.nickname}!"
 }

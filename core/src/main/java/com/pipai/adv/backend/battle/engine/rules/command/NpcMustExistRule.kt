@@ -1,4 +1,10 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.rules.command
+
+import com.pipai.adv.backend.battle.engine.*
+import com.pipai.adv.backend.battle.engine.commands.ActionCommand
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
+import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 
 class NpcMustExistRule : CommandRule {
 

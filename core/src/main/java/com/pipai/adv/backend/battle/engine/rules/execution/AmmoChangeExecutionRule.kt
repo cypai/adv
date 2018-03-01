@@ -1,4 +1,10 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.rules.execution
+
+import com.pipai.adv.backend.battle.engine.BattleBackendCache
+import com.pipai.adv.backend.battle.engine.BattleState
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.AmmoChangeEvent
 
 class AmmoChangeExecutionRule : CommandExecutionRule {
 
@@ -28,4 +34,3 @@ class AmmoChangeExecutionRule : CommandExecutionRule {
         }
     }
 }
-

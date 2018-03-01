@@ -1,6 +1,12 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.rules.execution
 
-data class DevHpChangeCommand(val unitId: Int, val hp: Int) : BattleCommand
+import com.pipai.adv.backend.battle.engine.*
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.DevHpChangeCommand
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.DamageEvent
+import com.pipai.adv.backend.battle.engine.log.DamageOutcome
+import com.pipai.adv.backend.battle.engine.log.HealEvent
 
 class DevHpChangeExecutionRule : CommandExecutionRule {
     override fun matches(command: BattleCommand): Boolean {

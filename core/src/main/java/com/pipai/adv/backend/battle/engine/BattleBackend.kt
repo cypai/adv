@@ -3,8 +3,15 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.engine.commands.*
+import com.pipai.adv.backend.battle.engine.domain.BattleTurn
+import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.BattleLog
+import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
+import com.pipai.adv.backend.battle.engine.rules.execution.*
+import com.pipai.adv.backend.battle.engine.rules.command.*
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.getLogger
@@ -19,9 +26,9 @@ import com.pipai.adv.utils.getLogger
  * The BattleBackendCache is a snapshot of the game state before commands are executed. They might not reflect
  * changes by ExecutionRules.
  *
- * teamNpcs and npcTeams should only contain active characters in battle (unless they were KOed as a result of the command)
+ * teamNpcs and npcTeams should only contain active characters in battle (unless they were KOed as a result of the commands)
  *
- * currentTurnKos is a list of player characters that were already KOed at the start of the command.
+ * currentTurnKos is a list of player characters that were already KOed at the start of the commands.
  */
 class BattleBackend(private val save: AdvSave, private val npcList: NpcList, private val battleMap: BattleMap) {
 
@@ -34,7 +41,6 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             NpcMustExistRule(),
             KoCannotTakeActionRule(),
             KoCannotBeAttackedRule(),
-            NoActionIfNpcNotExistsRule(),
             NoActionIfNotEnoughApRule(),
             MoveCommandSanityRule(),
             NormalAttackCommandSanityRule())
@@ -47,7 +53,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
      * Rules that add PreviewComponents (e.g. Move, NormalAttack, Reload)
      * Evaluation rules (those that calculate based on PreviewComponents)
      * Secondary Effect rules
-     * End-of-command rules (e.g. ReduceAP, KO)
+     * End-of-commands rules (e.g. ReduceAP, KO)
      */
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
             DevHpChangeExecutionRule(),
@@ -159,181 +165,9 @@ data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
                               val npcTeams: Map<Int, Team>,
                               val currentTurnKos: List<Int>)
 
-class NoActionIfNpcNotExistsRule : CommandRule {
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is ActionCommand) {
-            if (!state.npcList.npcExists(command.unitId)) {
-                return ExecutableStatus(false, "Npc does not exist")
-            }
-        }
-        return ExecutableStatus.COMMAND_OK
-    }
-}
-
-class NoActionIfNotEnoughApRule : CommandRule {
-    override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is ActionCommand) {
-            if (!hasEnoughAp(command.unitId, command.requiredAp, state.apState)) {
-                return ExecutableStatus(false, "Not enough action points available")
-            }
-        }
-        return ExecutableStatus.COMMAND_OK
-    }
-
-    private fun hasEnoughAp(npcId: Int, requiredAp: Int, apState: ActionPointState): Boolean {
-        val npcAp: Int = apState.getNpcAp(npcId)
-        return npcAp >= requiredAp
-    }
-}
-
-class ReduceApExecutionRule : CommandExecutionRule {
-    override fun matches(command: BattleCommand): Boolean {
-        return command is ActionCommand
-    }
-
-    override fun preview(command: BattleCommand,
-                         state: BattleState,
-                         cache: BattleBackendCache): List<PreviewComponent> {
-
-        return listOf()
-    }
-
-    override fun execute(command: BattleCommand,
-                         previews: List<PreviewComponent>,
-                         state: BattleState,
-                         cache: BattleBackendCache) {
-        if (command is ActionCommand) {
-            val newAp = state.apState.getNpcAp(command.unitId) - command.requiredAp
-            state.apState.setNpcAp(command.unitId, newAp)
-        }
-    }
-}
-
-data class ExecutableStatus(val executable: Boolean, val reason: String?) {
-    companion object {
-        @JvmStatic
-        val COMMAND_OK = ExecutableStatus(true, null)
-    }
-}
-
 data class BattleState(var turn: BattleTurn,
                        val npcList: NpcList,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog,
                        val apState: ActionPointState)
 
-class ActionPointState(npcList: NpcList) {
-
-    companion object {
-        val startingNumAPs = 2
-    }
-
-    private var apMap: MutableMap<Int, Int> = mutableMapOf()
-
-    init {
-        npcList.forEach { apMap.put(it.key, startingNumAPs) }
-    }
-
-    fun npcIdExists(npcId: Int): Boolean {
-        return apMap.containsKey(npcId)
-    }
-
-    fun getNpcAp(npcId: Int): Int {
-        val npcAp = apMap.get(npcId)
-        if (npcAp != null) {
-            return npcAp
-        }
-        throw IllegalArgumentException("Cannot get AP of null NPC")
-    }
-
-    fun setNpcAp(npcId: Int, points: Int) {
-        if (points < 0) {
-            throw IllegalArgumentException("Cannot set AP to be negative")
-        }
-        apMap.put(npcId, points)
-    }
-}
-
-enum class BattleTurn {
-    PLAYER, ENEMY
-}
-
-interface CommandRule {
-    fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus
-}
-
-interface CommandExecutionRule {
-    fun matches(command: BattleCommand): Boolean
-    fun preview(command: BattleCommand, state: BattleState, cache: BattleBackendCache): List<PreviewComponent>
-    fun execute(command: BattleCommand, previews: List<PreviewComponent>, state: BattleState, cache: BattleBackendCache)
-}
-
-interface BattleCommand {
-}
-
-interface ActionCommand : BattleCommand {
-    val unitId: Int
-    val requiredAp: Int
-}
-
-interface HitCritCommand : BattleCommand {
-    val targetId: Int
-    val baseHit: Int
-    val baseCrit: Int
-}
-
-interface WeaponCommand : BattleCommand {
-    val weapon: InventoryItem.WeaponInstance
-}
-
-class BattleLog {
-    private val log: MutableList<BattleLogEvent> = mutableListOf()
-
-    private var executionIndex = 0
-
-    fun addEvent(event: BattleLogEvent) {
-        log.add(event)
-    }
-
-    fun beginExecution() {
-        executionIndex = log.size
-    }
-
-    fun getEventsDuringExecution(): List<BattleLogEvent> {
-        return log.takeLast(log.size - executionIndex)
-    }
-}
-
-interface BattleLogEvent {
-    fun description(): String
-    fun userFriendlyDescription(): String = ""
-}
-
-sealed class PreviewComponent {
-
-    data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent() {
-        override val description: String = "Base to hit"
-    }
-
-    data class ToCritPreviewComponent(val toCrit: Int) : PreviewComponent() {
-        override val description: String = "Base to crit"
-    }
-
-    data class ToHitFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
-
-    data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
-
-    data class DamagePreviewComponent(val minDamage: Int, val maxDamage: Int) : PreviewComponent() {
-        override val description: String = "Base damage range"
-    }
-
-    data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent()
-
-    data class AmmoChangePreviewComponent(val npcId: Int, val newAmount: Int) : PreviewComponent() {
-        override val description: String = "Ammo change"
-    }
-
-    data class SecondaryEffectPreviewComponent(val chance: Int, override val description: String) : PreviewComponent()
-
-    abstract val description: String
-}

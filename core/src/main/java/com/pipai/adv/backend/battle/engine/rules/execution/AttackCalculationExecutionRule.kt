@@ -1,5 +1,11 @@
-package com.pipai.adv.backend.battle.engine
+package com.pipai.adv.backend.battle.engine.rules.execution
 
+import com.pipai.adv.backend.battle.engine.*
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.DamageEvent
+import com.pipai.adv.backend.battle.engine.log.DamageOutcome
 import com.pipai.adv.utils.RNG
 
 /**

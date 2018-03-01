@@ -7,7 +7,7 @@ import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.NpcIdComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
-import com.pipai.adv.backend.battle.engine.MoveEvent
+import com.pipai.adv.backend.battle.engine.log.MoveEvent
 import com.pipai.adv.utils.GridUtils
 
 class MoveAnimationHandler(val config: AdvConfig, world: World) {

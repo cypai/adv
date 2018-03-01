@@ -1,4 +1,4 @@
-package com.pipai.adv.backend.battle.engine.command
+package com.pipai.adv.backend.battle.engine.commands
 
 import com.pipai.adv.backend.battle.engine.*
 
