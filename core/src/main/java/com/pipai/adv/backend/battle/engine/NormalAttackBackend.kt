@@ -3,6 +3,8 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.WeaponAttribute
 import com.pipai.adv.backend.battle.domain.WeaponRange
+import com.pipai.adv.backend.battle.engine.BattleBackend.Companion.MELEE_WEAPON_DISTANCE2
+import com.pipai.adv.backend.battle.engine.BattleBackend.Companion.RANGED_WEAPON_DISTANCE2
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.utils.MathUtils
 
@@ -15,11 +17,6 @@ data class NormalAttackCommand(override val unitId: Int,
 }
 
 class NormalAttackCommandSanityRule : CommandRule {
-
-    companion object {
-        const val MELEE_WEAPON_DISTANCE2 = 4
-        const val RANGED_WEAPON_DISTANCE2 = 100
-    }
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is NormalAttackCommand) {
@@ -44,7 +41,7 @@ class NormalAttackCommandSanityRule : CommandRule {
                 WeaponRange.RANGED -> RANGED_WEAPON_DISTANCE2
             }
             val distance2 = MathUtils.distance2(attackerPosition.x, attackerPosition.y, targetPosition.x, targetPosition.y)
-            if (distance2 > distanceLimit) {
+            if (distance2 >= distanceLimit) {
                 return ExecutableStatus(false, "Attacking distance is too great")
             }
 

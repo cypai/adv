@@ -15,6 +15,11 @@ fun swordFixture(): InventoryItem.WeaponInstance {
     return InventoryItem.WeaponInstance(schema, 1)
 }
 
+fun bowFixture(): InventoryItem.WeaponInstance {
+    val schema = WeaponSchema("Bow", WeaponType.BOW, WeaponRange.RANGED, 1, 1, listOf(WeaponAttribute.CAN_FAST_RELOAD), 3, "")
+    return InventoryItem.WeaponInstance(schema, 3)
+}
+
 fun getSchemaList(): SchemaList {
     val schemaList = SchemaList()
     // Stats:

@@ -16,7 +16,11 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
     private lateinit var cache: BattleBackendCache
 
-    private val commandRules: List<CommandRule> = listOf(NoActionIfNpcNotExistsRule(), NoActionIfNotEnoughApRule(), MoveCommandSanityRule())
+    private val commandRules: List<CommandRule> = listOf(
+            NoActionIfNpcNotExistsRule(),
+            NoActionIfNotEnoughApRule(),
+            MoveCommandSanityRule(),
+            NormalAttackCommandSanityRule())
 
     /**
      * Order matters for CommandExecutionRules. The order in which commands are evaluated will also be returned to the UI
@@ -37,6 +41,13 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
             ReduceApExecutionRule())
+
+    companion object {
+        const val MELEE_WEAPON_DISTANCE = 1.8
+        const val MELEE_WEAPON_DISTANCE2 = (MELEE_WEAPON_DISTANCE * MELEE_WEAPON_DISTANCE).toInt()
+        const val RANGED_WEAPON_DISTANCE = 10.0
+        const val RANGED_WEAPON_DISTANCE2 = (RANGED_WEAPON_DISTANCE * RANGED_WEAPON_DISTANCE).toInt()
+    }
 
     init {
         refreshCache()
