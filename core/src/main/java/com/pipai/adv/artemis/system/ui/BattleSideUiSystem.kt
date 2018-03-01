@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
@@ -69,15 +71,20 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         const val SELECTION_TIME = 10
 
         const val ACTION_UI_WIDTH = 160f
-        const val ACTION_UI_HEIGHT = 220f
     }
 
     init {
+        primaryActionMenu.setItems(listOf("Move", "Attack", "Skill", "Item", "Defend", "Wait"))
+        primaryActionMenu.hoverSelect = true
         primaryActionMenu.x = PADDING
         primaryActionMenu.y = PADDING
         primaryActionMenu.width = ACTION_UI_WIDTH
-        primaryActionMenu.height = ACTION_UI_HEIGHT
-        primaryActionMenu.setItems(listOf("Move", "Attack", "Skill", "Item", "Defend", "Wait"))
+        primaryActionMenu.height = primaryActionMenu.prefHeight
+        primaryActionMenu.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                System.out.println(primaryActionMenu.getSelected())
+            }
+        })
     }
 
     override fun initialize() {

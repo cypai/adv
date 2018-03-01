@@ -23,6 +23,8 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     constructor(skin: Skin, styleName: String, itemView: ImageListItemView<T>)
             : this(skin.get(styleName, List.ListStyle::class.java), itemView)
 
+    var hoverSelect = false
+
     internal val items = com.badlogic.gdx.utils.Array<T>()
     internal var itemHeight: Float = 0f
     internal var textOffsetX: Float = 0f
@@ -69,6 +71,13 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 if (selection.multiple) stage.keyboardFocus = this@ImageList
                 this@ImageList.touchDown(y)
                 return true
+            }
+
+            override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
+                if (hoverSelect) {
+                    this@ImageList.touchDown(y)
+                }
+                return false
             }
         })
     }
