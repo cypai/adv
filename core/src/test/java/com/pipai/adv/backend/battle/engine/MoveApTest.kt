@@ -2,14 +2,13 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
-import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
-import kotlin.math.exp
 
 class MoveApTest {
 
@@ -29,8 +28,8 @@ class MoveApTest {
 
         val blueMovePreview = backend.preview(blueMove)
         Assert.assertEquals(1,
-                (blueMovePreview.find { it is PreviewComponent.ApUsedPreviewComponent }
-                        as PreviewComponent.ApUsedPreviewComponent).apUsed)
+                (blueMovePreview.find { it is ApUsedPreviewComponent }
+                        as ApUsedPreviewComponent).apUsed)
 
         backend.execute(blueMove)
 
@@ -49,8 +48,8 @@ class MoveApTest {
 
         val yellowMovePreview = backend.preview(yellowMove)
         Assert.assertEquals(1,
-                (yellowMovePreview.find { it is PreviewComponent.ApUsedPreviewComponent }
-                        as PreviewComponent.ApUsedPreviewComponent).apUsed)
+                (yellowMovePreview.find { it is ApUsedPreviewComponent }
+                        as ApUsedPreviewComponent).apUsed)
 
         backend.execute(yellowMove)
 
@@ -89,8 +88,8 @@ class MoveApTest {
 
         val yellowMovePreview = backend.preview(yellowMove)
         Assert.assertEquals(2,
-                (yellowMovePreview.find { it is PreviewComponent.ApUsedPreviewComponent }
-                        as PreviewComponent.ApUsedPreviewComponent).apUsed)
+                (yellowMovePreview.find { it is ApUsedPreviewComponent }
+                        as ApUsedPreviewComponent).apUsed)
 
         backend.execute(yellowMove)
 

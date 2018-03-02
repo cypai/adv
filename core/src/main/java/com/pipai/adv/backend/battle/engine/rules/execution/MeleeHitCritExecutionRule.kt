@@ -7,6 +7,8 @@ import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
 import com.pipai.adv.backend.battle.engine.commands.WeaponCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToCritFlatAdjustmentPreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
 
 class MeleeHitCritExecutionRule : CommandExecutionRule {
 
@@ -19,8 +21,8 @@ class MeleeHitCritExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         return listOf(
-                PreviewComponent.ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon to hit bonus"),
-                PreviewComponent.ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon to crit bonus"))
+                ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon to hit bonus"),
+                ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon to crit bonus"))
     }
 
     override fun execute(command: BattleCommand,

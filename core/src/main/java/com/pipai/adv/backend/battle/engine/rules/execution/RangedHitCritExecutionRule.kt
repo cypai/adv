@@ -8,6 +8,8 @@ import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
 import com.pipai.adv.backend.battle.engine.commands.WeaponCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToCritFlatAdjustmentPreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
 import com.pipai.adv.utils.MathUtils
 
 class RangedHitCritExecutionRule : CommandExecutionRule {
@@ -41,10 +43,10 @@ class RangedHitCritExecutionRule : CommandExecutionRule {
         }
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         if (toHitAdjustment != 0) {
-            previewComponents.add(PreviewComponent.ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Ranged weapon to hit adjustment"))
+            previewComponents.add(ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Ranged weapon to hit adjustment"))
         }
         if (toCritAdjustment != 0) {
-            previewComponents.add(PreviewComponent.ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Ranged weapon to crit adjustment"))
+            previewComponents.add(ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Ranged weapon to crit adjustment"))
         }
         return previewComponents.toList()
     }

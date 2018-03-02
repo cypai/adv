@@ -6,6 +6,7 @@ import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
+import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.MoveEvent
 import com.pipai.adv.utils.GridUtils
@@ -31,7 +32,7 @@ class MoveExecutionRule : CommandExecutionRule {
                 .sum()
         val requiredAp = Math.ceil((distance / distancePerAp).toDouble()).toInt()
 
-        val apComponent = PreviewComponent.ApUsedPreviewComponent(cmd.unitId, requiredAp)
+        val apComponent = ApUsedPreviewComponent(cmd.unitId, requiredAp)
 
         return listOf(apComponent)
     }

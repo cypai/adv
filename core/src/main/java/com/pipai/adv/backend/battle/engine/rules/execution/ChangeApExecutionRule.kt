@@ -3,6 +3,7 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.ApChangeEvent
 
@@ -24,7 +25,7 @@ class ChangeApExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         previews.forEach {
-            if (it is PreviewComponent.ApUsedPreviewComponent) {
+            if (it is ApUsedPreviewComponent) {
                 val previousAp = state.apState.getNpcAp(it.npcId)
                 val newAp = previousAp - it.apUsed
                 state.apState.setNpcAp(it.npcId, newAp)

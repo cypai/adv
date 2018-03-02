@@ -3,6 +3,7 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.domain.AmmoChangePreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.AmmoChangeEvent
 
@@ -25,8 +26,8 @@ class AmmoChangeExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         val ammoChangeComponent = previews
-                .find { it is PreviewComponent.AmmoChangePreviewComponent }
-                ?.let { it as PreviewComponent.AmmoChangePreviewComponent }
+                .find { it is AmmoChangePreviewComponent }
+                ?.let { it as AmmoChangePreviewComponent }
 
         if (ammoChangeComponent != null) {
             state.npcList.getNpc(ammoChangeComponent.npcId)!!.unitInstance.weapon?.ammo = ammoChangeComponent.newAmount

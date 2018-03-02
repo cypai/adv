@@ -3,7 +3,7 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 import com.pipai.adv.backend.battle.engine.*
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
-import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.*
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.DamageOutcome
 import com.pipai.adv.utils.RNG
@@ -61,11 +61,11 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
 
     fun calculateDamageRange(previews: List<PreviewComponent>): Pair<Int, Int>? {
         val baseDamage = previews
-                .find { it is PreviewComponent.DamagePreviewComponent }
-                ?.let { (it as PreviewComponent.DamagePreviewComponent) }
+                .find { it is DamagePreviewComponent }
+                ?.let { (it as DamagePreviewComponent) }
 
-        val flatAdjustment = previews.filter { it is PreviewComponent.DamageFlatAdjustmentPreviewComponent }
-                .map { (it as PreviewComponent.DamageFlatAdjustmentPreviewComponent).adjustment }
+        val flatAdjustment = previews.filter { it is DamageFlatAdjustmentPreviewComponent }
+                .map { (it as DamageFlatAdjustmentPreviewComponent).adjustment }
                 .sum()
 
         return baseDamage?.let { Pair(it.minDamage + flatAdjustment, it.maxDamage + flatAdjustment) }
@@ -73,11 +73,11 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
 
     fun calculateToHit(previews: List<PreviewComponent>): Int? {
         val toHit = previews
-                .find { it is PreviewComponent.ToHitPreviewComponent }
-                ?.let { (it as PreviewComponent.ToHitPreviewComponent).toHit }
+                .find { it is ToHitPreviewComponent }
+                ?.let { (it as ToHitPreviewComponent).toHit }
 
-        val flatAdjustment = previews.filter { it is PreviewComponent.ToHitFlatAdjustmentPreviewComponent }
-                .map { (it as PreviewComponent.ToHitFlatAdjustmentPreviewComponent).adjustment }
+        val flatAdjustment = previews.filter { it is ToHitFlatAdjustmentPreviewComponent }
+                .map { (it as ToHitFlatAdjustmentPreviewComponent).adjustment }
                 .sum()
 
         return toHit?.let { it + flatAdjustment }
@@ -85,11 +85,11 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
 
     fun calculateToCrit(previews: List<PreviewComponent>): Int? {
         val toCrit = previews
-                .find { it is PreviewComponent.ToCritPreviewComponent }
-                ?.let { (it as PreviewComponent.ToCritPreviewComponent).toCrit }
+                .find { it is ToCritPreviewComponent }
+                ?.let { (it as ToCritPreviewComponent).toCrit }
 
-        val flatAdjustment = previews.filter { it is PreviewComponent.ToCritFlatAdjustmentPreviewComponent }
-                .map { (it as PreviewComponent.ToCritFlatAdjustmentPreviewComponent).adjustment }
+        val flatAdjustment = previews.filter { it is ToCritFlatAdjustmentPreviewComponent }
+                .map { (it as ToCritFlatAdjustmentPreviewComponent).adjustment }
                 .sum()
 
         return toCrit?.let { it + flatAdjustment }
