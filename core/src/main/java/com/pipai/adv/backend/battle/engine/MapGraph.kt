@@ -2,9 +2,9 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.utils.MathUtils
 import com.pipai.adv.utils.getLogger
 import java.util.*
-import com.pipai.adv.utils.MathUtils
 
 /*
 * To be used as a disposable BattleMap representation for Dijkstra's and other pathfinding algorithms
@@ -33,7 +33,11 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     private fun calculateApMoveBounds() {
         val mobilitySegment = (mobility.toFloat()) / (apMax.toFloat())
         for (i in 1..ap) {
-            moveBounds[i - 1] = mobilitySegment * i
+            val bound = mobilitySegment * i
+            moveBounds[i - 1] = bound
+            if (debug) {
+                logger.debug("Move bound @ AP $i: $bound")
+            }
         }
     }
 
@@ -66,6 +70,27 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
                         nw.addEdge(cell)
                         cell.addEdge(nw)
                     }
+                    val ssw = getNode(GridPosition(x - 1, y - 2))
+                    if (ssw != null && south != null && sw != null) {
+                        ssw.addEdge(cell)
+                        cell.addEdge(ssw)
+                    }
+                    val wsw = getNode(GridPosition(x - 2, y - 1))
+                    if (wsw != null && west != null && sw != null) {
+                        wsw.addEdge(cell)
+                        cell.addEdge(wsw)
+                    }
+                    val north = getNode(GridPosition(x, y + 1))
+                    val nnw = getNode(GridPosition(x - 1, y + 2))
+                    if (nnw != null && north != null && nw != null) {
+                        nnw.addEdge(cell)
+                        cell.addEdge(nnw)
+                    }
+                    val wnw = getNode(GridPosition(x - 2, y + 1))
+                    if (wnw != null && west != null && nw != null) {
+                        wnw.addEdge(cell)
+                        cell.addEdge(wnw)
+                    }
                     if (x == start.x && y == start.y) {
                         root = cell
                     }
@@ -78,10 +103,9 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         return nodeMap[pos.toString()]
     }
 
-    private fun apRequiredToMoveTo(destination: Node): Int {
+    private fun apRequiredToMoveTo(destination: Node): Int? {
         val delta = 0.000001f
         return (1..moveBounds.size).firstOrNull { destination.totalCost - delta <= moveBounds[it - 1] }
-                ?: Integer.MAX_VALUE
     }
 
     fun apRequiredToMoveTo(destination: GridPosition): Int {
@@ -89,38 +113,37 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     }
 
     private fun runDijkstra(maxMove: Float) {
+        root.totalCost = 0.0
         val pqueue = PriorityQueue((maxMove * maxMove).toInt(), NodeComparator())
-        var current: Node? = root
-        while (current != null) {
-            if (current.position != root.position) {
+        pqueue.addAll(nodeMap.values)
+
+        while (pqueue.isNotEmpty()) {
+            val current = pqueue.poll()
+            current.visit()
+            if (debug) {
+                logger.debug("Current $current")
+            }
+            if (current != root) {
                 val apNeeded = apRequiredToMoveTo(current)
+                if (apNeeded == null) {
+                    return
+                }
                 val index = apNeeded - 1
                 val reachableList = reachableLists[index]
                 reachableList.add(current.position)
                 current.apNeeded = apNeeded
             }
-            current.visit()
-            if (debug) {
-                logger.debug("Current " + current)
-            }
-            for ((destination, cost) in current.edges) {
-                if (debug) {
-                    logger.debug("Checking " + destination.position)
-                }
-                if (!destination.isVisited && !destination.isAdded) {
-                    val totalCost = cost + current.totalCost
-                    if (totalCost <= maxMove) {
-                        if (debug) {
-                            logger.debug("Added " + destination.position + " Dist " + totalCost)
-                        }
-                        destination.setAdded()
-                        destination.totalCost = totalCost
-                        destination.path = current
-                        pqueue.add(destination)
+            for (edge in current.edges) {
+                if (!edge.destination.isVisited) {
+                    val altCost = current.totalCost + edge.cost
+                    if (altCost < edge.destination.totalCost) {
+                        edge.destination.totalCost = altCost
+                        edge.destination.path = current
+                        pqueue.remove(edge.destination)
+                        pqueue.add(edge.destination)
                     }
                 }
             }
-            current = pqueue.poll()
         }
     }
 
@@ -161,9 +184,8 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
 
     private inner class Node internal constructor(val position: GridPosition) {
         val edges: ArrayList<Edge> = ArrayList<Edge>()
-        var isAdded: Boolean = false
         var isVisited: Boolean = false
-        var totalCost: Double = 0.0
+        var totalCost: Double = Double.MAX_VALUE
         var path: Node? = null
         var apNeeded: Int = 0
 
@@ -179,24 +201,20 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
             isVisited = true
         }
 
-        fun setAdded() {
-            isAdded = true
-        }
-
         override fun toString(): String {
-            var s = "Node: $position Edges [ "
+            var s = "Node: $position Cost $totalCost Edges [ "
             edges.map { it.destination }
-                    .forEach { s += "{" + it.position + " " + it.isVisited + " " + it.isAdded + "} " }
+                    .forEach { s += "{" + it.position + " " + it.isVisited + "} " }
             s += "]"
             return s
         }
     }
 
     private inner class NodeComparator : Comparator<Node> {
-        override fun compare(x: Node, y: Node): Int {
-            if (x.totalCost > y.totalCost) {
+        override fun compare(a: Node, b: Node): Int {
+            if (a.totalCost > b.totalCost) {
                 return 1
-            } else if (x.totalCost < y.totalCost) {
+            } else if (a.totalCost < b.totalCost) {
                 return -1
             }
             return 0

@@ -1,11 +1,9 @@
 package com.pipai.adv.backend.battle.engine
 
-import java.util.ArrayList
-import java.util.LinkedList
-
 import com.pipai.adv.backend.battle.domain.*
 import org.junit.Assert
 import org.junit.Test
+import java.util.*
 
 class PathfindingTest {
 
@@ -22,7 +20,7 @@ class PathfindingTest {
         for (r in req) {
             Assert.assertTrue("Does not contain " + r, movableList.contains(r))
         }
-        Assert.assertEquals(req.size.toLong(), movableList.size.toLong())
+        Assert.assertEquals(req.size, movableList.size)
     }
 
     @Test
@@ -41,13 +39,35 @@ class PathfindingTest {
         for (r in req) {
             Assert.assertTrue("Does not contain " + r, movableList.contains(r))
         }
-        Assert.assertEquals(req.size.toLong(), movableList.size.toLong())
+        Assert.assertEquals(req.size, movableList.size)
+    }
+
+    @Test
+    fun testStraightPath() {
+        val map = BattleMap.createBattleMap(6, 6)
+        val graph = MapGraph(map, GridPosition(0, 0), 5, 1, 1, true)
+        val req = ArrayList<GridPosition>()
+        req.add(GridPosition(0, 0))
+        req.add(GridPosition(1, 0))
+        req.add(GridPosition(2, 0))
+        req.add(GridPosition(3, 0))
+        req.add(GridPosition(4, 0))
+        req.add(GridPosition(5, 0))
+        val path = graph.getPath(GridPosition(5, 0))
+        for (r in req) {
+            Assert.assertTrue("Does not contain " + r, path.contains(r))
+        }
+        Assert.assertEquals(req.size, path.size)
     }
 
     @Test
     fun testObstacleMovableList() {
         /*
-         * Map looks like: 0 0 0 0 0 1 1 0 0 A 0 0 0 0 0 1
+         * Map looks like:
+         * 0 0 0 0
+         * 0 1 1 0
+         * 0 A 0 0
+         * 0 0 0 1
          */
         val map = BattleMap.createBattleMap(4, 4)
         map.getCell(1, 2).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
@@ -69,7 +89,7 @@ class PathfindingTest {
         for (r in req) {
             Assert.assertTrue("Does not contain " + r, movableList.contains(r))
         }
-        Assert.assertEquals(req.size.toLong(), movableList.size.toLong())
+        Assert.assertEquals(req.size, movableList.size)
     }
 
     @Test
@@ -97,7 +117,7 @@ class PathfindingTest {
         for (r in req) {
             Assert.assertTrue("Does not contain " + r, movableList.contains(r))
         }
-        Assert.assertEquals(28, movableList.size.toLong())
+        Assert.assertEquals(28, movableList.size)
     }
 
     /*
@@ -110,7 +130,11 @@ class PathfindingTest {
         var prev: GridPosition? = start
         for (pos in list) {
             if (prev != null) {
-                if (Math.abs(prev.x - pos.x) > 1 || Math.abs(prev.y - pos.y) > 1) {
+                val xDiff = Math.abs(prev.x - pos.x)
+                val yDiff = Math.abs(prev.y - pos.y)
+                val totalDiff = xDiff + yDiff
+                val xyDiff = Math.abs(xDiff - yDiff)
+                if (xDiff > 2 || yDiff > 2 || totalDiff > 3 || xyDiff > 1) {
                     return false
                 }
             }
@@ -127,7 +151,7 @@ class PathfindingTest {
         val graph = MapGraph(map, start, 10, 1, 1, false)
         val path = graph.getPath(end)
         Assert.assertTrue("Invalid path", checkPathingList(path, start, end))
-        Assert.assertEquals(4, path.size.toLong())
+        Assert.assertEquals(3, path.size)
     }
 
     @Test
@@ -137,7 +161,7 @@ class PathfindingTest {
         val end = GridPosition(3, 2)
         val graph = MapGraph(map, start, 3, 1, 1, false)
         val path = graph.getPath(end)
-        Assert.assertEquals(0, path.size.toLong())
+        Assert.assertEquals(0, path.size)
     }
 
     @Test
@@ -158,7 +182,7 @@ class PathfindingTest {
         val graph = MapGraph(map, GridPosition(1, 1), 10, 1, 1, false)
         val illegal = GridPosition(4, 1)
         Assert.assertFalse("Failed to return false on moving to tile outside map", graph.canMoveTo(illegal))
-        Assert.assertEquals(0, graph.getPath(illegal).size.toLong())
+        Assert.assertEquals(0, graph.getPath(illegal).size)
     }
 
     @Test
@@ -167,7 +191,7 @@ class PathfindingTest {
         val graph = MapGraph(map, GridPosition(1, 1), 10, 0, 1, false)
         val any = GridPosition(0, 0)
         Assert.assertFalse("Failed to return false on moving to a tile", graph.canMoveTo(any))
-        Assert.assertEquals(0, graph.getPath(any).size.toLong())
+        Assert.assertEquals(0, graph.getPath(any).size)
     }
 
     @Test
@@ -183,7 +207,7 @@ class PathfindingTest {
         for (r in req1) {
             Assert.assertTrue("Does not contain " + r, movableList1.contains(r))
         }
-        Assert.assertEquals(req1.size.toLong(), movableList1.size.toLong())
+        Assert.assertEquals(req1.size, movableList1.size)
         val movableList2 = graph.getMovableCellPositions(2)
         val req2 = ArrayList<GridPosition>()
         req2.add(GridPosition(0, 2))
@@ -197,7 +221,7 @@ class PathfindingTest {
         for (r in req2) {
             Assert.assertTrue("Does not contain " + r, movableList2.contains(r))
         }
-        Assert.assertEquals(req2.size.toLong(), movableList2.size.toLong())
+        Assert.assertEquals(req2.size, movableList2.size)
     }
 
 }
