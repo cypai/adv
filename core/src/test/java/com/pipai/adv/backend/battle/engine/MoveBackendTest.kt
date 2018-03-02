@@ -102,7 +102,7 @@ class MoveBackendTest {
         cmd = MoveCommand(id, Arrays.asList(GridPosition(3, 2), GridPosition(3, 3)))
         val executable = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable.executable)
-        Assert.assertEquals("Not enough action points available", executable.reason)
+        Assert.assertEquals("Not enough AP", executable.reason)
     }
 
     @Test

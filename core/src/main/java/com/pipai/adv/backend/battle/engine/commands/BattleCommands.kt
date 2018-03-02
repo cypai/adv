@@ -8,7 +8,6 @@ interface BattleCommand {
 
 interface ActionCommand : BattleCommand {
     val unitId: Int
-    val requiredAp: Int
 }
 
 interface HitCritCommand : BattleCommand {
@@ -21,14 +20,11 @@ interface WeaponCommand : BattleCommand {
     val weapon: InventoryItem.WeaponInstance
 }
 
-data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) : ActionCommand {
-    override val requiredAp: Int = 1
-}
+data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) : ActionCommand
 
 data class NormalAttackCommand(override val unitId: Int,
                                override val targetId: Int,
                                override val weapon: InventoryItem.WeaponInstance) : ActionCommand, HitCritCommand, WeaponCommand {
-    override val requiredAp: Int = 1
     override val baseHit = 65
     override val baseCrit = 25
 }

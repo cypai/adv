@@ -5,12 +5,11 @@ import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.log.AmmoChangeEvent
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
-import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
-import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
-import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
-import com.pipai.test.fixtures.*
+import com.pipai.test.fixtures.bowFixture
+import com.pipai.test.fixtures.npcFromStats
+import com.pipai.test.fixtures.swordFixture
 import org.junit.Assert
 import org.junit.Test
 

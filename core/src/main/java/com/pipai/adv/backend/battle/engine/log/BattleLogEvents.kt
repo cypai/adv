@@ -9,6 +9,10 @@ interface BattleLogEvent {
     fun userFriendlyDescription(): String = ""
 }
 
+data class ApChangeEvent(val npcId: Int, val newApAmount: Int) : BattleLogEvent {
+    override fun description() = "$npcId AP set to $newApAmount"
+}
+
 data class DamageEvent(val npcId: Int,
                        val npc: Npc,
                        val damage: Int,
@@ -38,7 +42,6 @@ data class HealEvent(val npcId: Int,
 
 data class AmmoChangeEvent(val npcId: Int, val newAmount: Int) : BattleLogEvent {
     override fun description() = "$npcId's weapon ammo count was set to $newAmount"
-    override fun userFriendlyDescription() = ""
 }
 
 data class PlayerKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {

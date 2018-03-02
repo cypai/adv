@@ -4,14 +4,16 @@ import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
-import com.pipai.adv.backend.battle.engine.commands.*
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.domain.BattleTurn
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.BattleLog
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
-import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.command.*
+import com.pipai.adv.backend.battle.engine.rules.execution.*
+import com.pipai.adv.backend.battle.engine.rules.verification.ApRequirementRule
+import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.getLogger
@@ -37,13 +39,21 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
     private lateinit var cache: BattleBackendCache
 
+    /**
+     * Rules that verify that the commands are OK
+     */
     private val commandRules: List<CommandRule> = listOf(
             NpcMustExistRule(),
             KoCannotTakeActionRule(),
             KoCannotBeAttackedRule(),
-            NoActionIfNotEnoughApRule(),
             MoveCommandSanityRule(),
             NormalAttackCommandSanityRule())
+
+    /**
+     * Rules that verify that the battle state shown by the preview is OK
+     */
+    private val verificationRules: List<VerificationRule> = listOf(
+            ApRequirementRule())
 
     /**
      * Order matters for CommandExecutionRules. The order in which commands are evaluated will also be returned to the UI
@@ -57,14 +67,14 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
      */
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
             DevHpChangeExecutionRule(),
-            MovementExecutionRule(),
+            MoveExecutionRule(),
             NormalAttackExecutionRule(),
             BaseHitCritExecutionRule(),
             MeleeHitCritExecutionRule(),
             RangedHitCritExecutionRule(),
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
-            ReduceApExecutionRule(),
+            ChangeApExecutionRule(),
             KoExecutionRule())
 
     companion object {
@@ -118,8 +128,15 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
         logger.debug("Checking executable status of $command")
-        for (rule in commandRules) {
+        commandRules.forEach { rule ->
             val status = rule.canBeExecuted(command, state, cache)
+            if (!status.executable) {
+                return status
+            }
+        }
+        val previewComponents = preview(command)
+        verificationRules.forEach { rule ->
+            val status = rule.verify(previewComponents, state)
             if (!status.executable) {
                 return status
             }

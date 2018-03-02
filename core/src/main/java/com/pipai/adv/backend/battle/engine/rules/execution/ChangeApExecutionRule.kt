@@ -2,13 +2,13 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
-import com.pipai.adv.backend.battle.engine.commands.ActionCommand
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.ApChangeEvent
 
-class ReduceApExecutionRule : CommandExecutionRule {
+class ChangeApExecutionRule : CommandExecutionRule {
     override fun matches(command: BattleCommand): Boolean {
-        return command is ActionCommand
+        return true
     }
 
     override fun preview(command: BattleCommand,
@@ -22,9 +22,14 @@ class ReduceApExecutionRule : CommandExecutionRule {
                          previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache) {
-        if (command is ActionCommand) {
-            val newAp = state.apState.getNpcAp(command.unitId) - command.requiredAp
-            state.apState.setNpcAp(command.unitId, newAp)
+
+        previews.forEach {
+            if (it is PreviewComponent.ApUsedPreviewComponent) {
+                val previousAp = state.apState.getNpcAp(it.npcId)
+                val newAp = previousAp - it.apUsed
+                state.apState.setNpcAp(it.npcId, newAp)
+                state.battleLog.addEvent(ApChangeEvent(it.npcId, newAp))
+            }
         }
     }
 }

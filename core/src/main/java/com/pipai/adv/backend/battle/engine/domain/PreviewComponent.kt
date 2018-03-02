@@ -4,6 +4,10 @@ sealed class PreviewComponent {
 
     abstract val description: String
 
+    data class ApUsedPreviewComponent(val npcId: Int, val apUsed: Int) : PreviewComponent() {
+        override val description: String = "AP used"
+    }
+
     data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent() {
         override val description: String = "Base to hit"
     }
