@@ -20,7 +20,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "adv"
-        gdxVersion = '1.9.6'
+        gdxVersion = '1.9.8'
         commonsLangVersion = '3.0'
         jacksonVersion = '2.9.4'
         logbackVersion = '1.1.3'

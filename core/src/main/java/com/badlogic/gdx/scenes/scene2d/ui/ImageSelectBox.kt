@@ -270,7 +270,7 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
 
             list = ImageList(selectBox.style.listStyle, itemView)
             list.touchable = Touchable.disabled
-            widget = list
+            actor = list
 
             list.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
