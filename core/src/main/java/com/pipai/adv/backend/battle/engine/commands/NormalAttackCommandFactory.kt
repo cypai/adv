@@ -3,8 +3,8 @@ package com.pipai.adv.backend.battle.engine.commands
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.utils.BattleUtils
 
-class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory(backend) {
-    override fun generate(npcId: Int): List<ActionCommand> {
+class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory<NormalAttackCommand>(backend) {
+    override fun generate(npcId: Int): List<NormalAttackCommand> {
         val npc = backend.getNpc(npcId)!!
         val commands: MutableList<NormalAttackCommand> = mutableListOf()
         val weapon = npc.unitInstance.weapon
