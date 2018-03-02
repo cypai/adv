@@ -29,7 +29,7 @@ class MoveExecutionRule : CommandExecutionRule {
         val distance = cmd.path.zipWithNext()
                 .map { GridUtils.gridDistance(it.first, it.second) }
                 .sum()
-        val requiredAp = (distance / distancePerAp).toInt()
+        val requiredAp = Math.ceil((distance / distancePerAp).toDouble()).toInt()
 
         val apComponent = PreviewComponent.ApUsedPreviewComponent(cmd.unitId, requiredAp)
 

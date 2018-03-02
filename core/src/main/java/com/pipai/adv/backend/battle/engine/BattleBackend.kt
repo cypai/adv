@@ -131,6 +131,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         commandRules.forEach { rule ->
             val status = rule.canBeExecuted(command, state, cache)
             if (!status.executable) {
+                logger.debug("Failed ${rule::class}")
                 return status
             }
         }
@@ -138,6 +139,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         verificationRules.forEach { rule ->
             val status = rule.verify(previewComponents, state)
             if (!status.executable) {
+                logger.debug("Failed ${rule::class}")
                 return status
             }
         }

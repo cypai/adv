@@ -10,6 +10,11 @@ import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 class MoveCommandSanityRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is MoveCommand) {
+            command.path.forEach {
+                if (it.x < 0 || it.x >= state.battleMap.width || it.y < 0 || it.y >= state.battleMap.height) {
+                    return ExecutableStatus(false, "Cannot move off the map")
+                }
+            }
             val origin = command.path.first()
             val originObject = state.battleMap.getCell(origin).fullEnvObject
             if (originObject == null || originObject !is FullEnvObject.NpcEnvObject) {

@@ -2,15 +2,12 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
-import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
-import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
-import com.pipai.test.fixtures.*
+import com.pipai.test.fixtures.npcFromStats
 import org.junit.Assert
 import org.junit.Test
-
-import java.util.Arrays
+import java.util.*
 
 class MoveBackendTest {
 
@@ -121,5 +118,44 @@ class MoveBackendTest {
         val executable = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable.executable)
         Assert.assertEquals("Npc $badId does not exist", executable.reason)
+    }
+
+    @Test
+    fun testCantMoveToOutOfMap() {
+        val save = AdvSave()
+        val npcList = NpcList()
+        val map = BattleMap.createBattleMap(1, 1)
+        val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
+        val id = npcList.addNpc(npc)
+        val startLocation = GridPosition(0, 0)
+        map.getCell(startLocation).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+
+        val backend = BattleBackend(save, npcList, map)
+
+        val badLocations: List<GridPosition> = listOf(
+                GridPosition(0, 1),
+                GridPosition(1, 0),
+                GridPosition(-1, 0),
+                GridPosition(0, -1))
+        badLocations.forEach {
+            val cmd = MoveCommand(id, Arrays.asList(startLocation, it))
+
+            val executable = backend.canBeExecuted(cmd)
+            Assert.assertFalse(executable.executable)
+            Assert.assertEquals("Cannot move off the map", executable.reason)
+
+            try {
+                backend.execute(cmd)
+                Assert.fail()
+            } catch (e: IllegalArgumentException) {
+                Assert.assertTrue(e.message!!.endsWith(executable.reason!!))
+            }
+
+            Assert.assertEquals(startLocation, backend.getNpcPositions()[id])
+            val destinationObj = backend.getBattleMapState().getCell(startLocation).fullEnvObject
+            Assert.assertTrue(destinationObj is FullEnvObject.NpcEnvObject)
+            val unit = destinationObj as FullEnvObject.NpcEnvObject?
+            Assert.assertEquals(id.toLong(), unit!!.npcId.toLong())
+        }
     }
 }
