@@ -63,7 +63,9 @@ private fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTile
 
 private fun generateWallBoundary(map: BattleMap) {
     for (x in 0 until map.width) {
-        map.getCell(x, 0).fullEnvObject = FullEnvObject.FULL_WALL
+        if (x > 5 || x == 0) {
+            map.getCell(x, 0).fullEnvObject = FullEnvObject.FULL_WALL
+        }
         map.getCell(x, map.height - 1).fullEnvObject = FullEnvObject.FULL_WALL
     }
     for (y in 1 until map.height - 1) {

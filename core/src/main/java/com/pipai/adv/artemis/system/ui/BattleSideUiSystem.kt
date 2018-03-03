@@ -22,8 +22,13 @@ import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.SelectedUnitSystem
+import com.pipai.adv.artemis.system.ui.menu.MenuItem
+import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
+import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.*
@@ -48,9 +53,9 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
     private val portraitBgDrawable = game.skin.newDrawable("white", Color.DARK_GRAY)
 
     val stage = Stage(ScreenViewport())
-    private val primaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<String> {
-        override fun getItemImage(item: String): TextureRegion? = null
-        override fun getItemText(item: String): String = item
+    private val primaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<MenuItem> {
+        override fun getItemImage(item: MenuItem): TextureRegion? = item.image
+        override fun getItemText(item: MenuItem): String = item.text
         override fun getSpacing(): Float = 10f
     })
     private var primaryActionMenuEntityId: Int = 0
@@ -74,9 +79,9 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         const val ACTION_UI_WIDTH = 160f
     }
 
-    init {
-        primaryActionMenu.setItems(listOf("Move", "Attack", "Skill", "Item", "Defend", "Wait"))
+    override fun initialize() {
         primaryActionMenu.hoverSelect = true
+        primaryActionMenu.disabledFontColor = Color.GRAY
         primaryActionMenu.x = PADDING
         primaryActionMenu.y = PADDING
         primaryActionMenu.width = ACTION_UI_WIDTH
@@ -88,16 +93,38 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
                 }
             }
         })
-    }
 
-    override fun initialize() {
         primaryActionMenuEntityId = world.create()
         val cPrimaryActionMenu = mActor.create(primaryActionMenuEntityId)
         cPrimaryActionMenu.actor = primaryActionMenu
     }
 
+    private fun setPrimaryActionMenuItems(npcId: Int) {
+        val backend = getBackend()
+        primaryActionMenu.setItems(listOf(
+                TargetMenuCommandItem("Attack", null, NormalAttackCommandFactory(backend)),
+                StringMenuItem("Skill", null, ""),
+                StringMenuItem("Reload", null, ""),
+                StringMenuItem("Item", null, ""),
+                StringMenuItem("Defend", null, ""),
+                StringMenuItem("Wait", null, ""),
+                StringMenuItem("Run", null, "")))
+
+        val weapon = backend.getNpc(npcId)!!.unitInstance.weapon
+        if (weapon == null || !BattleUtils.weaponRequiresAmmo(weapon) || weapon.ammo < weapon.schema.magazineSize) {
+            primaryActionMenu.setDisabledIndex(2, true)
+        }
+        val position = backend.getNpcPosition(npcId)!!
+        val map = backend.getBattleMapState()
+        if (position.x != 0 && position.x != map.width - 1 && position.y != 0 && position.y != map.height - 1) {
+            primaryActionMenu.setDisabledIndex(6, true)
+        }
+        primaryActionMenu.height = primaryActionMenu.prefHeight
+    }
+
     @Subscribe
     fun playerUnitSelectedListener(event: PlayerUnitSelectedEvent) {
+        setPrimaryActionMenuItems(event.npcId)
         val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
                 .find { mSideUiBox.get(it).npcId == event.npcId }
         if (uiEntityId != null) {
