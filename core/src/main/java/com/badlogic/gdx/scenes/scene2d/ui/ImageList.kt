@@ -24,6 +24,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             : this(skin.get(styleName, List.ListStyle::class.java), itemView)
 
     var hoverSelect = false
+    var disabledFontColor = style.fontColorSelected
 
     internal val items = com.badlogic.gdx.utils.Array<T>()
     internal var itemHeight: Float = 0f
@@ -33,6 +34,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     internal var prefHeight: Float = 0f
 
     internal val selection: ArraySelection<T> = ArraySelection(items)
+    internal val disabledItems = com.badlogic.gdx.utils.Array<T>()
     internal var culling: Rectangle? = null
 
     override fun setCullingArea(cullingArea: Rectangle?) {
@@ -93,7 +95,10 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         var index = ((height - selectY) / itemHeight).toInt()
         index = Math.max(0, index)
         index = Math.min(items.size - 1, index)
-        selection.choose(items[index])
+        val item = items[index]
+        if (!disabledItems.contains(item)) {
+            selection.choose(item)
+        }
     }
 
     override fun layout() {
@@ -161,14 +166,16 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         for (i in 0 until items.size) {
             val item = items.get(i)
             val selected = selection.contains(item)
+            font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
             if (selected) {
                 selectedDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
                 font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
             }
-            drawItem(batch, font, item, x, y + itemY, textOffsetX, -textOffsetY, width)
-            if (selected) {
-                font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
+            val disabled = disabledItems.contains(item, false)
+            if (disabled) {
+                font.setColor(disabledFontColor.r, disabledFontColor.g, disabledFontColor.b, disabledFontColor.a * parentAlpha)
             }
+            drawItem(batch, font, item, x, y + itemY, textOffsetX, -textOffsetY, width)
             itemY -= itemHeight
         }
     }
@@ -198,6 +205,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         items.clear()
         items.addAll(newItems)
         selection.validate()
+        disabledItems.clear()
 
         invalidate()
         if (oldPrefWidth != getPrefWidth() || oldPrefHeight != getPrefHeight()) invalidateHierarchy()
@@ -227,6 +235,27 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             selection.clear()
         } else {
             selection.set(items.get(index))
+        }
+    }
+
+    fun setDisabled(item: T, disabled: Boolean) {
+        if (items.contains(item, false)) {
+            if (disabled) {
+                disabledItems.add(item)
+            } else {
+                disabledItems.removeValue(item, false)
+            }
+        }
+    }
+
+    fun setDisabledIndex(index: Int, disabled: Boolean) {
+        if (index < -1 || index >= items.size)
+            throw IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
+        val item = items[index]
+        if (disabled) {
+            disabledItems.add(item)
+        } else {
+            disabledItems.removeValue(item, false)
         }
     }
 
