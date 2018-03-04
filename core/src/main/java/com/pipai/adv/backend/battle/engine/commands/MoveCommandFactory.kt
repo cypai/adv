@@ -6,14 +6,8 @@ import com.pipai.adv.backend.battle.engine.MapGraph
 
 class MoveCommandFactory(backend: BattleBackend) : ActionCommandFactory<MoveCommand>(backend) {
     override fun generate(npcId: Int): List<MoveCommand> {
-        val state = backend.getBattleState()
-        val currentAp = state.apState.getNpcAp(npcId)
-        val mapGraph = MapGraph(
-                backend.getBattleMapState(),
-                backend.getNpcPositions()[npcId]!!,
-                state.npcList.getNpc(npcId)!!.unitInstance.schema.baseStats.mobility,
-                currentAp,
-                ActionPointState.startingNumAPs, debug = true)
+        val currentAp = backend.getNpcAp(npcId)
+        val mapGraph = getMapGraph(npcId)
 
         val availableCommands: MutableList<MoveCommand> = mutableListOf()
         for (ap in 1..currentAp) {
@@ -21,5 +15,16 @@ class MoveCommandFactory(backend: BattleBackend) : ActionCommandFactory<MoveComm
                     .map { MoveCommand(npcId, mapGraph.getPath(it)) })
         }
         return availableCommands
+    }
+
+    fun getMapGraph(npcId: Int): MapGraph {
+        val state = backend.getBattleState()
+        val currentAp = backend.getNpcAp(npcId)
+        return MapGraph(
+                backend.getBattleMapState(),
+                backend.getNpcPositions()[npcId]!!,
+                state.npcList.getNpc(npcId)!!.unitInstance.schema.baseStats.mobility,
+                currentAp,
+                ActionPointState.startingNumAPs)
     }
 }

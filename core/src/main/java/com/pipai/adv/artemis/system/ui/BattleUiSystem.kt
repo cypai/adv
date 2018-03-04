@@ -22,6 +22,7 @@ import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.artemis.system.ui.menu.MenuItem
@@ -29,11 +30,10 @@ import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
-import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.MapGraph
-import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
-import com.pipai.adv.backend.battle.engine.commands.TargetCommand
+import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
@@ -42,6 +42,9 @@ import net.mostlyoriginal.api.event.common.EventSystem
 
 class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
+    private val logger = getLogger()
+
+    private val mDrawable by mapper<DrawableComponent>()
     private val mSideUiBox by mapper<SideUiBoxComponent>()
     private val mActor by mapper<ActorComponent>()
     private val mXy by mapper<XYComponent>()
@@ -56,6 +59,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private val sNpcId by system<NpcIdSystem>()
     private val sCameraInterpolation by system<CameraInterpolationSystem>()
+    private val sBattleAnimation by system<BattleAnimationSystem>()
 
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
@@ -74,10 +78,17 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     })
     private var primaryActionMenuEntityId: Int = 0
 
+    private val movePreviewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
+    private val movePreviewDrawableSize = 6f
+
     var selectedNpcId: Int? = null
         private set
 
     private val targetNpcIds: MutableList<Pair<Int, TargetCommand>> = mutableListOf()
+
+    private var mapGraph: MapGraph? = null
+    private var hoverDestination: GridPosition? = null
+    private var movePreviewEntityId: Int? = null
 
     companion object {
         const val PORTRAIT_WIDTH = 80f
@@ -113,6 +124,48 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         primaryActionMenuEntityId = world.create()
         val cPrimaryActionMenu = mActor.create(primaryActionMenuEntityId)
         cPrimaryActionMenu.actor = primaryActionMenu
+    }
+
+    private fun executeCommand(command: BattleCommand) {
+        val backend = getBackend()
+        val executionStatus = backend.canBeExecuted(command)
+        if (executionStatus.executable) {
+            val events = backend.execute(command)
+            sBattleAnimation.processBattleEvents(events)
+        } else {
+            logger.debug("Unable to move: ${executionStatus.reason}")
+        }
+    }
+
+    private fun showMovementTiles(npcId: Int) {
+        val factory = MoveCommandFactory(getBackend())
+        mapGraph = factory.getMapGraph(npcId)
+        sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
+    }
+
+    private fun clearMovementTiles() {
+        sEvent.dispatch(MovementTileUpdateEvent(null))
+        movePreviewEntityId?.let { world.delete(it) }
+    }
+
+    private fun createMovePreview(path: List<Vector2>) {
+        movePreviewEntityId?.let { world.delete(it) }
+
+        val previewId = world.create()
+
+        val cDrawable = mDrawable.create(previewId)
+        cDrawable.drawable = movePreviewDrawable
+        cDrawable.width = movePreviewDrawableSize
+        cDrawable.height = movePreviewDrawableSize
+        val cXy = mXy.create(previewId)
+        cXy.setXy(path.first())
+        val cPath = mPath.create(previewId)
+        cPath.onEnd = PathInterpolationEndStrategy.RESTART
+        cPath.interpolation = Interpolation.linear
+        cPath.maxT = 5
+        cPath.endpoints.addAll(path)
+
+        movePreviewEntityId = previewId
     }
 
     private fun selectRightUiBox(npcId: Int) {
@@ -205,7 +258,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         cUi.setToNpc(npcId, getBackend())
         cUi.orientation = SideUiBoxOrientation.PORTRAIT_RIGHT
         val cXy = mXy.create(entityId)
-        cXy.x = -UI_WIDTH/2
+        cXy.x = -UI_WIDTH / 2
         cXy.y = game.advConfig.resolution.height - (BattleUiSystem.UI_HEIGHT + BattleMapScreenInit.UI_VERTICAL_PADDING) * (index + 1)
         val cPath = mPath.create(entityId)
         cPath.interpolation = Interpolation.linear
@@ -265,18 +318,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             val npcEntityId = sNpcId.getNpcEntityId(npcId)!!
             val cUnitXy = mXy.get(npcEntityId)
             sCameraInterpolation.sendCameraToPosition(cUnitXy.toVector2())
-
-            if (nextSelectedTeam == Team.PLAYER) {
-                val battleState = backend.getBattleState()
-                val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
-                val mapGraph = MapGraph(backend.getBattleMapState(),
-                        backend.getNpcPositions()[npcId]!!,
-                        unitInstance.schema.baseStats.mobility,
-                        battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
-                sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
-            } else {
-                sEvent.dispatch(MovementTileUpdateEvent(null))
-            }
         }
     }
 
@@ -509,29 +550,41 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             }
         }
 
-        if (button != Input.Buttons.LEFT) return false
-
         val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
         val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
         val mouseX = pickRay.origin.x
         val mouseY = pickRay.origin.y
 
-        val npcUnitEntities = fetchNpcUnits()
+        when (button) {
+            Input.Buttons.LEFT -> {
+                val npcUnitEntities = fetchNpcUnits()
 
-        var minY = Float.MAX_VALUE
-        var minYId: Int? = null
-        for (entityId in npcUnitEntities) {
-            val cXy = mXy.get(entityId)
-            val cCollision = mCollision.get(entityId)
-            if (cXy.y < minY && CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, cCollision.bounds)) {
-                minY = cXy.y
-                minYId = entityId
+                var minY = Float.MAX_VALUE
+                var minYId: Int? = null
+                for (entityId in npcUnitEntities) {
+                    val cXy = mXy.get(entityId)
+                    val cCollision = mCollision.get(entityId)
+                    if (cXy.y < minY && CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, cCollision.bounds)) {
+                        minY = cXy.y
+                        minYId = entityId
+                    }
+                }
+                if (minYId != null) {
+                    val npcId = mNpcId.get(minYId).npcId
+                    select(npcId)
+                }
+            }
+            Input.Buttons.RIGHT -> {
+                if (stateMachine.isInState(BattleUiState.PLAYER_SELECTED)) {
+                    val destination = GridUtils.localToGridPosition(mouseX, mouseY, game.advConfig.resolution.tileSize.toFloat())
+                    if (mapGraph!!.canMoveTo(destination)) {
+                        val moveCommand = MoveCommand(selectedNpcId!!, mapGraph!!.getPath(destination))
+                        executeCommand(moveCommand)
+                    }
+                }
             }
         }
-        if (minYId != null) {
-            val npcId = mNpcId.get(minYId).npcId
-            select(npcId)
-        }
+
         return false
     }
 
@@ -544,6 +597,39 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
+        val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
+        val mouseX = pickRay.origin.x
+        val mouseY = pickRay.origin.y
+
+        when (stateMachine.currentState) {
+            BattleUiState.PLAYER_SELECTED -> {
+                val theMapGraph = mapGraph
+                if (theMapGraph != null) {
+                    val tileSize = game.advConfig.resolution.tileSize.toFloat()
+
+                    val destination = GridUtils.localToGridPosition(mouseX, mouseY, tileSize)
+                    if (destination != hoverDestination && theMapGraph.canMoveTo(destination)) {
+                        hoverDestination = destination
+
+                        val path = theMapGraph.getPath(destination).map {
+                            GridUtils.gridPositionToLocalOffset(it, tileSize,
+                                    tileSize / 2f - movePreviewDrawableSize / 2,
+                                    tileSize / 2f - movePreviewDrawableSize / 2)
+                        }
+                        val start = GridUtils.gridPositionToLocalOffset(theMapGraph.start, tileSize,
+                                tileSize / 2f - movePreviewDrawableSize / 2,
+                                tileSize / 2f - movePreviewDrawableSize / 2)
+
+                        val previewPath = path.toMutableList()
+                        previewPath.add(0, start)
+                        createMovePreview(previewPath.toList())
+                    }
+                }
+            }
+            else -> {
+            }
+        }
         return false
     }
 
@@ -557,17 +643,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.deselectRightUiBoxes()
                 uiSystem.stage.clear()
-            }
-
-            override fun update(uiSystem: BattleUiSystem) {
-                val selectedNpcId = uiSystem.selectedNpcId
-                if (selectedNpcId != null) {
-                    val backend = uiSystem.getBackend()
-                    when (backend.getNpcTeam(selectedNpcId)) {
-                        Team.PLAYER -> uiSystem.stateMachine.changeState(PLAYER_SELECTED)
-                        Team.AI -> uiSystem.stateMachine.changeState(ENEMY_SELECTED)
-                    }
-                }
             }
         },
         ENEMY_SELECTED() {
@@ -585,10 +660,14 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)
                 uiSystem.activatePrimaryActionMenu()
                 uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                uiSystem.showMovementTiles(uiSystem.selectedNpcId!!)
+            }
+
+            override fun exit(uiSystem: BattleUiSystem) {
+                uiSystem.clearMovementTiles()
             }
         },
         TARGET_SELECTION() {
-
         };
 
         override fun enter(uiSystem: BattleUiSystem) {
