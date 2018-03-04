@@ -4,7 +4,7 @@ import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
-import com.badlogic.gdx.ai.fsm.StackStateMachine
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
@@ -64,7 +64,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
 
-    private val stateMachine = StackStateMachine<BattleUiSystem, BattleUiState>(this, BattleUiState.NOTHING_SELECTED)
+    private val stateMachine = DefaultStateMachine<BattleUiSystem, BattleUiState>(this, BattleUiState.NOTHING_SELECTED)
 
     private val frameDrawable = game.skin.getDrawable("frame")
     private val frameBgDrawable = game.skin.getDrawable("bg")
@@ -85,6 +85,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         private set
 
     private val targetNpcIds: MutableList<Pair<Int, TargetCommand>> = mutableListOf()
+    private var targetIndex: Int? = null
 
     private var mapGraph: MapGraph? = null
     private var hoverDestination: GridPosition? = null
@@ -117,7 +118,9 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         primaryActionMenu.height = primaryActionMenu.prefHeight
         primaryActionMenu.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                handleMenuSelect(primaryActionMenu.getSelected())
+                if (!primaryActionMenu.lockSelection) {
+                    handleMenuSelect(primaryActionMenu.getSelected())
+                }
             }
         })
 
@@ -146,6 +149,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private fun clearMovementTiles() {
         sEvent.dispatch(MovementTileUpdateEvent(null))
         movePreviewEntityId?.let { world.delete(it) }
+        movePreviewEntityId = null
     }
 
     private fun createMovePreview(path: List<Vector2>) {
@@ -193,7 +197,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 cPath.interpolation = Interpolation.linear
                 cPath.endpoints.clear()
                 cPath.endpoints.add(cXy.toVector2())
-                cPath.endpoints.add(Vector2(game.advConfig.resolution.width - UI_WIDTH + SELECTION_DISTANCE, cXy.y))
+                cPath.endpoints.add(Vector2(destinationX, cXy.y))
                 cPath.maxT = SELECTION_TIME
             }
         }
@@ -237,22 +241,15 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private fun handleMenuSelect(menuItem: MenuItem) {
         when (menuItem) {
             is TargetMenuCommandItem -> {
-                setTargets(menuItem.factory.generate(selectedNpcId!!))
+                val commands = menuItem.factory.generateInvalid(selectedNpcId!!)
+                targetNpcIds.clear()
+                targetNpcIds.addAll(commands.map { Pair(it.targetId, it) })
+                stateMachine.changeState(BattleUiState.TARGET_SELECTION)
             }
         }
     }
 
-    private fun setTargets(targetCommands: List<TargetCommand>) {
-        targetNpcIds.clear()
-        targetNpcIds.addAll(targetCommands.map { Pair(it.targetId, it) })
-        var index = 0
-        targetCommands.forEach {
-            createLeftUiBox(it.targetId, index)
-            index++
-        }
-    }
-
-    private fun createLeftUiBox(npcId: Int, index: Int) {
+    private fun createLeftUiBox(npcId: Int, index: Int, selected: Boolean = false) {
         val entityId = world.create()
         val cUi = mSideUiBox.create(entityId)
         cUi.setToNpc(npcId, getBackend())
@@ -264,7 +261,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         cPath.interpolation = Interpolation.linear
         cPath.endpoints.clear()
         cPath.endpoints.add(cXy.toVector2())
-        cPath.endpoints.add(Vector2(0f, cXy.y))
+        cPath.endpoints.add(Vector2(if (selected) 0f else -SELECTION_DISTANCE, cXy.y))
         cPath.maxT = SELECTION_TIME
     }
 
@@ -280,6 +277,37 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             cPath.endpoints.add(Vector2(-UI_WIDTH, cXy.y))
             cPath.maxT = SELECTION_TIME
             cPath.onEnd = PathInterpolationEndStrategy.DESTROY
+        }
+    }
+
+    private fun selectLeftUiBox(npcId: Int) {
+        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .find { mSideUiBox.get(it).orientation == SideUiBoxOrientation.PORTRAIT_RIGHT && mSideUiBox.get(it).npcId == npcId }
+        if (uiEntityId != null) {
+            val cXy = mXy.get(uiEntityId)
+            val cPath = mPath.create(uiEntityId)
+            cPath.interpolation = Interpolation.linear
+            cPath.endpoints.clear()
+            cPath.endpoints.add(cXy.toVector2())
+            cPath.endpoints.add(Vector2(0f, cXy.y))
+            cPath.maxT = SELECTION_TIME
+        }
+    }
+
+    private fun deselectLeftUiBoxes() {
+        val uiEntityIds = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .filter { mSideUiBox.get(it).orientation == SideUiBoxOrientation.PORTRAIT_RIGHT }
+        uiEntityIds.forEach { uiEntityId ->
+            val destinationX = -SELECTION_DISTANCE
+            val cXy = mXy.get(uiEntityId)
+            if (cXy.x > destinationX) {
+                val cPath = mPath.create(uiEntityId)
+                cPath.interpolation = Interpolation.linear
+                cPath.endpoints.clear()
+                cPath.endpoints.add(cXy.toVector2())
+                cPath.endpoints.add(Vector2(destinationX, cXy.y))
+                cPath.maxT = SELECTION_TIME
+            }
         }
     }
 
@@ -321,7 +349,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         }
     }
 
-    private fun selectNext() {
+    private fun selectNextPlayer() {
         val playerUnits = fetchPlayerUnits()
                 .map { Pair(mPlayerUnit.get(it).index, mNpcId.get(it).npcId) }
                 .sortedBy { it.first }
@@ -343,6 +371,32 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         }
     }
 
+    private fun selectNextTarget() {
+        targetIndex?.let {
+            var index = it + 1
+            if (index >= targetNpcIds.size) {
+                index = 0
+            }
+            selectTarget(targetNpcIds[index].first)
+        }
+    }
+
+    private fun selectTarget(npcId: Int) {
+        var index = 0
+        targetNpcIds.forEach {
+            if (it.first == npcId) {
+                deselectLeftUiBoxes()
+                selectLeftUiBox(npcId)
+                targetIndex = index
+                val npcEntityId = sNpcId.getNpcEntityId(npcId)!!
+                val cXy = mXy.get(npcEntityId)
+                sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+                return@forEach
+            }
+            index++
+        }
+    }
+
     override fun processSystem() {
         val uiCamera = mCamera.get(sTags.getEntityId(Tags.UI_CAMERA.toString()))
         val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
@@ -356,8 +410,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             val cUi = mSideUiBox.get(it)
             if (!cUi.disabled) {
                 when (cUi.orientation) {
-                    SideUiBoxOrientation.PORTRAIT_LEFT -> drawLeftSideUi(cUi, mXy.get(it))
-                    SideUiBoxOrientation.PORTRAIT_RIGHT -> drawRightSideUi(cUi, mXy.get(it))
+                    SideUiBoxOrientation.PORTRAIT_LEFT -> drawPortraitLeftUi(cUi, mXy.get(it))
+                    SideUiBoxOrientation.PORTRAIT_RIGHT -> drawPortraitRightUi(cUi, mXy.get(it))
                 }
             }
         }
@@ -372,7 +426,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         stage.dispose()
     }
 
-    private fun drawLeftSideUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {
+    private fun drawPortraitLeftUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {
         frameBgDrawable.draw(game.spriteBatch, cXy.x, cXy.y, UI_WIDTH, UI_HEIGHT)
         frameDrawable.draw(game.spriteBatch,
                 cXy.x - UiConstants.FRAME_LEFT_PADDING,
@@ -446,7 +500,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - BAR_HEIGHT - BAR_VERTICAL_PADDING)
     }
 
-    private fun drawRightSideUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {
+    private fun drawPortraitRightUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {
         frameBgDrawable.draw(game.spriteBatch, cXy.x, cXy.y, UI_WIDTH, UI_HEIGHT)
         frameDrawable.draw(game.spriteBatch,
                 cXy.x - UiConstants.FRAME_LEFT_PADDING,
@@ -454,7 +508,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 UI_WIDTH + UiConstants.FRAME_LEFT_PADDING + UiConstants.FRAME_RIGHT_PADDING,
                 UI_HEIGHT + UiConstants.FRAME_TOP_PADDING + UiConstants.FRAME_BOTTOM_PADDING)
         portraitBgDrawable.draw(game.spriteBatch,
-                cXy.x + POST_BAR_PADDING + BAR_WIDTH + PADDING,
+                cXy.x + SELECTION_DISTANCE + POST_BAR_PADDING + BAR_WIDTH + PADDING,
                 cXy.y + PADDING,
                 PORTRAIT_WIDTH, PORTRAIT_HEIGHT)
         val onFieldPortrait = cUiBox.onFieldPortrait
@@ -464,67 +518,92 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 for (pcc in onFieldPortrait.pccMetadata) {
                     val pccTexture = game.globals.pccManager.getPccFrame(pcc, animationFrame)
                     game.spriteBatch.draw(pccTexture,
-                            cXy.x + POST_BAR_PADDING + BAR_WIDTH + PADDING + PORTRAIT_WIDTH / 2 - pccTexture.regionWidth / 2,
+                            cXy.x + SELECTION_DISTANCE + POST_BAR_PADDING + BAR_WIDTH + PADDING + PORTRAIT_WIDTH / 2 - pccTexture.regionWidth / 2,
                             cXy.y + PADDING + PORTRAIT_HEIGHT / 2 - pccTexture.regionHeight / 2)
                 }
             }
             is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata -> {
                 val unitTexture = game.globals.animatedTilesetManager.getTilesetFrame(onFieldPortrait.filename, animationFrame)
                 game.spriteBatch.draw(unitTexture,
-                        cXy.x + POST_BAR_PADDING + BAR_WIDTH + PADDING + PORTRAIT_WIDTH / 2 - unitTexture.regionWidth / 2,
+                        cXy.x + SELECTION_DISTANCE + POST_BAR_PADDING + BAR_WIDTH + PADDING + PORTRAIT_WIDTH / 2 - unitTexture.regionWidth / 2,
                         cXy.y + PADDING + PORTRAIT_HEIGHT / 2 - unitTexture.regionHeight / 2)
             }
         }
         game.smallFont.draw(game.spriteBatch, cUiBox.name,
-                cXy.x + PADDING,
+                cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING)
         game.shapeRenderer.rect(
-                cXy.x + PADDING - 1,
+                cXy.x + SELECTION_DISTANCE + PADDING - 1,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1,
                 BAR_WIDTH + 2,
                 BAR_HEIGHT + 2)
         game.shapeRenderer.rect(
-                cXy.x + PADDING,
+                cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
                 Color.RED, Color.YELLOW, Color.YELLOW, Color.RED)
         game.shapeRenderer.rect(
-                cXy.x + PADDING + cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
+                cXy.x + SELECTION_DISTANCE + PADDING + cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
                 BAR_WIDTH - cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
                 BAR_HEIGHT,
                 Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
         game.smallFont.draw(game.spriteBatch, cUiBox.hp.toString(),
-                cXy.x + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
+                cXy.x + SELECTION_DISTANCE + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight)
         game.shapeRenderer.rect(
-                cXy.x + PADDING - 1,
+                cXy.x + SELECTION_DISTANCE + PADDING - 1,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1 - BAR_HEIGHT - BAR_VERTICAL_PADDING,
                 BAR_WIDTH + 2,
                 BAR_HEIGHT + 2)
         game.shapeRenderer.rect(
-                cXy.x + PADDING,
+                cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
                 Color(0f, 0.3f, 1f, 1f), Color.CYAN, Color.CYAN, Color(0f, 0.3f, 1f, 1f))
         game.shapeRenderer.rect(
-                cXy.x + PADDING + cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
+                cXy.x + SELECTION_DISTANCE + PADDING + cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
                 BAR_WIDTH - cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
                 BAR_HEIGHT,
                 Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
         game.smallFont.draw(game.spriteBatch, cUiBox.tp.toString(),
-                cXy.x + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
+                cXy.x + SELECTION_DISTANCE + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - BAR_HEIGHT - BAR_VERTICAL_PADDING)
     }
 
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
     override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Input.Keys.SHIFT_LEFT) {
-            selectNext()
+        when (keycode) {
+            Input.Keys.SHIFT_LEFT -> {
+                when (stateMachine.currentState) {
+                    BattleUiState.NOTHING_SELECTED -> selectNextPlayer()
+                    BattleUiState.PLAYER_SELECTED -> selectNextPlayer()
+                    BattleUiState.ENEMY_SELECTED -> selectNextPlayer()
+                    BattleUiState.TARGET_SELECTION -> selectNextTarget()
+                    else -> {
+                    }
+                }
+            }
+            Input.Keys.ESCAPE -> {
+                when (stateMachine.currentState) {
+                    BattleUiState.PLAYER_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+                    BattleUiState.ENEMY_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+                    BattleUiState.TARGET_SELECTION -> {
+                        stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+
+                        val npcEntityId = sNpcId.getNpcEntityId(selectedNpcId!!)!!
+                        val cXy = mXy.get(npcEntityId)
+                        sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+                    }
+                    else -> {
+                    }
+                }
+                return true
+            }
         }
         return false
     }
@@ -538,18 +617,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
-        val bounds = CollisionBounds.CollisionBoundingBox(0f, 0f, UI_WIDTH, UI_HEIGHT)
-        sideUiEntities.forEach {
-            val cXy = mXy.get(it)
-            if (CollisionUtils.withinBounds(screenX.toFloat(), game.advConfig.resolution.height - screenY.toFloat(),
-                            cXy.x, cXy.y, bounds)) {
-                val cSideUi = mSideUiBox.get(it)
-                select(cSideUi.npcId)
-                return true
-            }
-        }
-
         val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
         val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
         val mouseX = pickRay.origin.x
@@ -557,6 +624,28 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
         when (button) {
             Input.Buttons.LEFT -> {
+                val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                val bounds = CollisionBounds.CollisionBoundingBox(0f, 0f, UI_WIDTH, UI_HEIGHT)
+                sideUiEntities.forEach {
+                    val cXy = mXy.get(it)
+                    if (CollisionUtils.withinBounds(screenX.toFloat(), game.advConfig.resolution.height - screenY.toFloat(),
+                                    cXy.x, cXy.y, bounds)) {
+                        val cSideUi = mSideUiBox.get(it)
+
+                        when {
+                            stateMachine.isInState(BattleUiState.NOTHING_SELECTED)
+                                    || stateMachine.isInState(BattleUiState.PLAYER_SELECTED)
+                                    || stateMachine.isInState(BattleUiState.ENEMY_SELECTED) -> {
+                                select(cSideUi.npcId)
+                            }
+                            stateMachine.isInState(BattleUiState.TARGET_SELECTION) -> {
+                                selectTarget(cSideUi.npcId)
+                            }
+                        }
+                        return true
+                    }
+                }
+
                 val npcUnitEntities = fetchNpcUnits()
 
                 var minY = Float.MAX_VALUE
@@ -571,14 +660,23 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 }
                 if (minYId != null) {
                     val npcId = mNpcId.get(minYId).npcId
-                    select(npcId)
+                    when {
+                        stateMachine.isInState(BattleUiState.NOTHING_SELECTED)
+                                || stateMachine.isInState(BattleUiState.PLAYER_SELECTED)
+                                || stateMachine.isInState(BattleUiState.ENEMY_SELECTED) -> {
+                            select(npcId)
+                        }
+                        stateMachine.isInState(BattleUiState.TARGET_SELECTION) -> {
+                            selectTarget(npcId)
+                        }
+                    }
                 }
             }
             Input.Buttons.RIGHT -> {
                 if (stateMachine.isInState(BattleUiState.PLAYER_SELECTED)) {
                     val destination = GridUtils.localToGridPosition(mouseX, mouseY, game.advConfig.resolution.tileSize.toFloat())
                     if (mapGraph!!.canMoveTo(destination)) {
-                        val moveCommand = MoveCommand(selectedNpcId!!, mapGraph!!.getPath(destination))
+                        val moveCommand = MoveCommand(selectedNpcId!!, mapGraph!!.getPath(destination).toList())
                         executeCommand(moveCommand)
                     }
                 }
@@ -658,8 +756,12 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.deselectRightUiBoxes()
                 uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)
-                uiSystem.activatePrimaryActionMenu()
-                uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                if (uiSystem.primaryActionMenu.lockSelection) {
+                    uiSystem.primaryActionMenu.lockSelection = false
+                } else {
+                    uiSystem.activatePrimaryActionMenu()
+                    uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                }
                 uiSystem.showMovementTiles(uiSystem.selectedNpcId!!)
             }
 
@@ -668,10 +770,18 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             }
         },
         TARGET_SELECTION() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.primaryActionMenu.lockSelection = true
+                if (uiSystem.targetNpcIds.isNotEmpty()) {
+                    var index = 0
+                    uiSystem.targetNpcIds.forEach {
+                        uiSystem.createLeftUiBox(it.first, index, index == 0)
+                        index++
+                    }
+                    uiSystem.selectTarget(uiSystem.targetNpcIds[0].first)
+                }
+            }
         };
-
-        override fun enter(uiSystem: BattleUiSystem) {
-        }
 
         override fun exit(uiSystem: BattleUiSystem) {
         }

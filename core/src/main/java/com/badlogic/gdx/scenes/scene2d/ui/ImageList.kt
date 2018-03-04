@@ -24,6 +24,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             : this(skin.get(styleName, List.ListStyle::class.java), itemView)
 
     var hoverSelect = false
+    var lockSelection = false
     var disabledFontColor = style.fontColorSelected
 
     internal val items = com.badlogic.gdx.utils.Array<T>()
@@ -85,6 +86,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     private fun touchDown(touchY: Float) {
+        if (lockSelection) return
         var selectY = touchY
         if (items.size == 0) return
         var height = height
@@ -206,6 +208,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         items.addAll(newItems)
         selection.validate()
         disabledItems.clear()
+        lockSelection = false
 
         invalidate()
         if (oldPrefWidth != getPrefWidth() || oldPrefHeight != getPrefHeight()) invalidateHierarchy()
@@ -220,21 +223,25 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     fun setSelected(item: T) {
-        if (items.contains(item, false))
-            selection.set(item)
-        else if (selection.required && items.size > 0)
-            selection.set(items.first())
-        else
-            selection.clear()
+        if (!lockSelection) {
+            if (items.contains(item, false))
+                selection.set(item)
+            else if (selection.required && items.size > 0)
+                selection.set(items.first())
+            else
+                selection.clear()
+        }
     }
 
     fun setSelectedIndex(index: Int) {
-        if (index < -1 || index >= items.size)
-            throw IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
-        if (index == -1) {
-            selection.clear()
-        } else {
-            selection.set(items.get(index))
+        if (!lockSelection) {
+            if (index < -1 || index >= items.size)
+                throw IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
+            if (index == -1) {
+                selection.clear()
+            } else {
+                selection.set(items.get(index))
+            }
         }
     }
 

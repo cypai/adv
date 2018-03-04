@@ -68,11 +68,11 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
-        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java).stage)
+        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.activateInput()
 
         BattleMapScreenInit(world, game.advConfig, game.globals.save!!, npcList, partyList, map)
