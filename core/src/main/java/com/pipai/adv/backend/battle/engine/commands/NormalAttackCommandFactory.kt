@@ -17,4 +17,17 @@ class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory<
         }
         return commands
     }
+
+    override fun generateInvalid(npcId: Int): List<NormalAttackCommand> {
+        val npc = backend.getNpc(npcId)!!
+        val commands: MutableList<NormalAttackCommand> = mutableListOf()
+        val weapon = npc.unitInstance.weapon
+        if (BattleUtils.canTakeAction(npcId, 1, backend)
+                && weapon != null) {
+
+            val targets = BattleUtils.enemiesInRange(npcId, backend)
+            commands.addAll(targets.map { NormalAttackCommand(npcId, it, weapon) })
+        }
+        return commands
+    }
 }
