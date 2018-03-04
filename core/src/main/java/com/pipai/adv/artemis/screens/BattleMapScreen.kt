@@ -14,7 +14,7 @@ import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.BattleFieldUiSystem
-import com.pipai.adv.artemis.system.ui.BattleSideUiSystem
+import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
@@ -57,7 +57,6 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         ActorInterpolationSystem(),
 
                         NpcIdSystem(),
-                        SelectedUnitSystem(),
                         BattleAnimationSystem(game))
                 .withPassive(-2,
                         BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
@@ -65,7 +64,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-3,
                         BattleFieldUiSystem(game))
                 .withPassive(-5,
-                        BattleSideUiSystem(game))
+                        BattleUiSystem(game))
                 .withPassive(-6,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
@@ -76,8 +75,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
-        inputProcessor.addProcessor(world.getSystem(BattleSideUiSystem::class.java))
-        inputProcessor.addProcessor(world.getSystem(BattleSideUiSystem::class.java).stage)
+        inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java))
+        inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java).stage)
         inputProcessor.addProcessor(world.getSystem(InputEventSystem::class.java))
         inputProcessor.activateInput()
 

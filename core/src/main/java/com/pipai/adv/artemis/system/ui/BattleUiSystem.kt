@@ -2,7 +2,11 @@ package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.fsm.StackStateMachine
+import com.badlogic.gdx.ai.fsm.State
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
@@ -15,38 +19,48 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.NonPlayerUnitSelectedEvent
-import com.pipai.adv.artemis.events.NonPlayerUnitUnselectedEvent
-import com.pipai.adv.artemis.events.PlayerUnitSelectedEvent
-import com.pipai.adv.artemis.events.PlayerUnitUnselectedEvent
+import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
-import com.pipai.adv.artemis.system.input.SelectedUnitSystem
+import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
+import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.artemis.system.ui.menu.MenuItem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.engine.ActionPointState
+import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
+import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.*
-import net.mostlyoriginal.api.event.common.Subscribe
+import net.mostlyoriginal.api.event.common.EventSystem
 
-class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
+class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private val mSideUiBox by mapper<SideUiBoxComponent>()
-    private val mXy by mapper<XYComponent>()
     private val mActor by mapper<ActorComponent>()
+    private val mXy by mapper<XYComponent>()
+    private val mPath by mapper<PathInterpolationComponent>()
 
     private val mBackend by mapper<BattleBackendComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
 
-    private val mPath by mapper<PathInterpolationComponent>()
+    private val mNpcId by mapper<NpcIdComponent>()
+    private val mPlayerUnit by mapper<PlayerUnitComponent>()
+    private val mCollision by mapper<CollisionComponent>()
+
+    private val sNpcId by system<NpcIdSystem>()
+    private val sCameraInterpolation by system<CameraInterpolationSystem>()
 
     private val sTags by system<TagManager>()
-    private val sSelectedUnit by system<SelectedUnitSystem>()
+    private val sEvent by system<EventSystem>()
+
+    private val stateMachine = StackStateMachine<BattleUiSystem, BattleUiState>(this, BattleUiState.NOTHING_SELECTED)
 
     private val frameDrawable = game.skin.getDrawable("frame")
     private val frameBgDrawable = game.skin.getDrawable("bg")
@@ -59,7 +73,11 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         override fun getSpacing(): Float = 10f
     })
     private var primaryActionMenuEntityId: Int = 0
-    private var primaryActionMenuActive = false
+
+    var selectedNpcId: Int? = null
+        private set
+
+    private val targetNpcIds: MutableList<Pair<Int, TargetCommand>> = mutableListOf()
 
     companion object {
         const val PORTRAIT_WIDTH = 80f
@@ -70,7 +88,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         const val BAR_VERTICAL_PADDING = 12f
         const val BAR_TEXT_PADDING = 8f
         const val POST_BAR_PADDING = 64f
-        const val SELECTION_DISTANCE = 8f
+        const val SELECTION_DISTANCE = 16f
         const val UI_WIDTH = PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + POST_BAR_PADDING + SELECTION_DISTANCE
         const val UI_HEIGHT = PADDING + PORTRAIT_HEIGHT + PADDING
 
@@ -88,9 +106,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         primaryActionMenu.height = primaryActionMenu.prefHeight
         primaryActionMenu.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                if (primaryActionMenuActive) {
-                    System.out.println(primaryActionMenu.getSelected())
-                }
+                handleMenuSelect(primaryActionMenu.getSelected())
             }
         })
 
@@ -99,7 +115,49 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         cPrimaryActionMenu.actor = primaryActionMenu
     }
 
-    private fun setPrimaryActionMenuItems(npcId: Int) {
+    private fun selectRightUiBox(npcId: Int) {
+        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .find { mSideUiBox.get(it).orientation == SideUiBoxOrientation.PORTRAIT_LEFT && mSideUiBox.get(it).npcId == npcId }
+        if (uiEntityId != null) {
+            val cXy = mXy.get(uiEntityId)
+            val cPath = mPath.create(uiEntityId)
+            cPath.interpolation = Interpolation.linear
+            cPath.endpoints.clear()
+            cPath.endpoints.add(cXy.toVector2())
+            cPath.endpoints.add(Vector2(game.advConfig.resolution.width - UI_WIDTH, cXy.y))
+            cPath.maxT = SELECTION_TIME
+        }
+    }
+
+    private fun deselectRightUiBoxes() {
+        val uiEntityIds = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .filter { mSideUiBox.get(it).orientation == SideUiBoxOrientation.PORTRAIT_LEFT }
+        uiEntityIds.forEach { uiEntityId ->
+            val destinationX = game.advConfig.resolution.width - UI_WIDTH + SELECTION_DISTANCE
+            val cXy = mXy.get(uiEntityId)
+            if (cXy.x < destinationX) {
+                val cPath = mPath.create(uiEntityId)
+                cPath.interpolation = Interpolation.linear
+                cPath.endpoints.clear()
+                cPath.endpoints.add(cXy.toVector2())
+                cPath.endpoints.add(Vector2(game.advConfig.resolution.width - UI_WIDTH + SELECTION_DISTANCE, cXy.y))
+                cPath.maxT = SELECTION_TIME
+            }
+        }
+    }
+
+    private fun activatePrimaryActionMenu() {
+        setPrimaryActionMenuItems()
+        val cPrimaryMenuPath = mPath.create(primaryActionMenuEntityId)
+        cPrimaryMenuPath.interpolation = Interpolation.linear
+        cPrimaryMenuPath.endpoints.clear()
+        cPrimaryMenuPath.endpoints.add(Vector2(-ACTION_UI_WIDTH, primaryActionMenu.y))
+        cPrimaryMenuPath.endpoints.add(Vector2(PADDING, primaryActionMenu.y))
+        cPrimaryMenuPath.maxT = SELECTION_TIME
+        stage.addActor(primaryActionMenu)
+    }
+
+    private fun setPrimaryActionMenuItems() {
         val backend = getBackend()
         primaryActionMenu.setItems(listOf(
                 TargetMenuCommandItem("Attack", null, NormalAttackCommandFactory(backend)),
@@ -110,6 +168,7 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
                 StringMenuItem("Wait", null, ""),
                 StringMenuItem("Run", null, "")))
 
+        val npcId = selectedNpcId!!
         val weapon = backend.getNpc(npcId)!!.unitInstance.weapon
         if (weapon == null || !BattleUtils.weaponRequiresAmmo(weapon) || weapon.ammo < weapon.schema.magazineSize) {
             primaryActionMenu.setDisabledIndex(2, true)
@@ -122,54 +181,32 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         primaryActionMenu.height = primaryActionMenu.prefHeight
     }
 
-    @Subscribe
-    fun playerUnitSelectedListener(event: PlayerUnitSelectedEvent) {
-        setPrimaryActionMenuItems(event.npcId)
-        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
-                .find { mSideUiBox.get(it).npcId == event.npcId }
-        if (uiEntityId != null) {
-            val cXy = mXy.get(uiEntityId)
-            val cPath = mPath.create(uiEntityId)
-            cPath.interpolation = Interpolation.linear
-            cPath.endpoints.clear()
-            cPath.endpoints.add(cXy.toVector2())
-            cPath.endpoints.add(Vector2(cXy.x - SELECTION_DISTANCE, cXy.y))
-            cPath.maxT = SELECTION_TIME
+    private fun handleMenuSelect(menuItem: MenuItem) {
+        when (menuItem) {
+            is TargetMenuCommandItem -> {
+                setTargets(menuItem.factory.generate(selectedNpcId!!))
+            }
         }
-        val cPrimaryMenuPath = mPath.create(primaryActionMenuEntityId)
-        cPrimaryMenuPath.interpolation = Interpolation.linear
-        cPrimaryMenuPath.endpoints.clear()
-        cPrimaryMenuPath.endpoints.add(Vector2(-ACTION_UI_WIDTH, primaryActionMenu.y))
-        cPrimaryMenuPath.endpoints.add(Vector2(PADDING, primaryActionMenu.y))
-        cPrimaryMenuPath.maxT = SELECTION_TIME
-        stage.addActor(primaryActionMenu)
     }
 
-    @Subscribe
-    fun playerUnitUnselectedListener(event: PlayerUnitUnselectedEvent) {
-        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
-                .find { mSideUiBox.get(it).npcId == event.npcId }
-        if (uiEntityId != null) {
-            val cXy = mXy.get(uiEntityId)
-            val cPath = mPath.create(uiEntityId)
-            cPath.interpolation = Interpolation.linear
-            cPath.endpoints.clear()
-            cPath.endpoints.add(cXy.toVector2())
-            cPath.endpoints.add(Vector2(cXy.x + SELECTION_DISTANCE, cXy.y))
-            cPath.maxT = SELECTION_TIME
+    private fun setTargets(targetCommands: List<TargetCommand>) {
+        targetNpcIds.clear()
+        targetNpcIds.addAll(targetCommands.map { Pair(it.targetId, it) })
+        var index = 0
+        targetCommands.forEach {
+            createLeftUiBox(it.targetId, index)
+            index++
         }
-        stage.clear()
     }
 
-    @Subscribe
-    fun nonPlayerUnitSelectedListener(event: NonPlayerUnitSelectedEvent) {
+    private fun createLeftUiBox(npcId: Int, index: Int) {
         val entityId = world.create()
         val cUi = mSideUiBox.create(entityId)
-        cUi.setToNpc(event.npcId, getBackend())
+        cUi.setToNpc(npcId, getBackend())
         cUi.orientation = SideUiBoxOrientation.PORTRAIT_RIGHT
         val cXy = mXy.create(entityId)
-        cXy.x = -UI_WIDTH
-        cXy.y = game.advConfig.resolution.height - BattleSideUiSystem.UI_HEIGHT - BattleMapScreenInit.UI_VERTICAL_PADDING
+        cXy.x = -UI_WIDTH/2
+        cXy.y = game.advConfig.resolution.height - (BattleUiSystem.UI_HEIGHT + BattleMapScreenInit.UI_VERTICAL_PADDING) * (index + 1)
         val cPath = mPath.create(entityId)
         cPath.interpolation = Interpolation.linear
         cPath.endpoints.clear()
@@ -178,11 +215,10 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         cPath.maxT = SELECTION_TIME
     }
 
-    @Subscribe
-    fun nonPlayerUnitUnselectedListener(event: NonPlayerUnitUnselectedEvent) {
-        val uiEntityId = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
-                .find { mSideUiBox.get(it).npcId == event.npcId }
-        if (uiEntityId != null) {
+    private fun clearLeftUiBoxes() {
+        val uiEntityIds = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
+                .filter { mSideUiBox.get(it).orientation == SideUiBoxOrientation.PORTRAIT_RIGHT }
+        uiEntityIds.forEach { uiEntityId ->
             val cXy = mXy.get(uiEntityId)
             val cPath = mPath.create(uiEntityId)
             cPath.interpolation = Interpolation.linear
@@ -191,6 +227,78 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
             cPath.endpoints.add(Vector2(-UI_WIDTH, cXy.y))
             cPath.maxT = SELECTION_TIME
             cPath.onEnd = PathInterpolationEndStrategy.DESTROY
+        }
+    }
+
+    private fun fetchNpcUnits(): List<Int> {
+        val npcUnitEntityBag = world.aspectSubscriptionManager.get(allOf(
+                NpcIdComponent::class, XYComponent::class, CollisionComponent::class)).entities
+        return npcUnitEntityBag.data.slice(0 until npcUnitEntityBag.size())
+    }
+
+    private fun fetchPlayerUnits(): List<Int> {
+        val playerUnitEntityBag = world.aspectSubscriptionManager.get(allOf(
+                NpcIdComponent::class, PlayerUnitComponent::class, XYComponent::class, CollisionComponent::class)).entities
+        return playerUnitEntityBag.data.slice(0 until playerUnitEntityBag.size())
+    }
+
+    private fun select(npcId: Int?) {
+        if (npcId == selectedNpcId && npcId != null) {
+            // Implementation of double-clicking sending camera to unit position
+            val unitEntityId = sNpcId.getNpcEntityId(npcId)!!
+            val cUnitXy = mXy.get(unitEntityId)
+            sCameraInterpolation.sendCameraToPosition(cUnitXy.toVector2())
+            return
+        }
+
+        selectedNpcId = npcId
+
+        if (npcId == null) {
+            stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+        } else {
+            val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
+            val nextSelectedTeam = backend.getNpcTeams()[npcId]!!
+            when (nextSelectedTeam) {
+                Team.PLAYER -> stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+                Team.AI -> stateMachine.changeState(BattleUiState.ENEMY_SELECTED)
+            }
+            val npcEntityId = sNpcId.getNpcEntityId(npcId)!!
+            val cUnitXy = mXy.get(npcEntityId)
+            sCameraInterpolation.sendCameraToPosition(cUnitXy.toVector2())
+
+            if (nextSelectedTeam == Team.PLAYER) {
+                val battleState = backend.getBattleState()
+                val unitInstance = battleState.npcList.getNpc(npcId)!!.unitInstance
+                val mapGraph = MapGraph(backend.getBattleMapState(),
+                        backend.getNpcPositions()[npcId]!!,
+                        unitInstance.schema.baseStats.mobility,
+                        battleState.apState.getNpcAp(npcId), ActionPointState.startingNumAPs)
+                sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
+            } else {
+                sEvent.dispatch(MovementTileUpdateEvent(null))
+            }
+        }
+    }
+
+    private fun selectNext() {
+        val playerUnits = fetchPlayerUnits()
+                .map { Pair(mPlayerUnit.get(it).index, mNpcId.get(it).npcId) }
+                .sortedBy { it.first }
+        val currentSelectedUnit = selectedNpcId
+        if (currentSelectedUnit == null) {
+            select(playerUnits.firstOrNull()?.second)
+        } else {
+            val currentIndex = mPlayerUnit.getSafe(sNpcId.getNpcEntityId(currentSelectedUnit)!!, null)?.index
+            if (currentIndex != null) {
+                val next = playerUnits.firstOrNull { it.first > currentIndex }
+                if (next == null) {
+                    select(playerUnits.minBy { it.first }?.second)
+                } else {
+                    select(next.second)
+                }
+            } else {
+                select(playerUnits.firstOrNull()?.second)
+            }
         }
     }
 
@@ -374,6 +482,9 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
     override fun keyDown(keycode: Int): Boolean {
+        if (keycode == Input.Keys.SHIFT_LEFT) {
+            selectNext()
+        }
         return false
     }
 
@@ -393,9 +504,33 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
             if (CollisionUtils.withinBounds(screenX.toFloat(), game.advConfig.resolution.height - screenY.toFloat(),
                             cXy.x, cXy.y, bounds)) {
                 val cSideUi = mSideUiBox.get(it)
-                sSelectedUnit.select(cSideUi.npcId)
+                select(cSideUi.npcId)
                 return true
             }
+        }
+
+        if (button != Input.Buttons.LEFT) return false
+
+        val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
+        val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
+        val mouseX = pickRay.origin.x
+        val mouseY = pickRay.origin.y
+
+        val npcUnitEntities = fetchNpcUnits()
+
+        var minY = Float.MAX_VALUE
+        var minYId: Int? = null
+        for (entityId in npcUnitEntities) {
+            val cXy = mXy.get(entityId)
+            val cCollision = mCollision.get(entityId)
+            if (cXy.y < minY && CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, cCollision.bounds)) {
+                minY = cXy.y
+                minYId = entityId
+            }
+        }
+        if (minYId != null) {
+            val npcId = mNpcId.get(minYId).npcId
+            select(npcId)
         }
         return false
     }
@@ -416,4 +551,57 @@ class BattleSideUiSystem(private val game: AdvGame) : BaseSystem(), InputProcess
         return false
     }
 
+    enum class BattleUiState : State<BattleUiSystem> {
+        NOTHING_SELECTED() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.clearLeftUiBoxes()
+                uiSystem.deselectRightUiBoxes()
+                uiSystem.stage.clear()
+            }
+
+            override fun update(uiSystem: BattleUiSystem) {
+                val selectedNpcId = uiSystem.selectedNpcId
+                if (selectedNpcId != null) {
+                    val backend = uiSystem.getBackend()
+                    when (backend.getNpcTeam(selectedNpcId)) {
+                        Team.PLAYER -> uiSystem.stateMachine.changeState(PLAYER_SELECTED)
+                        Team.AI -> uiSystem.stateMachine.changeState(ENEMY_SELECTED)
+                    }
+                }
+            }
+        },
+        ENEMY_SELECTED() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.clearLeftUiBoxes()
+                uiSystem.deselectRightUiBoxes()
+                uiSystem.stage.clear()
+                uiSystem.createLeftUiBox(uiSystem.selectedNpcId!!, 0)
+            }
+        },
+        PLAYER_SELECTED() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.clearLeftUiBoxes()
+                uiSystem.deselectRightUiBoxes()
+                uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)
+                uiSystem.activatePrimaryActionMenu()
+                uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+            }
+        },
+        TARGET_SELECTION() {
+
+        };
+
+        override fun enter(uiSystem: BattleUiSystem) {
+        }
+
+        override fun exit(uiSystem: BattleUiSystem) {
+        }
+
+        override fun onMessage(uiSystem: BattleUiSystem, telegram: Telegram): Boolean {
+            return false
+        }
+
+        override fun update(uiSystem: BattleUiSystem) {
+        }
+    }
 }

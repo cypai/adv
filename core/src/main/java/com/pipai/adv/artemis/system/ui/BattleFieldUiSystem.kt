@@ -13,7 +13,6 @@ import com.pipai.adv.artemis.events.MovementTileUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
-import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.MapGraph
@@ -33,11 +32,10 @@ class BattleFieldUiSystem(private val game: AdvGame) : NoProcessingSystem() {
     private val mPath by mapper<PathInterpolationComponent>()
 
     private val mBackend by mapper<BattleBackendComponent>()
-    private val mNpcId by mapper<NpcIdComponent>()
 
     private val sTags by system<TagManager>()
 
-    private val sSelectedUnit by system<SelectedUnitSystem>()
+    private val sBattleSideUiSystem by system<BattleUiSystem>()
     private val sBattleAnimation by system<BattleAnimationSystem>()
 
     private val previewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
@@ -53,6 +51,7 @@ class BattleFieldUiSystem(private val game: AdvGame) : NoProcessingSystem() {
 
         if (event.mapGraph == null) {
             movePreviewEntityId?.let { world.delete(it) }
+            movePreviewEntityId = null
         }
     }
 
@@ -106,7 +105,7 @@ class BattleFieldUiSystem(private val game: AdvGame) : NoProcessingSystem() {
     @Subscribe
     fun mouseDownListener(event: MouseDownEvent) {
         val theMapGraph = mapGraph
-        val selectedUnit = sSelectedUnit.selectedUnit
+        val selectedUnit = sBattleSideUiSystem.selectedNpcId
         if (event.button != Input.Buttons.RIGHT || theMapGraph == null || selectedUnit == null) return
 
         val destination = GridUtils.localToGridPosition(event.x, event.y, game.advConfig.resolution.tileSize.toFloat())

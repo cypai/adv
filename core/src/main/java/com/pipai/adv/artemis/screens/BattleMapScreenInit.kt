@@ -6,9 +6,8 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.system.input.SelectedUnitSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
-import com.pipai.adv.artemis.system.ui.BattleSideUiSystem
+import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
@@ -35,7 +34,6 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
 
     private lateinit var sTags: TagManager
-    private lateinit var sSelectedUnit: SelectedUnitSystem
 
     private var playerUnitIndex = 0
 
@@ -104,8 +102,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                         val cUi = mSideUiBox.create(uiId)
                         cUi.setToNpc(envObj.npcId, backend)
                         val cUiXy = mXy.create(uiId)
-                        cUiXy.x = config.resolution.width - BattleSideUiSystem.UI_WIDTH + BattleSideUiSystem.SELECTION_DISTANCE
-                        cUiXy.y = config.resolution.height - (BattleSideUiSystem.UI_HEIGHT + UI_VERTICAL_PADDING) * (playerUnitIndex + 1)
+                        cUiXy.x = config.resolution.width - BattleUiSystem.UI_WIDTH + BattleUiSystem.SELECTION_DISTANCE
+                        cUiXy.y = config.resolution.height - (BattleUiSystem.UI_HEIGHT + UI_VERTICAL_PADDING) * (playerUnitIndex + 1)
                         playerUnitIndex++
                     }
                 }

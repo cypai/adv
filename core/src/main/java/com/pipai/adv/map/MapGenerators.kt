@@ -29,6 +29,9 @@ class TestMapGenerator : MapGenerator {
         val slimeSchema = schemas.getSchema("Slime")
         val slimeId = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
         map.getCell(3, 3).fullEnvObject = NpcEnvObject(slimeId, Team.AI, slimeSchema.tilesetMetadata)
+
+        val slime2Id = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
+        map.getCell(7, 4).fullEnvObject = NpcEnvObject(slime2Id, Team.AI, slimeSchema.tilesetMetadata)
         generateWallBoundary(map)
         return map
     }
