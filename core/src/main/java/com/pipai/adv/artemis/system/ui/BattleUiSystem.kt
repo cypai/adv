@@ -110,7 +110,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
         val BLUE_MOVE_COLOR = Color(0.3f, 0.3f, 0.8f, 0.4f)
         val YELLOW_MOVE_COLOR = Color(0.8f, 0.6f, 0f, 0.4f)
-        val ATTACK_TARGET_COLOR = Color(0.8f, 0f, 0f, 0.4f)
+        val TARGET_COLOR = YELLOW_MOVE_COLOR
+        val NON_TARGET_COLOR = Color(0.3f, 0.3f, 0.3f, 0.4f)
     }
 
     override fun initialize() {
@@ -144,7 +145,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         }
     }
 
-    private fun showMovementTiles(npcId: Int) {
+    private fun showMoveTileHighlights(npcId: Int) {
         val factory = MoveCommandFactory(getBackend())
         val theMapGraph = factory.getMapGraph(npcId)
         mapGraph = theMapGraph
@@ -162,8 +163,11 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         sEvent.dispatch(TileHighlightUpdateEvent(tileHighlights))
     }
 
-    private fun clearMovementTiles() {
+    private fun clearTileHighlights() {
         sEvent.dispatch(TileHighlightUpdateEvent(mapOf()))
+    }
+
+    private fun clearMovementPreview() {
         movePreviewEntityId?.let { world.delete(it) }
         movePreviewEntityId = null
     }
@@ -415,6 +419,25 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             }
             index++
         }
+        showTargetTileHighlights()
+    }
+
+    private fun showTargetTileHighlights() {
+        val backend = getBackend()
+        val tileHighlights: MutableMap<Color, List<GridPosition>> = mutableMapOf()
+        val untargetedTiles: MutableList<GridPosition> = mutableListOf()
+        var index = 0
+        targetNpcIds.forEach {
+            val position = backend.getNpcPosition(it.first)!!
+            if (index == targetIndex) {
+                tileHighlights[TARGET_COLOR] = listOf(position)
+            } else {
+                untargetedTiles.add(position)
+            }
+            index++
+        }
+        tileHighlights[NON_TARGET_COLOR] = untargetedTiles
+        sEvent.dispatch(TileHighlightUpdateEvent(tileHighlights))
     }
 
     override fun processSystem() {
@@ -782,11 +805,12 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                     uiSystem.activatePrimaryActionMenu()
                     uiSystem.stage.addActor(uiSystem.primaryActionMenu)
                 }
-                uiSystem.showMovementTiles(uiSystem.selectedNpcId!!)
+                uiSystem.showMoveTileHighlights(uiSystem.selectedNpcId!!)
             }
 
             override fun exit(uiSystem: BattleUiSystem) {
-                uiSystem.clearMovementTiles()
+                uiSystem.clearTileHighlights()
+                uiSystem.clearMovementPreview()
             }
         },
         TARGET_SELECTION() {
