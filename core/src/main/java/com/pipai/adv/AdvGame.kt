@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.scenes.scene2d.utils.MultiDrawable
 import com.badlogic.gdx.scenes.scene2d.utils.OffsetDrawable
 import com.kotcrab.vis.ui.VisUI
@@ -94,6 +95,10 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         val framePatch = NinePatch(frameTexture, 5, 5, 5, 5)
         skin.add("frameTexture", frameTexture)
         skin.add("frame", framePatch)
+        val frameDrawable = MultiDrawable(arrayOf(
+                skin.getDrawable("bg"),
+                OffsetDrawable(skin.getDrawable("frame"), -1f, -3f, 4f, 4f)))
+        skin.add("frameDrawable", frameDrawable, Drawable::class.java)
 
         val pixmap = Pixmap(1, 1, Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
@@ -115,7 +120,8 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("small", smallTextFieldStyle)
 
         val clearLightDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.2f))
-        val clearGrayDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.4f))
+        val clearGrayDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f))
+        val clearDarkGrayDrawable = skin.newDrawable("white", Color(0.3f, 0.3f, 0.3f, 0.5f))
         val textButtonStyle = TextButton.TextButtonStyle(clearLightDrawable, clearGrayDrawable, clearLightDrawable, smallFont)
         textButtonStyle.fontColor = Color.BLACK
         skin.add("default", textButtonStyle)
@@ -123,17 +129,22 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         val listStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK, grayDrawable)
         listStyle.background = whiteDrawable
         skin.add("default", listStyle)
-        val scrollPaneStyle = ScrollPane.ScrollPaneStyle(whiteDrawable, grayDrawable, blackDrawable, grayDrawable, blackDrawable)
+        val scrollPaneStyle = ScrollPane.ScrollPaneStyle()
+        scrollPaneStyle.vScroll = OffsetDrawable(clearGrayDrawable, -8f, 0f, 6f, 0f)
+        scrollPaneStyle.vScrollKnob = OffsetDrawable(clearDarkGrayDrawable, -8f, 0f, 6f, 0f)
         skin.add("default", scrollPaneStyle)
+        val splitPaneStyle = SplitPane.SplitPaneStyle(grayDrawable)
+        skin.add("default-horizontal", splitPaneStyle)
         val selectBoxStyle = SelectBox.SelectBoxStyle(smallFont, Color.BLACK, whiteDrawable, scrollPaneStyle, listStyle)
         skin.add("default", selectBoxStyle)
 
         val menuListStyle = List.ListStyle(font, Color.BLACK, Color.BLACK,
-                OffsetDrawable(skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f)), 4f, 4f, -8f, -8f))
-        menuListStyle.background = MultiDrawable(arrayOf(
-                skin.getDrawable("bg"),
-                OffsetDrawable(skin.getDrawable("frame"), -1f, -3f, 4f, 4f)))
+                OffsetDrawable(clearGrayDrawable, 4f, 4f, -8f, -8f))
+        menuListStyle.background = frameDrawable
         skin.add("menuList", menuListStyle)
+        val smallMenuListStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK,
+                OffsetDrawable(skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f)), 4f, 1f, -16f, -2f))
+        skin.add("smallMenuList", smallMenuListStyle)
     }
 
     override fun render() {

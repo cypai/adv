@@ -8,7 +8,6 @@ interface MenuItem {
     val rightText: String
 }
 
-class StringMenuItem(override val text: String,
-                     override val image: TextureRegion?,
-                     override val rightText: String) : MenuItem {
-}
+data class StringMenuItem(override val text: String,
+                          override val image: TextureRegion?,
+                          override val rightText: String) : MenuItem

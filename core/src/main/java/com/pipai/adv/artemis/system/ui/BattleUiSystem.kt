@@ -12,14 +12,20 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
+import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
@@ -34,6 +40,8 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.*
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.rules.execution.AttackCalculationExecutionRule
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
@@ -77,6 +85,24 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         override fun getSpacing(): Float = 10f
     })
     private var primaryActionMenuEntityId: Int = 0
+
+    private val commandPreviewTable = Table()
+    private val commandPreviewTitle = Label("", game.skin)
+    private val commandPreviewList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
+        override fun getItemImage(item: StringMenuItem): TextureRegion? = null
+        override fun getItemText(item: StringMenuItem): String = item.text
+        override fun getSpacing(): Float = 10f
+        override fun getItemRightText(item: StringMenuItem): String = item.rightText
+        override fun getRightSpacing(): Float = 16f
+    })
+    private val commandPreviewDetailsList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
+        override fun getItemImage(item: StringMenuItem): TextureRegion? = null
+        override fun getItemText(item: StringMenuItem): String = item.text
+        override fun getSpacing(): Float = 10f
+        override fun getItemRightText(item: StringMenuItem): String = item.rightText
+        override fun getRightSpacing(): Float = 16f
+    })
+    private val commandPreviewDetailsScrollPane = ScrollPane(commandPreviewDetailsList, game.skin)
 
     private val movePreviewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
     private val movePreviewDrawableSize = 6f
@@ -132,6 +158,55 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         primaryActionMenuEntityId = world.create()
         val cPrimaryActionMenu = mActor.create(primaryActionMenuEntityId)
         cPrimaryActionMenu.actor = primaryActionMenu
+
+        commandPreviewTitle.setText("Attack")
+        commandPreviewList.disabledFontColor = Color.GRAY
+        commandPreviewList.setItems(listOf(
+                StringMenuItem("Hit", null, ""),
+                StringMenuItem("Crit", null, ""),
+                StringMenuItem("Damage", null, ""),
+                StringMenuItem("Effects", null, "")))
+        commandPreviewList.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val backend = getBackend()
+                val previewComponents = backend.preview(targetNpcIds[targetIndex!!].second)
+                updateRightPreviewDetails(previewComponents)
+            }
+        })
+        commandPreviewDetailsList.setItems(listOf())
+        commandPreviewTable.add(commandPreviewTitle)
+                .expandX()
+        commandPreviewTable.row()
+
+        val previewWidth = game.advConfig.resolution.width * 0.4f
+        val leftPreviewPercentage = 0.4f
+        val rightPreviewPercentage = 1f - leftPreviewPercentage - 0.05f
+        val commandPreviewInnerTable = Table()
+        commandPreviewInnerTable.add(commandPreviewList)
+                .width(previewWidth * leftPreviewPercentage)
+        commandPreviewDetailsScrollPane.setFadeScrollBars(false)
+        commandPreviewDetailsScrollPane.addListener(object : InputListener() {
+            override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+                stage.scrollFocus = commandPreviewDetailsScrollPane
+                sEvent.dispatch(ZoomScrollDisableEvent(true))
+            }
+
+            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+                stage.scrollFocus = null
+                sEvent.dispatch(ZoomScrollDisableEvent(false))
+            }
+        })
+        commandPreviewInnerTable.add(commandPreviewDetailsScrollPane)
+                .width(previewWidth * rightPreviewPercentage)
+                .minHeight(commandPreviewList.prefHeight)
+                .maxHeight(commandPreviewList.prefHeight)
+        commandPreviewTable.add(commandPreviewInnerTable)
+                .padBottom(PADDING)
+        commandPreviewTable.background = game.skin.getDrawable("frameDrawable")
+        commandPreviewTable.height = commandPreviewTable.prefHeight
+        commandPreviewTable.width = previewWidth
+        commandPreviewTable.x = game.advConfig.resolution.width / 2f - previewWidth / 2f
+        commandPreviewTable.y = PADDING
     }
 
     private fun executeCommand(command: BattleCommand) {
@@ -415,11 +490,80 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 val npcEntityId = sNpcId.getNpcEntityId(npcId)!!
                 val cXy = mXy.get(npcEntityId)
                 sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+                updatePreviewDetails(it.second)
                 return@forEach
             }
             index++
         }
         showTargetTileHighlights()
+    }
+
+    private fun updatePreviewDetails(command: BattleCommand) {
+        val backend = getBackend()
+        val previewComponents = backend.preview(command)
+        val calculator = AttackCalculationExecutionRule()
+        val toHit = calculator.calculateToHit(previewComponents)
+        val toCrit = calculator.calculateToCrit(previewComponents)
+        val damageRange = calculator.calculateDamageRange(previewComponents)
+        val leftPreviewList: MutableList<StringMenuItem> = mutableListOf()
+        leftPreviewList.add(StringMenuItem("Hit", null, toHit?.let { "$it %" } ?: ""))
+        leftPreviewList.add(StringMenuItem("Crit", null, toCrit?.let { "$it %" } ?: ""))
+        leftPreviewList.add(StringMenuItem("Damage", null, damageRange?.let { "${it.first} - ${it.second}" } ?: ""))
+        leftPreviewList.add(StringMenuItem("Effects", null, ""))
+        commandPreviewList.clearItems()
+        commandPreviewList.setItems(leftPreviewList)
+        if (calculator.toHitComponents(previewComponents) == null) {
+            commandPreviewList.setDisabledIndex(0, true)
+        }
+        if (calculator.toCritComponents(previewComponents) == null) {
+            commandPreviewList.setDisabledIndex(1, true)
+        }
+        if (calculator.damageRangeComponents(previewComponents) == null) {
+            commandPreviewList.setDisabledIndex(2, true)
+        }
+        commandPreviewList.setDisabledIndex(3, true)
+        updateRightPreviewDetails(previewComponents)
+        if (commandPreviewTable.stage == null) {
+            stage.addActor(commandPreviewTable)
+        }
+    }
+
+    private fun updateRightPreviewDetails(preview: List<PreviewComponent>) {
+        val rightPreviewList: MutableList<StringMenuItem> = mutableListOf()
+        val selected = commandPreviewList.getSelected()
+        val calculator = AttackCalculationExecutionRule()
+        when (selected.text) {
+            "Hit" -> {
+                val details = calculator.toHitComponents(preview)
+                if (details != null) {
+                    rightPreviewList.add(previewToStringMenuItem(details.first))
+                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
+                }
+            }
+            "Crit" -> {
+                val details = calculator.toCritComponents(preview)
+                if (details != null) {
+                    rightPreviewList.add(previewToStringMenuItem(details.first))
+                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
+                }
+            }
+            "Damage" -> {
+                val details = calculator.damageRangeComponents(preview)
+                if (details != null) {
+                    rightPreviewList.add(previewToStringMenuItem(details.first))
+                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
+                }
+            }
+        }
+        if (rightPreviewList.isEmpty()) {
+            commandPreviewDetailsList.clearItems()
+        } else {
+            commandPreviewDetailsList.setItems(rightPreviewList)
+        }
+    }
+
+    private fun previewToStringMenuItem(preview: PreviewComponent): StringMenuItem {
+        return StringMenuItem(preview.description, null, preview.rightText())
     }
 
     private fun showTargetTileHighlights() {
@@ -796,6 +940,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         },
         PLAYER_SELECTED() {
             override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.commandPreviewTable.remove()
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.deselectRightUiBoxes()
                 uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)

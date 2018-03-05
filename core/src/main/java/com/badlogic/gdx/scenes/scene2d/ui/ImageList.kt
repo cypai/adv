@@ -124,7 +124,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 imageWidth = image.regionWidth * scale
             }
             layout.setText(font, itemView.getItemText(item))
-            val itemWidth = imageWidth + itemView.getSpacing() + layout.width
+            val itemWidth = imageWidth + itemView.getSpacing() + layout.width + itemView.getSpacing()
             prefWidth = Math.max(itemWidth, prefWidth)
         }
         layoutPool.free(layout)
@@ -197,7 +197,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         val rightText = itemView.getItemRightText(item)
         val glyphLayout = Pools.get(GlyphLayout::class.java).obtain()
         glyphLayout.setText(font, rightText)
-        font.draw(batch, rightText, width - glyphLayout.width - 2, y + textOffsetY)
+        font.draw(batch, rightText, x + width - glyphLayout.width - itemView.getRightSpacing(), y + textOffsetY)
     }
 
     fun setItems(newItems: Array<T>) {
@@ -216,6 +216,13 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
 
     fun setItems(newItems: Iterable<T>) {
         setItems(ArrayUtils.iterableToArray(newItems))
+    }
+
+    fun clearItems() {
+        if (items.size == 0) return
+        items.clear()
+        selection.clear()
+        invalidateHierarchy()
     }
 
     fun getSelected(): T {
@@ -271,5 +278,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         fun getItemText(item: T): String
         fun getItemRightText(item: T): String = ""
         fun getSpacing(): Float = 0f
+        fun getRightSpacing(): Float = 0f
     }
 }

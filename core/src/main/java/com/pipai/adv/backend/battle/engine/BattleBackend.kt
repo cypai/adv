@@ -147,7 +147,6 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     }
 
     fun preview(command: BattleCommand): List<PreviewComponent> {
-        logger.debug("Previewing $command")
         val previews: MutableList<PreviewComponent> = mutableListOf()
         commandExecutionRules.forEach {
             if (it.matches(command)) {

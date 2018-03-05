@@ -43,10 +43,10 @@ class RangedHitCritExecutionRule : CommandExecutionRule {
         }
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         if (toHitAdjustment != 0) {
-            previewComponents.add(ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Ranged weapon to hit adjustment"))
+            previewComponents.add(ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Range"))
         }
         if (toCritAdjustment != 0) {
-            previewComponents.add(ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Ranged weapon to crit adjustment"))
+            previewComponents.add(ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Range"))
         }
         return previewComponents.toList()
     }

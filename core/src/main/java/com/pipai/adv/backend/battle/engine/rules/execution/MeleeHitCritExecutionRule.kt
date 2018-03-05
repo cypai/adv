@@ -21,8 +21,8 @@ class MeleeHitCritExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         return listOf(
-                ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon to hit bonus"),
-                ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon to crit bonus"))
+                ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon"),
+                ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon"))
     }
 
     override fun execute(command: BattleCommand,
