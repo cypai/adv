@@ -10,7 +10,7 @@ import com.pipai.adv.utils.GridUtils
 object BattleUtils {
     fun canTakeAction(npcId: Int, requiredAp: Int, backend: BattleBackend): Boolean {
         val npc = backend.getNpc(npcId)
-        return npc != null && npc.unitInstance.hp > 0 && backend.getNpcAp(npcId) > requiredAp
+        return npc != null && npc.unitInstance.hp > 0 && backend.getNpcAp(npcId) >= requiredAp
     }
 
     fun enemiesInRange(npcId: Int, backend: BattleBackend): List<Int> {
