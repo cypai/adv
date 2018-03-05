@@ -170,6 +170,35 @@ class NewGameUiSystem(private val game: AdvGame,
         val rivalId = save.globalNpcList.addNpc(rivalNpc)
         save.addToGuild(guildText.text, rivalId)
 
+        val knightPcc: MutableList<PccMetadata> = mutableListOf()
+        knightPcc.add(PccMetadata("body", "body_1.png"))
+        knightPcc.add(PccMetadata("eye", "eye_0.png"))
+        knightPcc.add(PccMetadata("cloth", "cloth_183.png"))
+        knightPcc.add(PccMetadata("hair", "hair_4.png"))
+        knightPcc.add(PccMetadata("etc", "etc_13.png"))
+        knightPcc.add(PccMetadata("subhair", "subhair_58.png"))
+        val knightNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Ayra"),
+                PccTilesetMetadata(knightPcc))
+        knightNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!, 1)
+        val knightId = save.globalNpcList.addNpc(knightNpc)
+        save.addToGuild(guildText.text, knightId)
+
+        val medicPcc: MutableList<PccMetadata> = mutableListOf()
+        medicPcc.add(PccMetadata("body", "body_1.png"))
+        medicPcc.add(PccMetadata("eye", "eye_0.png"))
+        medicPcc.add(PccMetadata("pants", "pants_17.png"))
+        medicPcc.add(PccMetadata("etc", "etc_268.png"))
+        medicPcc.add(PccMetadata("hair", "hair_2.png"))
+        medicPcc.add(PccMetadata("subhair", "subhair_12.png"))
+        medicPcc.add(PccMetadata("etc", "etc_12.png"))
+        medicPcc.add(PccMetadata("etc", "etc_11.png"))
+        medicPcc.add(PccMetadata("etc", "etc_81.png"))
+        val medicNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Nellie"),
+                PccTilesetMetadata(medicPcc))
+        medicNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!, 1)
+        val medicId = save.globalNpcList.addNpc(medicNpc)
+        save.addToGuild(guildText.text, medicId)
+
         return save
     }
 
