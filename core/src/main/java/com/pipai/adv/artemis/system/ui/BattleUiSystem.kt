@@ -19,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.MovementTileUpdateEvent
+import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
@@ -107,6 +107,10 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         const val SELECTION_TIME = 10
 
         const val ACTION_UI_WIDTH = 160f
+
+        val BLUE_MOVE_COLOR = Color(0.3f, 0.3f, 0.8f, 0.4f)
+        val YELLOW_MOVE_COLOR = Color(0.8f, 0.6f, 0f, 0.4f)
+        val ATTACK_TARGET_COLOR = Color(0.8f, 0f, 0f, 0.4f)
     }
 
     override fun initialize() {
@@ -142,12 +146,24 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private fun showMovementTiles(npcId: Int) {
         val factory = MoveCommandFactory(getBackend())
-        mapGraph = factory.getMapGraph(npcId)
-        sEvent.dispatch(MovementTileUpdateEvent(mapGraph))
+        val theMapGraph = factory.getMapGraph(npcId)
+        mapGraph = theMapGraph
+        val ap = theMapGraph.ap
+        val tileHighlights: MutableMap<Color, List<GridPosition>> = mutableMapOf()
+        when (ap) {
+            1 -> tileHighlights[YELLOW_MOVE_COLOR] = theMapGraph.getMovableCellPositions(1)
+            2 -> {
+                tileHighlights[BLUE_MOVE_COLOR] = theMapGraph.getMovableCellPositions(1)
+                tileHighlights[YELLOW_MOVE_COLOR] = theMapGraph.getMovableCellPositions(2)
+            }
+            else -> {
+            }
+        }
+        sEvent.dispatch(TileHighlightUpdateEvent(tileHighlights))
     }
 
     private fun clearMovementTiles() {
-        sEvent.dispatch(MovementTileUpdateEvent(null))
+        sEvent.dispatch(TileHighlightUpdateEvent(mapOf()))
         movePreviewEntityId?.let { world.delete(it) }
         movePreviewEntityId = null
     }

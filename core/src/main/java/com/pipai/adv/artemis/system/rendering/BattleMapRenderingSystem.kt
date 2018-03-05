@@ -7,12 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.MovementTileUpdateEvent
+import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.tiles.*
 import com.pipai.adv.utils.*
@@ -37,20 +36,12 @@ class BattleMapRenderingSystem(private val skin: Skin,
 
     private val sTags by system<TagManager>()
 
-    companion object {
-        private val BLUE_MOVE = Color(0.3f, 0.3f, 0.8f, 0.4f)
-        private val GREEN_MOVE = Color(0.3f, 0.6f, 0f, 0.4f)
-        private val YELLOW_MOVE = Color(0.8f, 0.6f, 0f, 0.4f)
-    }
-
-    private var mapGraph: MapGraph? = null
-    private val blueMoveDrawable = skin.newDrawable("white", BLUE_MOVE)
-    private val greenMoveDrawable = skin.newDrawable("white", GREEN_MOVE)
-    private val yellowMoveDrawable = skin.newDrawable("white", YELLOW_MOVE)
+    private var tileHighlights: Map<Color, List<GridPosition>> = mapOf()
+    private val drawableCache: MutableMap<Color, Drawable> = mutableMapOf()
 
     @Subscribe
-    fun movementTileUpdateListener(event: MovementTileUpdateEvent) {
-        mapGraph = event.mapGraph
+    fun movementTileUpdateListener(event: TileHighlightUpdateEvent) {
+        tileHighlights = event.tileHighlights
     }
 
     override fun process(entityId: Int) {
@@ -63,11 +54,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
         batch.spr.setProjectionMatrix(camera.combined)
         batch.spr.begin()
         renderBackgroundTiles(mapState)
-
-        val theMapGraph = mapGraph
-        if (theMapGraph != null) {
-            renderMovementTiles(theMapGraph)
-        }
+        renderTileHighlights()
         renderMapObjects()
         batch.spr.end()
     }
@@ -86,26 +73,15 @@ class BattleMapRenderingSystem(private val skin: Skin,
         }
     }
 
-    private fun renderMovementTiles(mapGraph: MapGraph) {
-        val ap = mapGraph.ap
-        val apMax = mapGraph.apMax
-
-        if (ap == 1) {
-            renderTileHighlight(mapGraph.getMovableCellPositions(1), yellowMoveDrawable)
-            return
-        }
-        if (apMax == 2) {
-            renderTileHighlight(mapGraph.getMovableCellPositions(1), blueMoveDrawable)
-            renderTileHighlight(mapGraph.getMovableCellPositions(2), yellowMoveDrawable)
-        } else if (apMax == 3) {
-            if (ap == 2) {
-                renderTileHighlight(mapGraph.getMovableCellPositions(1), greenMoveDrawable)
-                renderTileHighlight(mapGraph.getMovableCellPositions(2), yellowMoveDrawable)
+    private fun renderTileHighlights() {
+        tileHighlights.forEach { color, tiles ->
+            val drawable = if (drawableCache.containsKey(color)) {
+                drawableCache[color]!!
             } else {
-                renderTileHighlight(mapGraph.getMovableCellPositions(1), blueMoveDrawable)
-                renderTileHighlight(mapGraph.getMovableCellPositions(2), greenMoveDrawable)
-                renderTileHighlight(mapGraph.getMovableCellPositions(3), yellowMoveDrawable)
+                skin.newDrawable("white", color)!!
+                        .also { drawableCache[color] = it }
             }
+            renderTileHighlight(tiles, drawable)
         }
     }
 
