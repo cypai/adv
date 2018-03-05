@@ -216,8 +216,9 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private fun setPrimaryActionMenuItems() {
         val backend = getBackend()
+        val normalAttackFactory = NormalAttackCommandFactory(backend)
         primaryActionMenu.setItems(listOf(
-                TargetMenuCommandItem("Attack", null, NormalAttackCommandFactory(backend)),
+                TargetMenuCommandItem("Attack", null, normalAttackFactory),
                 StringMenuItem("Skill", null, ""),
                 StringMenuItem("Reload", null, ""),
                 StringMenuItem("Item", null, ""),
@@ -226,6 +227,9 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 StringMenuItem("Run", null, "")))
 
         val npcId = selectedNpcId!!
+        if (normalAttackFactory.generateInvalid(npcId).isEmpty()) {
+            primaryActionMenu.setDisabledIndex(0, true)
+        }
         val weapon = backend.getNpc(npcId)!!.unitInstance.weapon
         if (weapon == null || !BattleUtils.weaponRequiresAmmo(weapon) || weapon.ammo < weapon.schema.magazineSize) {
             primaryActionMenu.setDisabledIndex(2, true)
