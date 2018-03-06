@@ -100,6 +100,15 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
                 OffsetDrawable(skin.getDrawable("frame"), -1f, -3f, 4f, 4f)))
         skin.add("frameDrawable", frameDrawable, Drawable::class.java)
 
+        val flatFrameTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/flatframe.png"))
+        val flatFramePatch = NinePatch(flatFrameTexture, 5, 5, 5, 5)
+        skin.add("flatFrameTexture", flatFrameTexture)
+        skin.add("flatFrame", flatFramePatch)
+        val flatFrameDrawable = MultiDrawable(arrayOf(
+                skin.getDrawable("bg"),
+                OffsetDrawable(skin.getDrawable("flatFrame"), -1f, -3f, 4f, 4f)))
+        skin.add("flatFrameDrawable", flatFrameDrawable, Drawable::class.java)
+
         val pixmap = Pixmap(1, 1, Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
         pixmap.fill()
@@ -119,12 +128,12 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
                 blackDrawable, grayDrawable, whiteDrawable)
         skin.add("small", smallTextFieldStyle)
 
-        val clearLightDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.2f))
-        val clearGrayDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f))
-        val clearDarkGrayDrawable = skin.newDrawable("white", Color(0.3f, 0.3f, 0.3f, 0.5f))
-        val textButtonStyle = TextButton.TextButtonStyle(clearLightDrawable, clearGrayDrawable, clearLightDrawable, smallFont)
+        val textButtonStyle = TextButton.TextButtonStyle(frameDrawable, flatFrameDrawable, frameDrawable, smallFont)
         textButtonStyle.fontColor = Color.BLACK
         skin.add("default", textButtonStyle)
+
+        val clearGrayDrawable = skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f))
+        val clearDarkGrayDrawable = skin.newDrawable("white", Color(0.3f, 0.3f, 0.3f, 0.5f))
 
         val listStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK, grayDrawable)
         listStyle.background = whiteDrawable

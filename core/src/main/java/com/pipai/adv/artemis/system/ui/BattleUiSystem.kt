@@ -16,10 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ImageList
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
@@ -105,6 +102,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         override fun getRightSpacing(): Float = 16f
     })
     private val commandPreviewDetailsScrollPane = ScrollPane(commandPreviewDetailsList, game.skin)
+    private val commandConfirmButton = TextButton("Execute", game.skin)
 
     private val movePreviewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
     private val movePreviewDrawableSize = 6f
@@ -204,11 +202,21 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 .maxHeight(commandPreviewList.prefHeight)
         commandPreviewTable.add(commandPreviewInnerTable)
                 .padBottom(PADDING)
+        commandPreviewTable.row()
+        commandPreviewTable.add(commandConfirmButton)
+                .width(120f)
+                .padBottom(PADDING)
         commandPreviewTable.background = game.skin.getDrawable("frameDrawable")
         commandPreviewTable.height = commandPreviewTable.prefHeight
         commandPreviewTable.width = previewWidth
         commandPreviewTable.x = game.advConfig.resolution.width / 2f - previewWidth / 2f
         commandPreviewTable.y = PADDING
+
+        commandConfirmButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                executeCommand(targetNpcIds[targetIndex!!].second)
+            }
+        })
     }
 
     @Subscribe
