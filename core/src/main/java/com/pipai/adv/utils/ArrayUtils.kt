@@ -8,4 +8,10 @@ object ArrayUtils {
         iterable.forEach { arr.add(it) }
         return arr
     }
+
+    fun <T> gdxArrayOf(vararg elements: T): Array<T> {
+        val arr = Array<T>()
+        elements.forEach { arr.add(it) }
+        return arr
+    }
 }
