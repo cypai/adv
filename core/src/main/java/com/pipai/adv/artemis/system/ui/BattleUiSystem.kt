@@ -180,8 +180,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 .expandX()
         commandPreviewTable.row()
 
-        val previewWidth = game.advConfig.resolution.width * 0.4f
-        val leftPreviewPercentage = 0.4f
+        val previewWidth = MathUtils.clamp(game.advConfig.resolution.width * 0.4f, 500f, 600f)
+        val leftPreviewPercentage = 0.45f
         val rightPreviewPercentage = 1f - leftPreviewPercentage - 0.05f
         val commandPreviewInnerTable = Table()
         commandPreviewInnerTable.add(commandPreviewList)
