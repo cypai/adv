@@ -66,9 +66,9 @@ class PccManager {
             Direction.E -> 2
             Direction.W -> 1
             Direction.NW -> 1
-            Direction.SW -> 0
+            Direction.SW -> 1
             Direction.NE -> 2
-            Direction.SE -> 3
+            Direction.SE -> 2
         }
     }
 

@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
+import com.pipai.adv.artemis.events.CommandAnimationEndEvent
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
@@ -47,6 +48,7 @@ import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
@@ -209,14 +211,20 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         commandPreviewTable.y = PADDING
     }
 
+    @Subscribe
+    fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: CommandAnimationEndEvent) {
+        stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+    }
+
     private fun executeCommand(command: BattleCommand) {
         val backend = getBackend()
         val executionStatus = backend.canBeExecuted(command)
         if (executionStatus.executable) {
             val events = backend.execute(command)
+            stateMachine.changeState(BattleUiState.ANIMATING)
             sBattleAnimation.processBattleEvents(events)
         } else {
-            logger.debug("Unable to move: ${executionStatus.reason}")
+            logger.debug("Unable to execute: ${executionStatus.reason}")
         }
     }
 
@@ -261,7 +269,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         val cPath = mPath.create(previewId)
         cPath.onEnd = PathInterpolationEndStrategy.RESTART
         cPath.interpolation = Interpolation.linear
-        cPath.maxT = 5
+        cPath.setUsingSpeed(6.0)
         cPath.endpoints.addAll(path)
 
         movePreviewEntityId = previewId
@@ -953,8 +961,10 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 if (uiSystem.primaryActionMenu.lockSelection) {
                     uiSystem.primaryActionMenu.lockSelection = false
                 } else {
-                    uiSystem.activatePrimaryActionMenu()
-                    uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                    if (uiSystem.getBackend().getNpcAp(uiSystem.selectedNpcId!!) > 0) {
+                        uiSystem.activatePrimaryActionMenu()
+                        uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                    }
                 }
                 uiSystem.showMoveTileHighlights(uiSystem.selectedNpcId!!)
             }
@@ -975,6 +985,14 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                     }
                     uiSystem.selectTarget(uiSystem.targetNpcIds[0].first)
                 }
+            }
+        },
+        ANIMATING() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.clearTileHighlights()
+                uiSystem.clearMovementPreview()
+                uiSystem.clearLeftUiBoxes()
+                uiSystem.stage.clear()
             }
         };
 

@@ -56,10 +56,9 @@ data class NpcKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
 
 data class MoveEvent(val npcId: Int,
                      val npc: Npc,
-                     val startPosition: GridPosition,
-                     val endPosition: GridPosition) : BattleLogEvent {
+                     val path: List<GridPosition>) : BattleLogEvent {
 
-    override fun description() = "$npc (id $npcId) moved from $startPosition to $endPosition"
+    override fun description() = "$npc (id $npcId) moved using path $path"
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} is moving..."
 }
 

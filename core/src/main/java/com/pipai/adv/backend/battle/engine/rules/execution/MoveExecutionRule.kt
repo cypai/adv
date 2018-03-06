@@ -55,6 +55,6 @@ class MoveExecutionRule : CommandExecutionRule {
         startingCell.fullEnvObject = null
         endingCell.fullEnvObject = npc
 
-        state.battleLog.addEvent(MoveEvent(npc.npcId, state.npcList.getNpc(npc.npcId)!!, startPosition, endPosition))
+        state.battleLog.addEvent(MoveEvent(npc.npcId, state.npcList.getNpc(npc.npcId)!!, cmd.path))
     }
 }

@@ -11,10 +11,18 @@ class PathInterpolationSystem : IteratingSystem(allOf()) {
 
     override fun process(entityId: Int) {
         val cPath = mPath.get(entityId)
+
         cPath.t += cPath.tIncrement
         if (cPath.t > cPath.maxT) {
-            cPath.t = 0
             cPath.endpointIndex++
+            if (cPath.speed > 0) {
+                cPath.setUsingSpeed(cPath.speed)
+            } else {
+                cPath.t = 0
+            }
+            if (cPath.onEndpoint != null) {
+                cPath.onEndpoint?.invoke(cPath)
+            }
             if (cPath.endpointIndex >= cPath.endpoints.size - 1) {
                 when (cPath.onEnd) {
                     PathInterpolationEndStrategy.REMOVE -> mPath.remove(entityId)

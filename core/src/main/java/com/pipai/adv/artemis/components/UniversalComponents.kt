@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import com.pipai.adv.utils.MathUtils
 
 class XYComponent : Component() {
     var x = 0f
@@ -25,10 +26,12 @@ class XYComponent : Component() {
 
 class PathInterpolationComponent : Component() {
     lateinit var interpolation: Interpolation
+    var speed = 0.0
     var t = 0
     var maxT = 0
     var tIncrement = 1
 
+    var onEndpoint: ((PathInterpolationComponent) -> Unit)? = null
     var onEnd = PathInterpolationEndStrategy.REMOVE
 
     val endpoints: MutableList<Vector2> = mutableListOf()
@@ -41,6 +44,18 @@ class PathInterpolationComponent : Component() {
         return Vector2(
                 interpolation.apply(start.x, end.x, a),
                 interpolation.apply(start.y, end.y, a))
+    }
+
+    fun setUsingSpeed(speed: Double) {
+        this.speed = speed
+        if (endpointIndex < endpoints.size - 1) {
+            val start = endpoints[endpointIndex]
+            val end = endpoints[endpointIndex + 1]
+            val distance = MathUtils.distance(start.x, start.y, end.x, end.y)
+            val time = distance / speed
+            t = 0
+            maxT = time.toInt()
+        }
     }
 }
 

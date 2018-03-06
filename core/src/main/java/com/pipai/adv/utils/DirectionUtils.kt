@@ -31,6 +31,32 @@ object DirectionUtils {
         }
     }
 
+    fun cardinalMoveDirection(previousDirection: Direction, nextDirection: Direction): Direction {
+        return when (nextDirection) {
+            Direction.NE -> when (previousDirection) {
+                Direction.N -> Direction.E
+                Direction.E -> Direction.N
+                else -> Direction.E
+            }
+            Direction.NW -> when (previousDirection) {
+                Direction.N -> Direction.W
+                Direction.W -> Direction.N
+                else -> Direction.W
+            }
+            Direction.SE -> when (previousDirection) {
+                Direction.S -> Direction.E
+                Direction.E -> Direction.S
+                else -> Direction.E
+            }
+            Direction.SW -> when (previousDirection) {
+                Direction.S -> Direction.W
+                Direction.W -> Direction.S
+                else -> Direction.W
+            }
+            else -> nextDirection
+        }
+    }
+
     fun isInGeneralDirection(direction: Direction, targetDirection: Direction): Boolean {
         return when (direction) {
             Direction.N -> listOf(Direction.N, Direction.NE, Direction.NW).contains(targetDirection)
