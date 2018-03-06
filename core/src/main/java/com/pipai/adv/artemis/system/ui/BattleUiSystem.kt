@@ -763,6 +763,22 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
+    private fun changeStateBack() {
+        when (stateMachine.currentState) {
+            BattleUiState.PLAYER_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+            BattleUiState.ENEMY_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+            BattleUiState.TARGET_SELECTION -> {
+                stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+
+                val npcEntityId = sNpcId.getNpcEntityId(selectedNpcId!!)!!
+                val cXy = mXy.get(npcEntityId)
+                sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+            }
+            else -> {
+            }
+        }
+    }
+
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.SHIFT_LEFT -> {
@@ -776,19 +792,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 }
             }
             Input.Keys.ESCAPE -> {
-                when (stateMachine.currentState) {
-                    BattleUiState.PLAYER_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
-                    BattleUiState.ENEMY_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
-                    BattleUiState.TARGET_SELECTION -> {
-                        stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
-
-                        val npcEntityId = sNpcId.getNpcEntityId(selectedNpcId!!)!!
-                        val cXy = mXy.get(npcEntityId)
-                        sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
-                    }
-                    else -> {
-                    }
-                }
+                changeStateBack()
                 return true
             }
         }
@@ -866,6 +870,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                         val moveCommand = MoveCommand(selectedNpcId!!, mapGraph!!.getPath(destination).toList())
                         executeCommand(moveCommand)
                     }
+                } else {
+                    changeStateBack()
                 }
             }
         }
