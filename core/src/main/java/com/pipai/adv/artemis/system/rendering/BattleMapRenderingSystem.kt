@@ -3,12 +3,14 @@ package com.pipai.adv.artemis.system.rendering
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.GridPosition
@@ -34,6 +36,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
 
+    private val sZoom by system<ZoomInputSystem>()
     private val sTags by system<TagManager>()
 
     private var tileHighlights: Map<Color, List<GridPosition>> = mapOf()
@@ -53,17 +56,24 @@ class BattleMapRenderingSystem(private val skin: Skin,
 
         batch.spr.setProjectionMatrix(camera.combined)
         batch.spr.begin()
-        renderBackgroundTiles(mapState)
+        renderBackgroundTiles(camera, mapState)
         renderTileHighlights()
         renderMapObjects()
         batch.spr.end()
     }
 
-    private fun renderBackgroundTiles(mapState: BattleMap) {
+    private fun renderBackgroundTiles(camera: OrthographicCamera, mapState: BattleMap) {
         val tileSize = advConfig.resolution.tileSize.toFloat()
-
-        for (y in 0 until mapState.height) {
-            for (x in 0 until mapState.width) {
+        val center = GridUtils.localToGridPosition(camera.position.x, camera.position.y, tileSize)
+        val zoom = sZoom.currentZoom()
+        val gridViewWidth = (advConfig.resolution.width / tileSize * zoom).toInt() + 4
+        val gridViewHeight = (advConfig.resolution.height / tileSize * zoom).toInt() + 4
+        val gridViewLeft = Math.max(center.x - gridViewWidth / 2, 0)
+        val gridViewRight = Math.min(center.x + gridViewWidth / 2, mapState.width)
+        val gridViewBottom = Math.max(center.y - gridViewHeight / 2, 0)
+        val gridViewTop = Math.min(center.y + gridViewHeight / 2, mapState.height)
+        for (y in gridViewBottom until gridViewTop) {
+            for (x in gridViewLeft until gridViewRight) {
                 val cell = mapState.cells[x][y]
                 for (bgTileInfo in cell.backgroundTiles) {
                     val tile = mapTileset.tiles(bgTileInfo.tileType)[bgTileInfo.index]
