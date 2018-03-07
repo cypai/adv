@@ -45,7 +45,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         EventSystem(),
 
                         InputProcessingSystem(),
-                        CameraMovementInputSystem(),
+                        CameraMovementInputSystem(game.advConfig),
                         CameraInterpolationSystem(),
                         ZoomInputSystem(),
 

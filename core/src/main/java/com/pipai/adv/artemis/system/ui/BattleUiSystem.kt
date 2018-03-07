@@ -12,16 +12,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.CommandAnimationEndEvent
+import com.pipai.adv.artemis.events.MouseCameraMoveDisableEvent
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
@@ -191,7 +189,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 sEvent.dispatch(ZoomScrollDisableEvent(true))
             }
 
-            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
                 stage.scrollFocus = null
                 sEvent.dispatch(ZoomScrollDisableEvent(false))
             }
@@ -206,11 +204,32 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         commandPreviewTable.add(commandConfirmButton)
                 .width(120f)
                 .padBottom(PADDING)
+        commandPreviewTable.touchable = Touchable.enabled
         commandPreviewTable.background = game.skin.getDrawable("frameDrawable")
         commandPreviewTable.height = commandPreviewTable.prefHeight
         commandPreviewTable.width = previewWidth
         commandPreviewTable.x = game.advConfig.resolution.width / 2f - previewWidth / 2f
         commandPreviewTable.y = PADDING
+
+        primaryActionMenu.addListener(object : InputListener() {
+            override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+                sEvent.dispatch(MouseCameraMoveDisableEvent(true))
+            }
+
+            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+                sEvent.dispatch(MouseCameraMoveDisableEvent(false))
+            }
+        })
+
+        commandPreviewTable.addListener(object : InputListener() {
+            override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+                sEvent.dispatch(MouseCameraMoveDisableEvent(true))
+            }
+
+            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+                sEvent.dispatch(MouseCameraMoveDisableEvent(false))
+            }
+        })
 
         commandConfirmButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
