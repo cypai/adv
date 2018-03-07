@@ -221,7 +221,15 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     @Subscribe
     fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: CommandAnimationEndEvent) {
-        stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+        val backend = getBackend()
+        if (backend.getNpcAp(selectedNpcId!!) <= 0) {
+            selectNextPlayer()
+        }
+        if (selectedNpcId == null) {
+            // End turn
+        } else {
+            stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+        }
     }
 
     private fun executeCommand(command: BattleCommand) {
@@ -465,7 +473,9 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     private fun selectNextPlayer() {
+        val backend = getBackend()
         val playerUnits = fetchPlayerUnits()
+                .filter { backend.getNpcAp(mNpcId.get(it).npcId) > 0 }
                 .map { Pair(mPlayerUnit.get(it).index, mNpcId.get(it).npcId) }
                 .sortedBy { it.first }
         val currentSelectedUnit = selectedNpcId
