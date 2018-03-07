@@ -10,3 +10,5 @@ data class TileHighlightUpdateEvent(val tileHighlights: Map<Color, List<GridPosi
 data class ZoomScrollDisableEvent(val disabled: Boolean) : Event
 
 data class BattleEventAnimationEndEvent(val event: BattleLogEvent) : Event
+
+class CommandAnimationEndEvent : Event

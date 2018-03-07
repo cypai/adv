@@ -1,6 +1,7 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.tiles.TileDescriptor
@@ -26,4 +27,28 @@ class DrawableComponent : Component() {
 
 class ActorComponent : Component() {
     lateinit var actor: Actor
+}
+
+class PartialRenderComponent : Component() {
+    var widthPercentage: Float = 1f
+    var heightPercentage: Float = 1f
+}
+
+class PartialRenderHeightInterpolationComponent : Component() {
+    lateinit var interpolation: Interpolation
+    var t = 0
+    var maxT = 0
+    var tIncrement = 1
+
+    var start = 1f
+    var end = 1f
+
+    var onEnd = PartialRenderHeightInterpolationEndStrategy.REMOVE
+    var onEndCallback: (() -> Unit)? = null
+
+    fun heightPercentage() = interpolation.apply(start, end, t.toFloat() / maxT.toFloat())
+}
+
+enum class PartialRenderHeightInterpolationEndStrategy {
+    REMOVE, DESTROY
 }

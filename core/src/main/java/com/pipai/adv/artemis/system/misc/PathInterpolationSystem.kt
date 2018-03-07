@@ -20,9 +20,7 @@ class PathInterpolationSystem : IteratingSystem(allOf()) {
             } else {
                 cPath.t = 0
             }
-            if (cPath.onEndpoint != null) {
-                cPath.onEndpoint?.invoke(cPath)
-            }
+            cPath.onEndpoint?.invoke(cPath)
             if (cPath.endpointIndex >= cPath.endpoints.size - 1) {
                 when (cPath.onEnd) {
                     PathInterpolationEndStrategy.REMOVE -> mPath.remove(entityId)

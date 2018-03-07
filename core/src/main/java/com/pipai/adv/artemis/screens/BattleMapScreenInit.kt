@@ -32,6 +32,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mNpcId: ComponentMapper<NpcIdComponent>
     private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
     private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
+    private lateinit var mPartialRender: ComponentMapper<PartialRenderComponent>
 
     private lateinit var sTags: TagManager
 

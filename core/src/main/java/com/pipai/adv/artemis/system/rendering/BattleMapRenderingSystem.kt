@@ -4,6 +4,7 @@ import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.AdvConfig
@@ -36,6 +37,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
     private val mText by mapper<TextComponent>()
+    private val mPartialRender by mapper<PartialRenderComponent>()
 
     private val sZoom by system<ZoomInputSystem>()
     private val sTags by system<TagManager>()
@@ -158,7 +160,16 @@ class BattleMapRenderingSystem(private val skin: Skin,
             is AnimatedUnitTilesetMetadata -> {
                 val unitTexture = animatedTilesetManager.getTilesetFrame(tilesetMetadata.filename, animationFrame)
                 val scaleFactor = tileSize / unitTexture.regionWidth
-                batch.spr.draw(unitTexture, cXy.x, cXy.y, tileSize, unitTexture.regionHeight * scaleFactor)
+                val cPartialRender = mPartialRender.getSafe(id, null)
+                if (cPartialRender == null) {
+                    batch.spr.draw(unitTexture, cXy.x, cXy.y, tileSize, unitTexture.regionHeight * scaleFactor)
+                } else {
+                    val partialTexture = TextureRegion(unitTexture,
+                            0, 0,
+                            (unitTexture.regionWidth * cPartialRender.widthPercentage).toInt(),
+                            (unitTexture.regionHeight * cPartialRender.heightPercentage).toInt())
+                    batch.spr.draw(partialTexture, cXy.x, cXy.y, tileSize, partialTexture.regionHeight * scaleFactor)
+                }
             }
         }
     }

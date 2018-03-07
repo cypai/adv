@@ -53,6 +53,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         PathInterpolationSystem(),
                         XyInterpolationSystem(),
                         ActorInterpolationSystem(),
+                        PartialRenderHeightInterpolationSystem(),
 
                         NpcIdSystem(),
                         BattleAnimationSystem(game))
