@@ -32,6 +32,19 @@ class TestMapGenerator : MapGenerator {
 
         val slime2Id = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
         map.getCell(7, 4).fullEnvObject = NpcEnvObject(slime2Id, Team.AI, slimeSchema.tilesetMetadata)
+
+        val killerRabbitSchema = schemas.getSchema("Killer Rabbit")
+        val rabbitId = npcList.addNpc(Npc(UnitInstance(killerRabbitSchema.schema, "Killer Rabbit"), killerRabbitSchema.tilesetMetadata))
+        map.getCell(5, 6).fullEnvObject = NpcEnvObject(rabbitId, Team.AI, killerRabbitSchema.tilesetMetadata)
+
+        val ratSchema = schemas.getSchema("Brown Rat")
+        val ratId = npcList.addNpc(Npc(UnitInstance(ratSchema.schema, "Brown Rat"), ratSchema.tilesetMetadata))
+        map.getCell(8, 4).fullEnvObject = NpcEnvObject(ratId, Team.AI, ratSchema.tilesetMetadata)
+
+        val blackButterflySchema = schemas.getSchema("Black Butterfly")
+        val blackButterflyId = npcList.addNpc(Npc(UnitInstance(blackButterflySchema.schema, "Black Butterfly"), blackButterflySchema.tilesetMetadata))
+        map.getCell(9, 9).fullEnvObject = NpcEnvObject(blackButterflyId, Team.AI, blackButterflySchema.tilesetMetadata)
+
         generateWallBoundary(map)
         return map
     }

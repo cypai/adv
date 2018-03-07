@@ -65,9 +65,15 @@ class AdvGameInitializer() {
         val schemaList = SchemaList()
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
-        schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 10),
+        schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
                 EnvObjTilesetMetadata.NONE)
-        schemaList.addSchema("Slime", UnitStats(15, 20, 5, 5, 20, 15, 5, 0, 7),
+        schemaList.addSchema("Brown Rat", UnitStats(100, 10, 7, 7, 10, 5, 5, 5, 12),
+                EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("brown_rat.png"))
+        schemaList.addSchema("Black Butterfly", UnitStats(50, 30, 5, 5, 20, 15, 5, 15, 12),
+                EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("black_butterfly.png"))
+        schemaList.addSchema("Killer Rabbit", UnitStats(100, 10, 12, 10, 12, 5, 5, 0, 14),
+                EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("rabbit.png"))
+        schemaList.addSchema("Slime", UnitStats(100, 30, 5, 5, 20, 15, 5, 0, 7),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
         return schemaList
     }
