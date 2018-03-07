@@ -2,6 +2,10 @@ package com.pipai.adv.artemis.components
 
 import com.artemis.Component
 
+class TextComponent : Component() {
+    var text = ""
+}
+
 class PartialTextComponent : Component() {
 
     var timer: Int = 0

@@ -35,6 +35,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private val mDrawable by mapper<DrawableComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
+    private val mText by mapper<TextComponent>()
 
     private val sZoom by system<ZoomInputSystem>()
     private val sTags by system<TagManager>()
@@ -59,6 +60,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
         renderBackgroundTiles(camera, mapState)
         renderTileHighlights()
         renderMapObjects()
+        renderText()
         batch.spr.end()
     }
 
@@ -85,13 +87,17 @@ class BattleMapRenderingSystem(private val skin: Skin,
 
     private fun renderTileHighlights() {
         tileHighlights.forEach { color, tiles ->
-            val drawable = if (drawableCache.containsKey(color)) {
-                drawableCache[color]!!
-            } else {
-                skin.newDrawable("white", color)!!
-                        .also { drawableCache[color] = it }
-            }
+            val drawable = getColorDrawable(color)
             renderTileHighlight(tiles, drawable)
+        }
+    }
+
+    private fun getColorDrawable(color: Color): Drawable {
+        return if (drawableCache.containsKey(color)) {
+            drawableCache[color]!!
+        } else {
+            skin.newDrawable("white", color)!!
+                    .also { drawableCache[color] = it }
         }
     }
 
@@ -167,6 +173,16 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val cDrawable = mDrawable.get(id)
         val cXy = mXy.get(id)
         cDrawable.drawable.draw(batch.spr, cXy.x, cXy.y, cDrawable.width, cDrawable.height)
+    }
+
+    private fun renderText() {
+        val textEntities = world.fetch(allOf(TextComponent::class, XYComponent::class))
+        batch.font.color = Color.WHITE
+        textEntities.forEach {
+            val cText = mText.get(it)
+            val cXy = mXy.get(it)
+            batch.smallFont.draw(batch.spr, cText.text, cXy.x, cXy.y)
+        }
     }
 
     private enum class RenderType {

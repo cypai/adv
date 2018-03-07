@@ -7,7 +7,7 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.PathInterpolationComponent
-import com.pipai.adv.artemis.events.CommandAnimationEndEvent
+import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.engine.log.MoveEvent
@@ -49,13 +49,13 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
                         config.resolution.tileOffset.toFloat())
             })
             cPath.setUsingSpeed(4.0)
-            cPath.onEndpoint = this::onReachedEndpoint
+            cPath.onEndpoint = { onReachedEndpoint(it, moveEvent) }
             previousDirection = mEnvObjTile.get(entityId).direction
-            onReachedEndpoint(cPath)
+            onReachedEndpoint(cPath, moveEvent)
         }
     }
 
-    private fun onReachedEndpoint(cPath: PathInterpolationComponent) {
+    private fun onReachedEndpoint(cPath: PathInterpolationComponent, originalEvent: MoveEvent) {
         val entityId = movingEntityId!!
         val cAnimationFrames = mAnimationFrames.get(entityId)
         val cEnvObjTile = mEnvObjTile.get(entityId)
@@ -69,7 +69,7 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
             previousDirection = nextDirection
         } else {
             setIdlingAnimation(cAnimationFrames)
-            sEvent.dispatch(CommandAnimationEndEvent())
+            sEvent.dispatch(BattleEventAnimationEndEvent(originalEvent))
         }
     }
 

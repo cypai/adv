@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.CommandAnimationEndEvent
+import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
@@ -220,7 +220,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     @Subscribe
-    fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: CommandAnimationEndEvent) {
+    fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: BattleEventAnimationEndEvent) {
         stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
     }
 
