@@ -6,9 +6,10 @@ import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.AmmoChangePreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.DamagePreviewComponent
-import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
 
 class NormalAttackExecutionRule : CommandExecutionRule {
 
@@ -35,6 +36,8 @@ class NormalAttackExecutionRule : CommandExecutionRule {
 
             previewComponents.add(AmmoChangePreviewComponent(cmd.unitId, cmd.weapon.ammo - 1))
         }
+
+        previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
 
         return previewComponents.toList()
     }
