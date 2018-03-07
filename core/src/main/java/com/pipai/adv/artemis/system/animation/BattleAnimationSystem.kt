@@ -35,7 +35,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
     }
 
     @Subscribe
-    fun handleBattleEventAnimationEnd(event: BattleEventAnimationEndEvent) {
+    fun handleBattleEventAnimationEnd(@Suppress("UNUSED_PARAMETER") event: BattleEventAnimationEndEvent) {
         animateNextEvent()
     }
 
