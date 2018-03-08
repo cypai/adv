@@ -10,7 +10,7 @@ interface BattleLogEvent {
 }
 
 data class ApChangeEvent(val npcId: Int, val newApAmount: Int) : BattleLogEvent {
-    override fun description() = "$npcId AP set to $newApAmount"
+    override fun description() = "NPC id $npcId AP set to $newApAmount"
 }
 
 data class DamageEvent(val npcId: Int,
