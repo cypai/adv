@@ -5,7 +5,6 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.domain.BattleTurn
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
@@ -37,7 +36,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
     private val logger = getLogger()
 
-    private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(),
+    private var state: BattleState = BattleState(Team.PLAYER, npcList, battleMap, BattleLog(),
             ActionPointState(npcList), NpcStatusState(npcList))
     private lateinit var cache: BattleBackendCache
 
@@ -186,20 +185,22 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     }
 
     fun endTurn() {
+        logger.debug("Turn has ended for ${state.turn}")
         when (state.turn) {
-            BattleTurn.PLAYER -> {
-                state.turn = BattleTurn.ENEMY
+            Team.PLAYER -> {
+                state.turn = Team.AI
                 state.npcList
                         .filter { cache.getNpcTeam(it.key) == Team.AI }
                         .forEach { state.apState.setNpcAp(it.key, ActionPointState.startingNumAPs) }
             }
-            BattleTurn.ENEMY -> {
-                state.turn = BattleTurn.PLAYER
+            Team.AI -> {
+                state.turn = Team.PLAYER
                 state.npcList
                         .filter { cache.getNpcTeam(it.key) == Team.PLAYER }
                         .forEach { state.apState.setNpcAp(it.key, ActionPointState.startingNumAPs) }
             }
         }
+        logger.debug("Turn starting for ${state.turn}")
         state.npcStatusState.decreaseTurnCount()
     }
 }
@@ -214,7 +215,7 @@ data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
     fun getTeam(team: Team) = teamNpcs[team]!!
 }
 
-data class BattleState(var turn: BattleTurn,
+data class BattleState(var turn: Team,
                        val npcList: NpcList,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog,
