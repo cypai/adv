@@ -25,7 +25,7 @@ data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override va
         return if (adjustment > 0) {
             "+ $adjustment"
         } else {
-            "- $adjustment"
+            "- ${-adjustment}"
         }
     }
 }
@@ -40,7 +40,7 @@ data class ToHitFlatAdjustmentPreviewComponent(val adjustment: Int, override val
         return if (adjustment > 0) {
             "+ $adjustment %"
         } else {
-            "- $adjustment %"
+            "- ${-adjustment} %"
         }
     }
 }
@@ -55,7 +55,7 @@ data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override va
         return if (adjustment > 0) {
             "+ $adjustment %"
         } else {
-            "- $adjustment %"
+            "- ${-adjustment} %"
         }
     }
 }

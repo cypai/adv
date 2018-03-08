@@ -31,3 +31,5 @@ data class NormalAttackCommand(override val unitId: Int,
     override val baseHit = 65
     override val baseCrit = 25
 }
+
+data class DefendCommand(override val unitId: Int) : ActionCommand

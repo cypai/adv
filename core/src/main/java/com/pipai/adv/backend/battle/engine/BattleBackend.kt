@@ -7,6 +7,7 @@ import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.domain.BattleTurn
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
+import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.BattleLog
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
@@ -36,7 +37,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
 
     private val logger = getLogger()
 
-    private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(), ActionPointState(npcList))
+    private var state: BattleState = BattleState(BattleTurn.PLAYER, npcList, battleMap, BattleLog(),
+            ActionPointState(npcList), NpcStatusState(npcList))
     private lateinit var cache: BattleBackendCache
 
     /**
@@ -68,10 +70,13 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
             DevHpChangeExecutionRule(),
             MoveExecutionRule(),
+            DefendExecutionRule(),
             NormalAttackExecutionRule(),
             BaseHitCritExecutionRule(),
             MeleeHitCritExecutionRule(),
             RangedHitCritExecutionRule(),
+            AvoidHitCritExecutionRule(),
+            DefendHitCritExecutionRule(),
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
             ChangeApExecutionRule(),
@@ -124,6 +129,9 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun getNpcTeam(npcId: Int) = cache.npcTeams[npcId]
     fun getTeamNpcs(): Map<Team, List<Int>> = cache.teamNpcs
     fun getTeam(team: Team) = cache.teamNpcs[team]!!
+    fun getNpcAilment(npcId: Int) = state.getNpcAilment(npcId)
+    fun getNpcStatus(npcId: Int) = state.getNpcStatus(npcId)
+    fun checkNpcStatus(npcId: Int, status: NpcStatus) = state.checkNpcStatus(npcId, status)
     fun getBattleState() = state.copy()
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
@@ -176,16 +184,47 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         events.forEach { logger.debug("BATTLE EVENT: ${it::class.simpleName} ${it.description()}") }
         return events
     }
+
+    fun endTurn() {
+        when (state.turn) {
+            BattleTurn.PLAYER -> {
+                state.turn = BattleTurn.ENEMY
+                state.npcList
+                        .filter { cache.getNpcTeam(it.key) == Team.AI }
+                        .forEach { state.apState.setNpcAp(it.key, ActionPointState.startingNumAPs) }
+            }
+            BattleTurn.ENEMY -> {
+                state.turn = BattleTurn.PLAYER
+                state.npcList
+                        .filter { cache.getNpcTeam(it.key) == Team.PLAYER }
+                        .forEach { state.apState.setNpcAp(it.key, ActionPointState.startingNumAPs) }
+            }
+        }
+        state.npcStatusState.decreaseTurnCount()
+    }
 }
 
 data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
                               val teamNpcs: Map<Team, List<Int>>,
                               val npcTeams: Map<Int, Team>,
-                              val currentTurnKos: List<Int>)
+                              val currentTurnKos: List<Int>) {
+
+    fun getNpcPosition(npcId: Int) = npcPositions[npcId]
+    fun getNpcTeam(npcId: Int) = npcTeams[npcId]
+    fun getTeam(team: Team) = teamNpcs[team]!!
+}
 
 data class BattleState(var turn: BattleTurn,
                        val npcList: NpcList,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog,
-                       val apState: ActionPointState)
+                       val apState: ActionPointState,
+                       val npcStatusState: NpcStatusState) {
+
+    fun getNpc(npcId: Int) = npcList.getNpc(npcId)
+    fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)
+    fun getNpcAilment(npcId: Int) = npcStatusState.getNpcAilment(npcId)
+    fun getNpcStatus(npcId: Int) = npcStatusState.getNpcStatus(npcId)
+    fun checkNpcStatus(npcId: Int, status: NpcStatus) = npcStatusState.checkNpcStatus(npcId, status)
+}
 
