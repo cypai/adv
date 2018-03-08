@@ -518,6 +518,10 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 select(playerUnits.firstOrNull()?.second)
             }
         }
+        // If we were unable to find an available player to select, end turn
+        if (selectedNpcId == null) {
+            backend.endTurn()
+        }
     }
 
     private fun selectNextTarget() {
