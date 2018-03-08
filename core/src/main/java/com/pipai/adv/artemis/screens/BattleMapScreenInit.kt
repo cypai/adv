@@ -11,6 +11,7 @@ import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
@@ -32,7 +33,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mNpcId: ComponentMapper<NpcIdComponent>
     private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
     private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
-    private lateinit var mPartialRender: ComponentMapper<PartialRenderComponent>
+    private lateinit var mUnitHealthbar: ComponentMapper<UnitHealthbarComponent>
 
     private lateinit var sTags: TagManager
 
@@ -97,7 +98,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
                 if (envObj is FullEnvObject.NpcEnvObject) {
                     mNpcId.create(id).npcId = envObj.npcId
-                    if (save.npcInPlayerGuild(envObj.npcId)) {
+                    if (backend.getNpcTeam(envObj.npcId) == Team.PLAYER) {
                         mPlayerUnit.create(id).index = playerUnitIndex
                         val uiId = world.create()
                         val cUi = mSideUiBox.create(uiId)
@@ -135,9 +136,12 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
                 if (envObj is FullEnvObject.NpcEnvObject) {
                     mNpcId.create(id).npcId = envObj.npcId
-                    if (save.npcInPlayerGuild(envObj.npcId)) {
+                    if (backend.getNpcTeam(envObj.npcId) == Team.PLAYER) {
                         mPlayerUnit.create(id).index = playerUnitIndex
                         playerUnitIndex++
+                    } else {
+                        val cUnitHealthbar= mUnitHealthbar.create(id)
+                        cUnitHealthbar.setToNpc(envObj.npcId, backend)
                     }
                 }
             }

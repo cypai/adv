@@ -6,10 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.math.Interpolation
 import com.pipai.adv.AdvConfig
-import com.pipai.adv.artemis.components.PathInterpolationComponent
-import com.pipai.adv.artemis.components.PathInterpolationEndStrategy
-import com.pipai.adv.artemis.components.TextComponent
-import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
@@ -20,6 +17,7 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
     private lateinit var mPath: ComponentMapper<PathInterpolationComponent>
     private lateinit var mText: ComponentMapper<TextComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
+    private lateinit var mUnitHealthbar: ComponentMapper<UnitHealthbarComponent>
 
     private lateinit var sNpcId: NpcIdSystem
     private lateinit var sEvent: EventSystem
@@ -51,6 +49,11 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
             cPath.maxT = 30
             cPath.onEnd = PathInterpolationEndStrategy.DESTROY
             cPath.onEndpoint = { sEvent.dispatch(BattleEventAnimationEndEvent(damageEvent)) }
+            val cUnitHealthbar = mUnitHealthbar.getSafe(targetEntityId, null)
+            if (cUnitHealthbar != null) {
+                val npcInstance = damageEvent.npc.unitInstance
+                cUnitHealthbar.percentage = npcInstance.hp.toFloat() / npcInstance.schema.baseStats.hpMax.toFloat()
+            }
         }
     }
 

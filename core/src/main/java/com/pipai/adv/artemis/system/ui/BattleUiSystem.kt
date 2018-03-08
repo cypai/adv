@@ -635,9 +635,9 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
         game.spriteBatch.projectionMatrix = uiCamera.camera.combined
         game.spriteBatch.begin()
+        game.shapeRenderer.projectionMatrix = uiCamera.camera.combined
         game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         game.smallFont.color = Color.BLACK
-        game.shapeRenderer.color = Color.DARK_GRAY
         sideUiEntities.forEach {
             val cUi = mSideUiBox.get(it)
             if (!cUi.disabled) {

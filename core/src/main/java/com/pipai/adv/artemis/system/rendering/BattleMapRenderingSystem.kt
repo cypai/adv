@@ -5,6 +5,7 @@ import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.AdvConfig
@@ -38,6 +39,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
     private val mText by mapper<TextComponent>()
     private val mPartialRender by mapper<PartialRenderComponent>()
+    private val mUnitHealthbar by mapper<UnitHealthbarComponent>()
 
     private val sZoom by system<ZoomInputSystem>()
     private val sTags by system<TagManager>()
@@ -57,10 +59,16 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
 
-        batch.spr.setProjectionMatrix(camera.combined)
+        batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
         renderBackgroundTiles(camera, mapState)
         renderTileHighlights()
+        batch.spr.end()
+        batch.shape.projectionMatrix = camera.combined
+        batch.shape.begin(ShapeRenderer.ShapeType.Filled)
+        renderHealthbars()
+        batch.shape.end()
+        batch.spr.begin()
         renderMapObjects()
         renderText()
         batch.spr.end()
@@ -184,6 +192,20 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val cDrawable = mDrawable.get(id)
         val cXy = mXy.get(id)
         cDrawable.drawable.draw(batch.spr, cXy.x, cXy.y, cDrawable.width, cDrawable.height)
+    }
+
+    private fun renderHealthbars() {
+        val tileSize = advConfig.resolution.tileSize.toFloat()
+        val width = tileSize * 0.8f
+        val xOffset = (tileSize - width) / 2f
+        val height = 5f
+        val healthbarEntities = world.fetch(allOf(UnitHealthbarComponent::class, XYComponent::class))
+        healthbarEntities.forEach {
+            val cHealthbar = mUnitHealthbar.get(it)
+            val cXy = mXy.get(it)
+            batch.shape.drawHealthbar(cXy.x + xOffset, cXy.y - height, width, height,
+                    Color.DARK_GRAY, Color.RED, Color.YELLOW, Color.BLACK, cHealthbar.percentage)
+        }
     }
 
     private fun renderText() {

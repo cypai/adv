@@ -35,8 +35,15 @@ enum class SideUiBoxOrientation {
     PORTRAIT_RIGHT, PORTRAIT_LEFT
 }
 
-class UnitBottomUiComponent : Component() {
+class UnitHealthbarComponent : Component() {
     var npcId = 0
-    var hp = 0
-    var tp = 0
+    var percentage = 1f
+
+    fun setToNpc(npcId: Int, backend: BattleBackend) {
+        this.npcId = npcId
+        val npc = backend.getBattleState().npcList.getNpc(npcId)
+        if (npc != null) {
+            percentage = npc.unitInstance.hp.toFloat() / npc.unitInstance.schema.baseStats.hpMax.toFloat()
+        }
+    }
 }
