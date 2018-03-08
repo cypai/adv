@@ -120,7 +120,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         const val PORTRAIT_HEIGHT = 80f
         const val PADDING = 8f
         const val BAR_WIDTH = 80f
-        const val BAR_HEIGHT = 6f
+        const val BAR_HEIGHT = 8f
         const val BAR_VERTICAL_PADDING = 12f
         const val BAR_TEXT_PADDING = 8f
         const val POST_BAR_PADDING = 64f
@@ -690,43 +690,23 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         game.smallFont.draw(game.spriteBatch, cUiBox.name,
                 cXy.x + PADDING + PORTRAIT_WIDTH + PADDING,
                 cXy.y + UI_HEIGHT - PADDING)
-        game.shapeRenderer.rect(
-                cXy.x + PADDING + PORTRAIT_WIDTH + PADDING - 1,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1,
-                BAR_WIDTH + 2,
-                BAR_HEIGHT + 2)
-        game.shapeRenderer.rect(
+        game.shapeRenderer.drawHealthbar(
                 cXy.x + PADDING + PORTRAIT_WIDTH + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
-                Color.RED, Color.YELLOW, Color.YELLOW, Color.RED)
-        game.shapeRenderer.rect(
-                cXy.x + PADDING + PORTRAIT_WIDTH + PADDING + cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
-                BAR_WIDTH - cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
-                BAR_HEIGHT,
-                Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
+                Color.DARK_GRAY, Color.RED, Color.YELLOW, Color.BLACK,
+                cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat())
         game.smallFont.draw(game.spriteBatch, cUiBox.hp.toString(),
                 cXy.x + PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + BAR_TEXT_PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight)
-        game.shapeRenderer.rect(
-                cXy.x + PADDING + PORTRAIT_WIDTH + PADDING - 1,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1 - BAR_HEIGHT - BAR_VERTICAL_PADDING,
-                BAR_WIDTH + 2,
-                BAR_HEIGHT + 2)
-        game.shapeRenderer.rect(
+        game.shapeRenderer.drawHealthbar(
                 cXy.x + PADDING + PORTRAIT_WIDTH + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
-                Color(0f, 0.3f, 1f, 1f), Color.CYAN, Color.CYAN, Color(0f, 0.3f, 1f, 1f))
-        game.shapeRenderer.rect(
-                cXy.x + PADDING + PORTRAIT_WIDTH + PADDING + cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
-                BAR_WIDTH - cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
-                BAR_HEIGHT,
-                Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
+                Color.DARK_GRAY, Color(0f, 0.3f, 1f, 1f), Color.CYAN, Color.BLACK,
+                cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat())
         game.smallFont.draw(game.spriteBatch, cUiBox.tp.toString(),
                 cXy.x + PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + BAR_TEXT_PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - BAR_HEIGHT - BAR_VERTICAL_PADDING)
@@ -764,43 +744,23 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         game.smallFont.draw(game.spriteBatch, cUiBox.name,
                 cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING)
-        game.shapeRenderer.rect(
-                cXy.x + SELECTION_DISTANCE + PADDING - 1,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1,
-                BAR_WIDTH + 2,
-                BAR_HEIGHT + 2)
-        game.shapeRenderer.rect(
+        game.shapeRenderer.drawHealthbar(
                 cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
-                Color.RED, Color.YELLOW, Color.YELLOW, Color.RED)
-        game.shapeRenderer.rect(
-                cXy.x + SELECTION_DISTANCE + PADDING + cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING,
-                BAR_WIDTH - cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat() * BAR_WIDTH,
-                BAR_HEIGHT,
-                Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
+                Color.DARK_GRAY, Color.RED, Color.YELLOW, Color.BLACK,
+                cUiBox.hp.toFloat() / cUiBox.hpMax.toFloat())
         game.smallFont.draw(game.spriteBatch, cUiBox.hp.toString(),
                 cXy.x + SELECTION_DISTANCE + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight)
-        game.shapeRenderer.rect(
-                cXy.x + SELECTION_DISTANCE + PADDING - 1,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - 1 - BAR_HEIGHT - BAR_VERTICAL_PADDING,
-                BAR_WIDTH + 2,
-                BAR_HEIGHT + 2)
-        game.shapeRenderer.rect(
+        game.shapeRenderer.drawHealthbar(
                 cXy.x + SELECTION_DISTANCE + PADDING,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
                 BAR_WIDTH,
                 BAR_HEIGHT,
-                Color(0f, 0.3f, 1f, 1f), Color.CYAN, Color.CYAN, Color(0f, 0.3f, 1f, 1f))
-        game.shapeRenderer.rect(
-                cXy.x + SELECTION_DISTANCE + PADDING + cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
-                cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - PADDING - BAR_HEIGHT - BAR_VERTICAL_PADDING,
-                BAR_WIDTH - cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat() * BAR_WIDTH,
-                BAR_HEIGHT,
-                Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK)
+                Color.DARK_GRAY, Color(0f, 0.3f, 1f, 1f), Color.CYAN, Color.BLACK,
+                cUiBox.tp.toFloat() / cUiBox.tpMax.toFloat())
         game.smallFont.draw(game.spriteBatch, cUiBox.tp.toString(),
                 cXy.x + SELECTION_DISTANCE + PADDING + BAR_TEXT_PADDING + BAR_WIDTH,
                 cXy.y + UI_HEIGHT - PADDING - game.smallFont.lineHeight - BAR_HEIGHT - BAR_VERTICAL_PADDING)
