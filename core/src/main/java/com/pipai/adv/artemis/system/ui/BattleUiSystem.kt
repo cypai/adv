@@ -358,7 +358,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         primaryActionMenu.setItems(listOf(
                 TargetMenuCommandItem("Attack", null, normalAttackFactory),
                 StringMenuItem("Skill", null, ""),
-                StringMenuItem("Reload", null, ""),
                 StringMenuItem("Item", null, ""),
                 StringMenuItem("Defend", null, ""),
                 StringMenuItem("Wait", null, ""),
@@ -375,7 +374,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         val position = backend.getNpcPosition(npcId)!!
         val map = backend.getBattleMapState()
         if (position.x != 0 && position.x != map.width - 1 && position.y != 0 && position.y != map.height - 1) {
-            primaryActionMenu.setDisabledIndex(6, true)
+            primaryActionMenu.setDisabledIndex(5, true)
         }
         primaryActionMenu.height = primaryActionMenu.prefHeight
     }

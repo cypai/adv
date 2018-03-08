@@ -1,11 +1,9 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
-import com.pipai.adv.backend.battle.domain.WeaponAttribute
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
-import com.pipai.adv.backend.battle.engine.domain.AmmoChangePreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.DamagePreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
@@ -30,12 +28,6 @@ class NormalAttackExecutionRule : CommandExecutionRule {
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
-
-        if (cmd.weapon.schema.attributes.contains(WeaponAttribute.CAN_FAST_RELOAD)
-                || cmd.weapon.schema.attributes.contains(WeaponAttribute.CAN_RELOAD)) {
-
-            previewComponents.add(AmmoChangePreviewComponent(cmd.unitId, cmd.weapon.ammo - 1))
-        }
 
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
 

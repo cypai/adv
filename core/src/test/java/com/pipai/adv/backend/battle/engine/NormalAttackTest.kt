@@ -100,12 +100,6 @@ class NormalAttackTest {
         Assert.assertEquals(targetId.toLong(), npcId.toLong())
         Assert.assertEquals((100 - damage).toLong(), target.unitInstance.hp.toLong())
 
-        Assert.assertTrue(events.stream().anyMatch { it -> it is AmmoChangeEvent })
-        val (npcId1, newAmount) = events.stream().filter { it -> it is AmmoChangeEvent }.findFirst().get() as AmmoChangeEvent
-        Assert.assertEquals(2, newAmount.toLong())
-        Assert.assertEquals(attackerId.toLong(), npcId1.toLong())
-        Assert.assertEquals(2, bow.ammo.toLong())
-
         Assert.assertEquals(0, backend.getNpcAp(attackerId))
     }
 

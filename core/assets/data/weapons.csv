@@ -1,11 +1,11 @@
 name,type,range,patk,matk,attributes,magazineSize,description
 Toy Sword,SWORD,MELEE,8,1,,1,Not a real weapon.
 Wooden Sword,SWORD,MELEE,11,1,,1,A weapon for apprentice swordsmen everywhere.
-Toy Bow,BOW,RANGED,7,1,CAN_FAST_RELOAD|CAN_STEADY,4,Not a real weapon.
-Wooden Bow,BOW,RANGED,10,1,CAN_FAST_RELOAD|CAN_STEADY,4,Actually a real weapon.
-Toy Pistol,PISTOL,RANGED,7,1,CAN_RELOAD,2,Not a real weapon.
-Flintlock Pistol,PISTOL,RANGED,13,1,CAN_RELOAD,1,Single shot. Make it count!
-Pepperbox,PISTOL,RANGED,14,1,CAN_RELOAD,2,Two shots. Make them count!
-Cut-Off Shotgun,PISTOL,MELEE,20,1,CAN_RELOAD,1,A strange pistol with no range.
+Toy Bow,BOW,RANGED,7,1,CAN_STEADY,4,Not a real weapon.
+Wooden Bow,BOW,RANGED,10,1,CAN_STEADY,4,Actually a real weapon.
+Toy Pistol,PISTOL,RANGED,7,1,,2,Not a real weapon.
+Flintlock Pistol,PISTOL,RANGED,13,1,,1,Single shot. Make it count!
+Pepperbox,PISTOL,RANGED,14,1,,2,Two shots. Make them count!
+Cut-Off Shotgun,PISTOL,MELEE,20,1,,1,A strange pistol with no range.
 Toy Staff,STAFF,MELEE,2,7,,1,A toy staff for young girls.
 Quarterstaff,STAFF,MELEE,13,10,,1,A staff that also boasts good physical damage.
