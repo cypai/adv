@@ -27,6 +27,7 @@ import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
+import com.pipai.adv.artemis.system.ui.menu.ActionMenuCommandItem
 import com.pipai.adv.artemis.system.ui.menu.MenuItem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
@@ -359,7 +360,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 TargetMenuCommandItem("Attack", null, normalAttackFactory),
                 StringMenuItem("Skill", null, ""),
                 StringMenuItem("Item", null, ""),
-                StringMenuItem("Defend", null, ""),
+                ActionMenuCommandItem("Defend", null, DefendCommandFactory(backend)),
                 StringMenuItem("Run", null, "")))
 
         val npcId = selectedNpcId!!
@@ -385,6 +386,12 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 targetNpcIds.clear()
                 targetNpcIds.addAll(commands.map { Pair(it.targetId, it) })
                 stateMachine.changeState(BattleUiState.TARGET_SELECTION)
+            }
+            is ActionMenuCommandItem -> {
+                val command = menuItem.factory.generate(selectedNpcId!!).firstOrNull()
+                if (command != null) {
+                    executeCommand(command)
+                }
             }
         }
     }
