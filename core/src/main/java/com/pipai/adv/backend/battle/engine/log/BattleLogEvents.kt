@@ -71,3 +71,8 @@ data class NormalAttackEvent(val attackerId: Int,
     override fun description() = "$attacker (id $attackerId) attacked $target (id $targetId) with $weapon"
     override fun userFriendlyDescription() = "${attacker.unitInstance.nickname} attacked ${target.unitInstance.nickname}!"
 }
+
+data class TextEvent(val text: String) : BattleLogEvent {
+    override fun description(): String = text
+    override fun userFriendlyDescription(): String = text
+}

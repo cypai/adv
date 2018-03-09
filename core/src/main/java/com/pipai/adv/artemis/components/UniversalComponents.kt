@@ -32,7 +32,7 @@ class PathInterpolationComponent : Component() {
     var tIncrement = 1
 
     var onEndpoint: ((PathInterpolationComponent) -> Unit)? = null
-    var onEnd = PathInterpolationEndStrategy.REMOVE
+    var onEnd = EndStrategy.REMOVE
 
     val endpoints: MutableList<Vector2> = mutableListOf()
     var endpointIndex = 0
@@ -59,8 +59,17 @@ class PathInterpolationComponent : Component() {
     }
 }
 
-enum class PathInterpolationEndStrategy {
+enum class EndStrategy {
     REMOVE, DESTROY, RESTART
+}
+
+class TimerComponent : Component() {
+    var t = 0
+    var maxT = 0
+    var tIncrement = 1
+
+    var onEnd: EndStrategy = EndStrategy.REMOVE
+    var onEndCallback: (() -> Unit)? = null
 }
 
 class OrthographicCameraComponent : Component() {

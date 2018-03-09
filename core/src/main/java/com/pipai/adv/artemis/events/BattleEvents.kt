@@ -14,3 +14,5 @@ data class MouseCameraMoveDisableEvent(val disabled: Boolean) : Event
 data class BattleEventAnimationEndEvent(val event: BattleLogEvent) : Event
 
 class CommandAnimationEndEvent : Event
+
+data class BattleTextEvent(val text: String) : Event

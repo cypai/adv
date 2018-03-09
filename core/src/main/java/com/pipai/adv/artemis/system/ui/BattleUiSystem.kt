@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
@@ -18,10 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.events.CommandAnimationEndEvent
-import com.pipai.adv.artemis.events.MouseCameraMoveDisableEvent
-import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
-import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
+import com.pipai.adv.artemis.events.*
 import com.pipai.adv.artemis.screens.BattleMapScreenInit
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
@@ -115,6 +113,10 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private var mapGraph: MapGraph? = null
     private var hoverDestination: GridPosition? = null
     private var movePreviewEntityId: Int? = null
+
+    private val glyphLayout = GlyphLayout()
+    private val descriptionText: MutableList<String> = mutableListOf()
+    private val descriptionTextLimit = 5
 
     companion object {
         const val PORTRAIT_WIDTH = 80f
@@ -252,6 +254,16 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         }
     }
 
+    @Subscribe
+    fun battleTextListener(event: BattleTextEvent) {
+        if (event.text.isNotBlank()) {
+            descriptionText.add(event.text)
+            if (descriptionText.size > descriptionTextLimit) {
+                descriptionText.removeAt(0)
+            }
+        }
+    }
+
     private fun executeCommand(command: BattleCommand) {
         val backend = getBackend()
         val executionStatus = backend.canBeExecuted(command)
@@ -303,7 +315,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         val cXy = mXy.create(previewId)
         cXy.setXy(path.first())
         val cPath = mPath.create(previewId)
-        cPath.onEnd = PathInterpolationEndStrategy.RESTART
+        cPath.onEnd = EndStrategy.RESTART
         cPath.interpolation = Interpolation.linear
         cPath.setUsingSpeed(6.0)
         cPath.endpoints.addAll(path)
@@ -423,7 +435,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(Vector2(-UI_WIDTH, cXy.y))
             cPath.maxT = SELECTION_TIME
-            cPath.onEnd = PathInterpolationEndStrategy.DESTROY
+            cPath.onEnd = EndStrategy.DESTROY
         }
     }
 
@@ -655,6 +667,14 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                     SideUiBoxOrientation.PORTRAIT_RIGHT -> drawPortraitRightUi(cUi, mXy.get(it))
                 }
             }
+        }
+        var textY = game.smallFont.lineHeight
+        game.smallFont.color = Color.WHITE
+        descriptionText.asReversed().forEach {
+            glyphLayout.setText(game.smallFont, it)
+            val textWidth = glyphLayout.width
+            game.smallFont.draw(game.spriteBatch, it, game.advConfig.resolution.width - textWidth, textY)
+            textY += game.smallFont.lineHeight
         }
         game.spriteBatch.end()
         game.shapeRenderer.end()

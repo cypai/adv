@@ -47,7 +47,7 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
             cPath.endpoints.add(cXy.toVector2())
             cPath.endpoints.add(cXy.toVector2().add(0f, config.resolution.tileSize * 0.7f))
             cPath.maxT = 30
-            cPath.onEnd = PathInterpolationEndStrategy.DESTROY
+            cPath.onEnd = EndStrategy.DESTROY
             cPath.onEndpoint = { sEvent.dispatch(BattleEventAnimationEndEvent(damageEvent)) }
             val cUnitHealthbar = mUnitHealthbar.getSafe(targetEntityId, null)
             if (cUnitHealthbar != null) {

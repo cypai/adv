@@ -2,7 +2,7 @@ package com.pipai.adv.artemis.system.misc
 
 import com.artemis.systems.IteratingSystem
 import com.pipai.adv.artemis.components.PathInterpolationComponent
-import com.pipai.adv.artemis.components.PathInterpolationEndStrategy
+import com.pipai.adv.artemis.components.EndStrategy
 import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.require
 
@@ -23,9 +23,9 @@ class PathInterpolationSystem : IteratingSystem(allOf()) {
             cPath.onEndpoint?.invoke(cPath)
             if (cPath.endpointIndex >= cPath.endpoints.size - 1) {
                 when (cPath.onEnd) {
-                    PathInterpolationEndStrategy.REMOVE -> mPath.remove(entityId)
-                    PathInterpolationEndStrategy.DESTROY -> world.delete(entityId)
-                    PathInterpolationEndStrategy.RESTART -> cPath.endpointIndex = 0
+                    EndStrategy.REMOVE -> mPath.remove(entityId)
+                    EndStrategy.DESTROY -> world.delete(entityId)
+                    EndStrategy.RESTART -> cPath.endpointIndex = 0
                 }
             }
         }

@@ -9,7 +9,10 @@ import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
-import com.pipai.adv.artemis.system.input.*
+import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
+import com.pipai.adv.artemis.system.input.ExitInputProcessor
+import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
@@ -49,6 +52,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         CameraInterpolationSystem(),
                         ZoomInputSystem(),
 
+                        TimerSystem(),
                         AnimationFrameIncrementSystem(),
                         PathInterpolationSystem(),
                         XyInterpolationSystem(),

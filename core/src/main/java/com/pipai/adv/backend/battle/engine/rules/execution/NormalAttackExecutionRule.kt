@@ -44,7 +44,7 @@ class NormalAttackExecutionRule : CommandExecutionRule {
                 cmd.unitId,
                 state.npcList.getNpc(cmd.unitId)!!,
                 cmd.targetId,
-                state.npcList.getNpc(cmd.unitId)!!,
+                state.npcList.getNpc(cmd.targetId)!!,
                 cmd.weapon))
     }
 }

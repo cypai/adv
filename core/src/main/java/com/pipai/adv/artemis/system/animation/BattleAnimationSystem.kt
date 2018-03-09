@@ -2,9 +2,11 @@ package com.pipai.adv.artemis.system.animation
 
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
+import com.pipai.adv.artemis.events.BattleTextEvent
 import com.pipai.adv.artemis.events.CommandAnimationEndEvent
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.handlers.DamageAnimationHandler
+import com.pipai.adv.artemis.system.animation.handlers.DelayAnimationHandler
 import com.pipai.adv.artemis.system.animation.handlers.MoveAnimationHandler
 import com.pipai.adv.artemis.system.animation.handlers.NpcKoAnimationHandler
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
@@ -25,6 +27,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
     private lateinit var moveAnimationHandler: MoveAnimationHandler
     private lateinit var damageAnimationHandler: DamageAnimationHandler
     private lateinit var npcKoAnimationHandler: NpcKoAnimationHandler
+    private lateinit var delayAnimationHandler: DelayAnimationHandler
 
     private val animatingEvents: MutableList<BattleLogEvent> = mutableListOf()
 
@@ -32,6 +35,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
         moveAnimationHandler = MoveAnimationHandler(game.advConfig, world)
         damageAnimationHandler = DamageAnimationHandler(game.advConfig, game.smallFont, world)
         npcKoAnimationHandler = NpcKoAnimationHandler(game.advConfig, world)
+        delayAnimationHandler = DelayAnimationHandler(world)
     }
 
     @Subscribe
@@ -49,7 +53,9 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
         if (animatingEvents.isEmpty()) {
             sEvent.dispatch(CommandAnimationEndEvent())
         } else {
-            animateEvent(animatingEvents.removeAt(0))
+            val event = animatingEvents.removeAt(0)
+            sEvent.dispatch(BattleTextEvent(event.userFriendlyDescription()))
+            animateEvent(event)
         }
     }
 
@@ -58,7 +64,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
             is MoveEvent -> moveAnimationHandler.animate(event)
             is DamageEvent -> damageAnimationHandler.animate(event)
             is NpcKoEvent -> npcKoAnimationHandler.animate(event)
-            else -> sEvent.dispatch(BattleEventAnimationEndEvent(event))
+            else -> delayAnimationHandler.animate(event)
         }
     }
 

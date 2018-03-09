@@ -8,6 +8,7 @@ import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.NpcStatusInstance
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.TextEvent
 
 class DefendExecutionRule : CommandExecutionRule {
 
@@ -33,5 +34,6 @@ class DefendExecutionRule : CommandExecutionRule {
 
         val cmd = command as DefendCommand
         state.npcStatusState.addNpcStatus(cmd.unitId, NpcStatusInstance(NpcStatus.DEFENDING, 2))
+        state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} is defending!"))
     }
 }
