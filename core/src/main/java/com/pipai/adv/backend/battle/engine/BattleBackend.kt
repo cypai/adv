@@ -134,6 +134,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun getNpcAilment(npcId: Int) = state.getNpcAilment(npcId)
     fun getNpcStatus(npcId: Int) = state.getNpcStatus(npcId)
     fun checkNpcStatus(npcId: Int, status: NpcStatus) = state.checkNpcStatus(npcId, status)
+    fun getCurrentTurn() = state.turn
     fun getBattleState() = state.copy()
 
     fun canBeExecuted(command: BattleCommand): ExecutableStatus {
