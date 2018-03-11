@@ -7,6 +7,7 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.misc.BattleAiSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
@@ -36,6 +37,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mUnitHealthbar: ComponentMapper<UnitHealthbarComponent>
 
     private lateinit var sTags: TagManager
+    private lateinit var sAi: BattleAiSystem
 
     private var playerUnitIndex = 0
 
@@ -74,6 +76,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 handleEnvObj(cBackend.backend, fullEnvObj, x, y)
             }
         }
+        sAi.initializeAi()
     }
 
     private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {
@@ -140,7 +143,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                         mPlayerUnit.create(id).index = playerUnitIndex
                         playerUnitIndex++
                     } else {
-                        val cUnitHealthbar= mUnitHealthbar.create(id)
+                        val cUnitHealthbar = mUnitHealthbar.create(id)
                         cUnitHealthbar.setToNpc(envObj.npcId, backend)
                     }
                 }

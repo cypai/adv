@@ -9,7 +9,7 @@ object ArrayUtils {
         return arr
     }
 
-    fun <T> gdxArrayOf(vararg elements: T): Array<T> {
+    fun <T> libgdxArrayOf(vararg elements: T): Array<T> {
         val arr = Array<T>()
         elements.forEach { arr.add(it) }
         return arr

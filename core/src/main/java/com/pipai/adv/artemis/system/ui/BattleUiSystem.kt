@@ -243,14 +243,19 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     @Subscribe
     fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: CommandAnimationEndEvent) {
-        val backend = getBackend()
-        if (backend.getNpcAp(selectedNpcId!!) <= 0) {
-            selectNextPlayer()
-        }
-        if (selectedNpcId == null) {
-            // End turn
-        } else {
-            stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+        if (stateMachine.currentState != BattleUiState.DISABLED) {
+            if (selectedNpcId != null) {
+                val backend = getBackend()
+                if (backend.getNpcAp(selectedNpcId!!) <= 0) {
+                    selectNextPlayer()
+                }
+                if (selectedNpcId == null) {
+                    backend.endTurn()
+                    sEvent.dispatch(EndTurnEvent(Team.PLAYER))
+                } else {
+                    stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+                }
+            }
         }
     }
 
@@ -260,6 +265,16 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             descriptionText.add(event.text)
             if (descriptionText.size > descriptionTextLimit) {
                 descriptionText.removeAt(0)
+            }
+        }
+    }
+
+    @Subscribe
+    fun endTurnListener(event: EndTurnEvent) {
+        when (event.team) {
+            Team.PLAYER -> stateMachine.changeState(BattleUiState.DISABLED)
+            Team.AI -> {
+                stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
             }
         }
     }
@@ -529,10 +544,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             } else {
                 select(playerUnits.firstOrNull()?.second)
             }
-        }
-        // If we were unable to find an available player to select, end turn
-        if (selectedNpcId == null) {
-            backend.endTurn()
         }
     }
 
@@ -1020,7 +1031,11 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.stage.clear()
             }
-        };
+        },
+        DISABLED();
+
+        override fun enter(uiSystem: BattleUiSystem) {
+        }
 
         override fun exit(uiSystem: BattleUiSystem) {
         }
