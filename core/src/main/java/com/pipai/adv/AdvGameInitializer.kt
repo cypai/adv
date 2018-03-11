@@ -1,6 +1,7 @@
 package com.pipai.adv
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitSchema
@@ -18,6 +19,17 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val textureManager: TextureManager,
                           val pccManager: PccManager,
                           val animatedTilesetManager: AnimatedTilesetManager) {
+
+    val shaderProgram: ShaderProgram
+
+    init {
+        val vertexShader = Gdx.files.local("assets/shaders/vertex.glsl").readString()
+        val fragmentShader = Gdx.files.local("assets/shaders/fragment.glsl").readString()
+        shaderProgram = ShaderProgram(vertexShader, fragmentShader)
+        if (!shaderProgram.isCompiled) {
+            throw RuntimeException("Could not compile shader: ${shaderProgram.log}")
+        }
+    }
 
     fun writeSave(slot: Int) {
         saveManager.save(slot, save!!)

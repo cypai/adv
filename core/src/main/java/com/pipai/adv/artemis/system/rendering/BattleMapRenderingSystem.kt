@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.pipai.adv.AdvConfig
+import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
@@ -23,6 +24,7 @@ import net.mostlyoriginal.api.event.common.Subscribe
 
 class BattleMapRenderingSystem(private val skin: Skin,
                                private val batch: BatchHelper,
+                               private val globals: AdvGameGlobals,
                                private val mapTileset: MapTileset,
                                private val advConfig: AdvConfig,
                                private val pccManager: PccManager,
@@ -69,7 +71,9 @@ class BattleMapRenderingSystem(private val skin: Skin,
         renderHealthbars()
         batch.shape.end()
         batch.spr.begin()
+        batch.spr.shader = globals.shaderProgram
         renderMapObjects()
+        batch.spr.shader = null
         renderText()
         batch.spr.end()
     }
@@ -159,7 +163,18 @@ class BattleMapRenderingSystem(private val skin: Skin,
                 for (pcc in tilesetMetadata.pccMetadata) {
                     val pccTexture = pccManager.getPccFrame(pcc, animationFrame)
                     val scaleFactor = tileSize / pccTexture.regionWidth
+
+                    if (pcc.color1 != null) {
+                        globals.shaderProgram.setAttributef("a_color_inter1", pcc.color1.r, pcc.color1.g, pcc.color1.b, pcc.color1.a)
+                    }
+                    if (pcc.color2 != null) {
+                        globals.shaderProgram.setAttributef("a_color_inter2", pcc.color2.r, pcc.color2.g, pcc.color2.b, pcc.color2.a)
+                    }
+
                     batch.spr.draw(pccTexture, cXy.x, cXy.y, tileSize, pccTexture.regionHeight * scaleFactor)
+                    batch.spr.flush()
+                    globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                    globals.shaderProgram.setAttributef("a_color_inter2", 0f, 0f, 0f, 0f)
                 }
             }
             is MapTilesetMetadata -> {

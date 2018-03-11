@@ -1,6 +1,7 @@
 package com.pipai.adv.tiles
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.getLogger
@@ -20,12 +21,12 @@ class PccManager {
         return Gdx.files.local("assets/binassets/graphics/pccs/$type/").list()
                 .map { it.name() }
                 .sorted()
-                .map { PccMetadata(type, it) }
+                .map { PccMetadata(type, it, null, null) }
     }
 
     fun loadPccTextures(pccMetadataList: List<PccMetadata>) {
         for (metadata in pccMetadataList) {
-            val key = metadata.toString()
+            val key = keyFor(metadata)
             if (!pccTilesets.containsKey(key)) {
                 val file = Gdx.files.local("assets/binassets/graphics/pccs/${metadata.type}/${metadata.filename}")
                 if (file.exists()) {
@@ -39,9 +40,9 @@ class PccManager {
 
     fun unloadPccTextures(pccMetadataList: List<PccMetadata>) {
         for (metadata in pccMetadataList) {
-            val key = metadata.toString()
+            val key = keyFor(metadata)
             if (pccTilesets.containsKey(key)) {
-                pccTilesets.get(key)!!.dispose()
+                pccTilesets[key]!!.dispose()
                 pccTilesets.remove(key)
             }
         }
@@ -50,7 +51,7 @@ class PccManager {
     fun pccIsLoaded(metadata: PccMetadata): Boolean = pccTilesets.contains(metadata.toString())
 
     fun getPccFrame(metadata: PccMetadata, frame: UnitAnimationFrame): TextureRegion {
-        val key = metadata.toString()
+        val key = keyFor(metadata)
         if (pccTilesets.containsKey(key)) {
             val tileset = pccTilesets.get(key)!!
             return tileset.tile(TilePosition(frame.index, directionToRow(frame.direction)))
@@ -78,8 +79,10 @@ class PccManager {
         }
     }
 
+    private fun keyFor(metadata: PccMetadata): String = "${metadata.type} ${metadata.filename}"
+
 }
 
-data class PccMetadata(val type: String, val filename: String)
+data class PccMetadata(val type: String, val filename: String, val color1: Color?, val color2: Color?)
 
 data class UnitAnimationFrame(val direction: Direction, val index: Int)

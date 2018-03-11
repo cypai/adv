@@ -27,7 +27,7 @@ class AdvSaveManagerTest : GdxMockedTest() {
         save.changePlayerGuildName("Test Guild")
 
         val playerPcc = ArrayList<PccMetadata>()
-        playerPcc.add(PccMetadata("body", "body_2.png"))
+        playerPcc.add(PccMetadata("body", "body_2.png", null, null))
         val playerNpc = Npc(
                 UnitInstance(getSchemaList().getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(playerPcc))

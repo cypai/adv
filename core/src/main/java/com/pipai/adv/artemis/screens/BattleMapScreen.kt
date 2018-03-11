@@ -63,7 +63,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         BattleAnimationSystem(game),
                         BattleAiSystem())
                 .withPassive(-2,
-                        BattleMapRenderingSystem(game.skin, game.batchHelper, mapTileset,
+                        BattleMapRenderingSystem(game.skin, game.batchHelper, game.globals, mapTileset,
                                 game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-5,
                         BattleUiSystem(game))

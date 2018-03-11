@@ -1,5 +1,7 @@
 package com.pipai.adv.gui
 
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -9,10 +11,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.widget.color.ColorPicker
+import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.PccComparator
 
 class PccCustomizer(pcc: List<PccMetadata>,
@@ -27,6 +31,21 @@ class PccCustomizer(pcc: List<PccMetadata>,
     private val table = Table()
     private val verticalGroup = VerticalGroup()
     private val changeListeners: MutableList<(List<PccMetadata>) -> Unit> = mutableListOf()
+    private var colorPickerTarget: Image? = null
+    private var colorPickerPccIndex: Int = 0
+    private var colorPickerColorIndex: Int = 0
+    private val colorPicker = ColorPicker(object : ColorPickerAdapter() {
+        override fun changed(newColor: Color) {
+            colorPickerTarget?.let {
+                it.drawable = skin.newDrawable("white", newColor)
+                val oldPcc = pccParts[colorPickerPccIndex]
+                pccParts[colorPickerPccIndex] = PccMetadata(oldPcc.type, oldPcc.filename,
+                        if (colorPickerColorIndex == 0) newColor else oldPcc.color1,
+                        if (colorPickerColorIndex == 1) newColor else oldPcc.color2)
+                invokeChange()
+            }
+        }
+    })
 
     init {
         table.x = x
@@ -67,7 +86,7 @@ class PccCustomizer(pcc: List<PccMetadata>,
         addButton.width(20f)
         addButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                addPart(PccMetadata("etc", "etc_0.png"), pccParts.size)
+                addPart(PccMetadata("etc", "etc_0.png", null, null), pccParts.size)
                 invokeChange()
             }
         })
@@ -103,17 +122,6 @@ class PccCustomizer(pcc: List<PccMetadata>,
             }
         })
 
-        val pccFilenameField = TextField(metadata.filename, skin.get("small", TextField.TextFieldStyle::class.java))
-        pccFilenameField.addListener(object : FocusListener() {
-            override fun keyboardFocusChanged(event: FocusEvent?, actor: Actor?, focused: Boolean) {
-                if (!focused) {
-                    val pccPart = pccParts[index]
-                    val pccFilename = pccFilenameField.text
-                    pccParts[index] = PccMetadata(pccPart.type, pccFilename)
-                }
-            }
-        })
-
         listTable.add(deleteButton)
                 .width(20f).minWidth(20f)
         listTable.add(shiftDownButton)
@@ -145,11 +153,60 @@ class PccCustomizer(pcc: List<PccMetadata>,
                 if (actor is ImageSelectBox<*>) {
                     @Suppress("UNCHECKED_CAST")
                     val dropDown = actor as ImageSelectBox<PccMetadata>
-                    pccParts[index] = dropDown.selection.first()
+                    val selection = dropDown.selection.first()
+                    pccParts[index] = PccMetadata(selection.type, selection.filename, pccParts[index].color1, pccParts[index].color2)
                     invokeChange()
                 }
             }
         })
+
+        val colorBox1Drawable = if (metadata.color1 == null) skin.getDrawable("transparencyBg") else skin.newDrawable("white", metadata.color1)
+        val colorBox1 = Image(colorBox1Drawable)
+        colorBox1.addListener(object : ClickListener(Input.Buttons.LEFT) {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                colorPickerTarget = colorBox1
+                colorPickerPccIndex = index
+                colorPickerColorIndex = 0
+                colorPicker.width = width
+                colorPicker.height = 320f
+                colorPicker.color = pccParts[index].color1 ?: Color.WHITE
+                stage.addActor(colorPicker)
+            }
+        })
+        colorBox1.addListener(object : ClickListener(Input.Buttons.RIGHT) {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                colorBox1.drawable = skin.getDrawable("transparencyBg")
+                val oldPcc = pccParts[index]
+                pccParts[index] = PccMetadata(oldPcc.type, oldPcc.filename, null, null)
+                invokeChange()
+            }
+        })
+        listTable.add(colorBox1)
+                .width(20f).minWidth(20f).height(20f).maxHeight(20f).padLeft(4f)
+
+        val colorBox2Drawable = if (metadata.color2 == null) skin.getDrawable("transparencyBg") else skin.newDrawable("white", metadata.color2)
+        val colorBox2 = Image(colorBox2Drawable)
+        colorBox2.addListener(object : ClickListener(Input.Buttons.LEFT) {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                colorPickerTarget = colorBox2
+                colorPickerPccIndex = index
+                colorPickerColorIndex = 1
+                colorPicker.width = width
+                colorPicker.height = 320f
+                colorPicker.color = pccParts[index].color2 ?: Color.WHITE
+                stage.addActor(colorPicker)
+            }
+        })
+        colorBox2.addListener(object : ClickListener(Input.Buttons.RIGHT) {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                colorBox2.drawable = skin.getDrawable("transparencyBg")
+                val oldPcc = pccParts[index]
+                pccParts[index] = PccMetadata(oldPcc.type, oldPcc.filename, null, null)
+                invokeChange()
+            }
+        })
+        listTable.add(colorBox2)
+                .width(20f).minWidth(20f).height(20f).maxHeight(20f).padLeft(4f)
 
         return listTable
     }

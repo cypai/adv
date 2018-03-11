@@ -13,7 +13,6 @@ import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.misc.NewGameUiSystem
 import com.pipai.adv.artemis.system.misc.PccPreviewSystem
 import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
-import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -21,8 +20,6 @@ import net.mostlyoriginal.api.event.common.EventSystem
 class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
 
     private val logger = getLogger()
-
-    private val batch: BatchHelper = game.batchHelper
 
     private val world: World
 
@@ -45,7 +42,7 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
                         PccPreviewSystem(uiSystem.pccCustomizer),
                         AnimationFrameIncrementSystem())
                 .withPassive(-2,
-                        PccRenderingSystem(game.batchHelper, game.advConfig, globals.pccManager))
+                        PccRenderingSystem(game.batchHelper, game.globals, game.advConfig, globals.pccManager))
                 .build()
 
         world = World(config)

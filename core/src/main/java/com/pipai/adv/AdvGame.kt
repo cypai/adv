@@ -109,6 +109,9 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
                 OffsetDrawable(skin.getDrawable("flatFrame"), -1f, -3f, 4f, 4f)))
         skin.add("flatFrameDrawable", flatFrameDrawable, Drawable::class.java)
 
+        val transparencyBgTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/transparencyBg.png"))
+        skin.add("transparencyBg", transparencyBgTexture)
+
         val pixmap = Pixmap(1, 1, Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
         pixmap.fill()

@@ -3,6 +3,7 @@ package com.pipai.adv.artemis.system.misc
 import com.artemis.BaseSystem
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
@@ -39,12 +40,12 @@ class NewGameUiSystem(private val game: AdvGame,
 
     init {
         val defaultPcc: MutableList<PccMetadata> = mutableListOf()
-        defaultPcc.add(PccMetadata("body", "body_1.png"))
-        defaultPcc.add(PccMetadata("eye", "eye_0.png"))
-        defaultPcc.add(PccMetadata("hair", "hair_0.png"))
-        defaultPcc.add(PccMetadata("pants", "pants_13.png"))
-        defaultPcc.add(PccMetadata("cloth", "cloth_63.png"))
-        defaultPcc.add(PccMetadata("etc", "etc_205.png"))
+        defaultPcc.add(PccMetadata("body", "body_1.png", null, null))
+        defaultPcc.add(PccMetadata("eye", "eye_0.png", null, null))
+        defaultPcc.add(PccMetadata("hair", "hair_0.png", Color.YELLOW, null))
+        defaultPcc.add(PccMetadata("pants", "pants_13.png", null, null))
+        defaultPcc.add(PccMetadata("cloth", "cloth_63.png", null, null))
+        defaultPcc.add(PccMetadata("etc", "etc_205.png", null, null))
 
         pccCustomizer = PccCustomizer(defaultPcc, globals.pccManager, game.skin,
                 100f, 100f, config.resolution.width / 3f, config.resolution.height / 3f)
@@ -151,7 +152,7 @@ class NewGameUiSystem(private val game: AdvGame,
         save.addToGuild(guildText.text, playerId)
 
         val friendPcc: MutableList<PccMetadata> = mutableListOf()
-        friendPcc.add(PccMetadata("body", "body_2.png"))
+        friendPcc.add(PccMetadata("body", "body_2.png", null, null))
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(friendPcc))
         friendNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!, 1)
@@ -159,11 +160,11 @@ class NewGameUiSystem(private val game: AdvGame,
         save.addToGuild(guildText.text, friendId)
 
         val rivalPcc: MutableList<PccMetadata> = mutableListOf()
-        rivalPcc.add(PccMetadata("body", "body_1.png"))
-        rivalPcc.add(PccMetadata("eye", "eye_0.png"))
-        rivalPcc.add(PccMetadata("cloth", "cloth_155.png"))
-        rivalPcc.add(PccMetadata("hair", "hair_4.png"))
-        rivalPcc.add(PccMetadata("subhair", "subhair_12.png"))
+        rivalPcc.add(PccMetadata("body", "body_1.png", null, null))
+        rivalPcc.add(PccMetadata("eye", "eye_0.png", null, null))
+        rivalPcc.add(PccMetadata("cloth", "cloth_155.png", null, null))
+        rivalPcc.add(PccMetadata("hair", "hair_4.png", Color.valueOf("BA6BFFFF"), null))
+        rivalPcc.add(PccMetadata("subhair", "subhair_12.png", Color.valueOf("BA6BFFFF"), null))
         val rivalNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Miriam"),
                 PccTilesetMetadata(rivalPcc))
         rivalNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Staff")!!, 1)
@@ -171,12 +172,12 @@ class NewGameUiSystem(private val game: AdvGame,
         save.addToGuild(guildText.text, rivalId)
 
         val knightPcc: MutableList<PccMetadata> = mutableListOf()
-        knightPcc.add(PccMetadata("body", "body_1.png"))
-        knightPcc.add(PccMetadata("eye", "eye_0.png"))
-        knightPcc.add(PccMetadata("cloth", "cloth_183.png"))
-        knightPcc.add(PccMetadata("hair", "hair_4.png"))
-        knightPcc.add(PccMetadata("etc", "etc_13.png"))
-        knightPcc.add(PccMetadata("subhair", "subhair_58.png"))
+        knightPcc.add(PccMetadata("body", "body_1.png", null, null))
+        knightPcc.add(PccMetadata("eye", "eye_0.png", null, null))
+        knightPcc.add(PccMetadata("cloth", "cloth_183.png", null, null))
+        knightPcc.add(PccMetadata("hair", "hair_4.png", Color.valueOf("F58F22FF"), null))
+        knightPcc.add(PccMetadata("etc", "etc_13.png", null, null))
+        knightPcc.add(PccMetadata("subhair", "subhair_58.png", Color.valueOf("F58F22FF"), null))
         val knightNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Ayra"),
                 PccTilesetMetadata(knightPcc))
         knightNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!, 1)
@@ -184,15 +185,15 @@ class NewGameUiSystem(private val game: AdvGame,
         save.addToGuild(guildText.text, knightId)
 
         val medicPcc: MutableList<PccMetadata> = mutableListOf()
-        medicPcc.add(PccMetadata("body", "body_1.png"))
-        medicPcc.add(PccMetadata("eye", "eye_0.png"))
-        medicPcc.add(PccMetadata("pants", "pants_17.png"))
-        medicPcc.add(PccMetadata("etc", "etc_268.png"))
-        medicPcc.add(PccMetadata("hair", "hair_2.png"))
-        medicPcc.add(PccMetadata("subhair", "subhair_12.png"))
-        medicPcc.add(PccMetadata("etc", "etc_12.png"))
-        medicPcc.add(PccMetadata("etc", "etc_11.png"))
-        medicPcc.add(PccMetadata("etc", "etc_81.png"))
+        medicPcc.add(PccMetadata("body", "body_1.png", null, null))
+        medicPcc.add(PccMetadata("eye", "eye_0.png", null, null))
+        medicPcc.add(PccMetadata("pants", "pants_17.png", null, null))
+        medicPcc.add(PccMetadata("etc", "etc_268.png", null, null))
+        medicPcc.add(PccMetadata("hair", "hair_2.png", Color.valueOf("FFA8CCFF"), null))
+        medicPcc.add(PccMetadata("subhair", "subhair_12.png", Color.valueOf("FFA8CCFF"), null))
+        medicPcc.add(PccMetadata("etc", "etc_12.png", null, null))
+        medicPcc.add(PccMetadata("etc", "etc_11.png", null, null))
+        medicPcc.add(PccMetadata("etc", "etc_81.png", null, null))
         val medicNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Nellie"),
                 PccTilesetMetadata(medicPcc))
         medicNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Bow")!!, 1)
