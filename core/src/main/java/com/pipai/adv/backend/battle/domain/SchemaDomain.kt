@@ -104,11 +104,14 @@ data class UnitInstance(
 
     constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, null)
 
+    constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
+            : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1))
+
     override fun deepCopy() = copy(weapon = weapon?.copy())
 }
 
 enum class WeaponType {
-    SWORD, SPEAR, DAGGER, BOW, RIFLE, PISTOL, SHOTGUN, STAFF, SHURIKEN
+    SWORD, SPEAR, DAGGER, BOW, RIFLE, PISTOL, SHOTGUN, STAFF, SHURIKEN, MONSTER
 }
 
 enum class WeaponRange {

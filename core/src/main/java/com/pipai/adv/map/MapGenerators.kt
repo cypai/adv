@@ -3,6 +3,7 @@ package com.pipai.adv.map
 import com.pipai.adv.SchemaList
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.tiles.MapTileType
@@ -10,12 +11,12 @@ import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(schemas: SchemaList, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(schemas: SchemaList, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.Factory.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
@@ -26,19 +27,22 @@ class TestMapGenerator : MapGenerator {
             currentY++
         }
 
+        val defaultMelee = weapons.getWeaponSchema("Monster Melee")!!
+        val defaultRanged = weapons.getWeaponSchema("Monster Ranged")!!
+
         val slimeSchema = schemas.getSchema("Slime")
-        val slimeId = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
+        val slimeId = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime", defaultRanged), slimeSchema.tilesetMetadata))
         map.getCell(3, 3).fullEnvObject = NpcEnvObject(slimeId, Team.AI, slimeSchema.tilesetMetadata)
 
-        val slime2Id = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime"), slimeSchema.tilesetMetadata))
+        val slime2Id = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime", defaultRanged), slimeSchema.tilesetMetadata))
         map.getCell(7, 4).fullEnvObject = NpcEnvObject(slime2Id, Team.AI, slimeSchema.tilesetMetadata)
 
         val killerRabbitSchema = schemas.getSchema("Killer Rabbit")
-        val rabbitId = npcList.addNpc(Npc(UnitInstance(killerRabbitSchema.schema, "Killer Rabbit"), killerRabbitSchema.tilesetMetadata))
+        val rabbitId = npcList.addNpc(Npc(UnitInstance(killerRabbitSchema.schema, "Killer Rabbit", defaultMelee), killerRabbitSchema.tilesetMetadata))
         map.getCell(5, 6).fullEnvObject = NpcEnvObject(rabbitId, Team.AI, killerRabbitSchema.tilesetMetadata)
 
         val ratSchema = schemas.getSchema("Brown Rat")
-        val ratId = npcList.addNpc(Npc(UnitInstance(ratSchema.schema, "Brown Rat"), ratSchema.tilesetMetadata))
+        val ratId = npcList.addNpc(Npc(UnitInstance(ratSchema.schema, "Brown Rat", defaultMelee), ratSchema.tilesetMetadata))
         map.getCell(8, 4).fullEnvObject = NpcEnvObject(ratId, Team.AI, ratSchema.tilesetMetadata)
 
         val blackButterflySchema = schemas.getSchema("Black Butterfly")

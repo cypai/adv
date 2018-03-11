@@ -38,7 +38,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         val partyList = (0 until npcList.size()).toList()
 
         val map = TestMapGenerator()
-                .generate(game.globals.schemaList, npcList, partyList, 30, 20, mapTileset)
+                .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, partyList, 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

@@ -40,7 +40,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = TestMapGenerator()
-                .generate(game.globals.schemaList, npcList, listOf(), 30, 20, mapTileset)
+                .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

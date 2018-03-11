@@ -1,4 +1,6 @@
 name,type,range,patk,matk,attributes,magazineSize,description
+Monster Melee,MONSTER,MELEE,1,1,,1,Default melee weapon wielded by monsters.
+Monster Ranged,MONSTER,RANGED,1,1,,1,Default ranged weapon wielded by monsters.
 Toy Sword,SWORD,MELEE,8,1,,1,Not a real weapon.
 Wooden Sword,SWORD,MELEE,11,1,,1,A weapon for apprentice swordsmen everywhere.
 Toy Bow,BOW,RANGED,7,1,CAN_STEADY,4,Not a real weapon.
