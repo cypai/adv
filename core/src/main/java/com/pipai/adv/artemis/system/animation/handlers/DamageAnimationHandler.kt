@@ -10,6 +10,8 @@ import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
+import com.pipai.adv.utils.allOf
+import com.pipai.adv.utils.fetch
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class DamageAnimationHandler(val config: AdvConfig, private val textFont: BitmapFont, private val world: World) {
@@ -18,6 +20,7 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
     private lateinit var mText: ComponentMapper<TextComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mUnitHealthbar: ComponentMapper<UnitHealthbarComponent>
+    private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
 
     private lateinit var sNpcId: NpcIdSystem
     private lateinit var sEvent: EventSystem
@@ -55,6 +58,14 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
                 cUnitHealthbar.percentage = npcInstance.hp.toFloat() / npcInstance.schema.baseStats.hpMax.toFloat()
             }
         }
+
+        world.fetch(allOf(SideUiBoxComponent::class))
+                .firstOrNull { mSideUiBox.get(it).npcId == damageEvent.npcId }
+                ?.let {
+                    val cSideUiBox = mSideUiBox.get(it)
+                    cSideUiBox.hp = Math.max(0, cSideUiBox.hp - damageEvent.damage)
+                }
+
     }
 
 }
