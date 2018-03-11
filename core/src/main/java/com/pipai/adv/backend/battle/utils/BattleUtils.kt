@@ -1,9 +1,6 @@
 package com.pipai.adv.backend.battle.utils
 
-import com.pipai.adv.backend.battle.domain.InventoryItem
-import com.pipai.adv.backend.battle.domain.Team
-import com.pipai.adv.backend.battle.domain.WeaponAttribute
-import com.pipai.adv.backend.battle.domain.WeaponRange
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.utils.GridUtils
 
@@ -13,27 +10,64 @@ object BattleUtils {
         return npc != null && npc.unitInstance.hp > 0 && backend.getNpcAp(npcId) >= requiredAp
     }
 
-    fun enemiesInRange(npcId: Int, backend: BattleBackend): List<Int> {
+    fun enemiesInWeaponRange(npcId: Int, backend: BattleBackend): List<Int> {
         val attackableEnemies: MutableList<Int> = mutableListOf()
 
         val attacker = backend.getBattleState().npcList.getNpc(npcId)!!
         val weapon = attacker.unitInstance.weapon
 
         if (weapon != null) {
-            val attackerPosition = backend.getNpcPosition(npcId)!!
-            val enemyTeam = Team.opposingTeam(backend.getNpcTeam(npcId)!!)
-            val potentialTargetIds = backend.getTeam(enemyTeam)
-
-            val weaponDistance2 = BattleUtils.weaponRangeDistance2(weapon)
-            potentialTargetIds.forEach {
-                val targetPosition = backend.getNpcPosition(it)!!
-                val distance2 = GridUtils.gridDistance2(attackerPosition, targetPosition)
-                if (distance2 < weaponDistance2) {
-                    attackableEnemies.add(it)
-                }
-            }
+            val range2 = weaponRangeDistance2(weapon)
+            attackableEnemies.addAll(enemiesInRange(npcId, backend, range2))
         }
         return attackableEnemies
+    }
+
+    fun enemiesInWeaponRange(npcId: Int, position: GridPosition, backend: BattleBackend): List<Int> {
+        val attackableEnemies: MutableList<Int> = mutableListOf()
+
+        val attacker = backend.getBattleState().npcList.getNpc(npcId)!!
+        val weapon = attacker.unitInstance.weapon
+
+        if (weapon != null) {
+            val range2 = weaponRangeDistance2(weapon)
+            attackableEnemies.addAll(enemiesInRange(npcId, position, backend, range2))
+        }
+        return attackableEnemies
+    }
+
+    fun enemiesInRange(npcId: Int, backend: BattleBackend, range2: Int): List<Int> {
+        val attackerPosition = backend.getNpcPosition(npcId)!!
+        return enemiesInRange(npcId, attackerPosition, backend, range2)
+    }
+
+    fun enemiesInRange(npcId: Int, position: GridPosition, backend: BattleBackend, range2: Int): List<Int> {
+        val enemiesInRange: MutableList<Int> = mutableListOf()
+        val enemyTeam = Team.opposingTeam(backend.getNpcTeam(npcId)!!)
+        val potentialTargetIds = backend.getTeam(enemyTeam)
+
+        potentialTargetIds.forEach {
+            val targetPosition = backend.getNpcPosition(it)!!
+            val distance2 = GridUtils.gridDistance2(position, targetPosition)
+            if (distance2 < range2) {
+                enemiesInRange.add(it)
+            }
+        }
+        return enemiesInRange
+    }
+
+    fun teammatesInRange(npcId: Int, position: GridPosition, backend: BattleBackend, maxRange2: Int): List<Int> {
+        val teammatesInRange: MutableList<Int> = mutableListOf()
+        val potentialTeammateIds = backend.getTeam(backend.getNpcTeam(npcId)!!)
+
+        potentialTeammateIds.forEach {
+            val teammatePosition = backend.getNpcPosition(it)!!
+            val distance2 = GridUtils.gridDistance2(position, teammatePosition)
+            if (distance2 < maxRange2) {
+                teammatesInRange.add(it)
+            }
+        }
+        return teammatesInRange
     }
 
     fun weaponRangeDistance2(weapon: InventoryItem.WeaponInstance): Int {

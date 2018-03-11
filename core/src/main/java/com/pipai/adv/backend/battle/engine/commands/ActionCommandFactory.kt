@@ -4,7 +4,7 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 
 abstract class ActionCommandFactory<out T : ActionCommand>(protected val backend: BattleBackend) {
     /**
-     * Generate only commands that can be executed. Useful for AI
+     * Generate only commands that can be executed. Useful for Ai
      */
     abstract fun generate(npcId: Int): List<T>
 

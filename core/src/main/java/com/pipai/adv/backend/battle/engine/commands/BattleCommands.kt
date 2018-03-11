@@ -33,3 +33,5 @@ data class NormalAttackCommand(override val unitId: Int,
 }
 
 data class DefendCommand(override val unitId: Int) : ActionCommand
+
+data class WaitCommand(override val unitId: Int) : ActionCommand

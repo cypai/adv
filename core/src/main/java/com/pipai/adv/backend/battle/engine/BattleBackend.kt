@@ -70,6 +70,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             DevHpChangeExecutionRule(),
             MoveExecutionRule(),
             DefendExecutionRule(),
+            WaitExecutionRule(),
             NormalAttackExecutionRule(),
             BaseHitCritExecutionRule(),
             MeleeHitCritExecutionRule(),
@@ -86,6 +87,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         const val MELEE_WEAPON_DISTANCE2 = (MELEE_WEAPON_DISTANCE * MELEE_WEAPON_DISTANCE).toInt()
         const val RANGED_WEAPON_DISTANCE = 10.0
         const val RANGED_WEAPON_DISTANCE2 = (RANGED_WEAPON_DISTANCE * RANGED_WEAPON_DISTANCE).toInt()
+        const val AGGRO_DISTANCE = 10.0
+        const val AGGRO_DISTANCE2 = (AGGRO_DISTANCE * AGGRO_DISTANCE).toInt()
     }
 
     init {
