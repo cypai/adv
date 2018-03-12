@@ -667,6 +667,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
         game.spriteBatch.projectionMatrix = uiCamera.camera.combined
         game.spriteBatch.begin()
+        game.spriteBatch.shader = game.globals.shaderProgram
         game.shapeRenderer.projectionMatrix = uiCamera.camera.combined
         game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         game.smallFont.color = Color.BLACK
@@ -688,6 +689,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             textY += game.smallFont.lineHeight
         }
         game.spriteBatch.end()
+        game.spriteBatch.shader = null
         game.shapeRenderer.end()
 
         stage.act()
@@ -715,9 +717,20 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             is EnvObjTilesetMetadata.PccTilesetMetadata -> {
                 for (pcc in onFieldPortrait.pccMetadata) {
                     val pccTexture = game.globals.pccManager.getPccFrame(pcc, animationFrame)
+
+                    if (pcc.color1 != null) {
+                        game.globals.shaderProgram.setAttributef("a_color_inter1", pcc.color1.r, pcc.color1.g, pcc.color1.b, pcc.color1.a)
+                    }
+                    if (pcc.color2 != null) {
+                        game.globals.shaderProgram.setAttributef("a_color_inter2", pcc.color2.r, pcc.color2.g, pcc.color2.b, pcc.color2.a)
+                    }
+
                     game.spriteBatch.draw(pccTexture,
                             cXy.x + PADDING + PORTRAIT_WIDTH / 2 - pccTexture.regionWidth / 2,
                             cXy.y + PADDING + PORTRAIT_HEIGHT / 2 - pccTexture.regionHeight / 2)
+                    game.spriteBatch.flush()
+                    game.globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                    game.globals.shaderProgram.setAttributef("a_color_inter2", 0f, 0f, 0f, 0f)
                 }
             }
             is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata -> {
@@ -769,9 +782,20 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             is EnvObjTilesetMetadata.PccTilesetMetadata -> {
                 for (pcc in onFieldPortrait.pccMetadata) {
                     val pccTexture = game.globals.pccManager.getPccFrame(pcc, animationFrame)
+
+                    if (pcc.color1 != null) {
+                        game.globals.shaderProgram.setAttributef("a_color_inter1", pcc.color1.r, pcc.color1.g, pcc.color1.b, pcc.color1.a)
+                    }
+                    if (pcc.color2 != null) {
+                        game.globals.shaderProgram.setAttributef("a_color_inter2", pcc.color2.r, pcc.color2.g, pcc.color2.b, pcc.color2.a)
+                    }
+
                     game.spriteBatch.draw(pccTexture,
                             cXy.x + SELECTION_DISTANCE + POST_BAR_PADDING + BAR_WIDTH + PADDING + PORTRAIT_WIDTH / 2 - pccTexture.regionWidth / 2,
                             cXy.y + PADDING + PORTRAIT_HEIGHT / 2 - pccTexture.regionHeight / 2)
+                    game.spriteBatch.flush()
+                    game.globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                    game.globals.shaderProgram.setAttributef("a_color_inter2", 0f, 0f, 0f, 0f)
                 }
             }
             is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata -> {
