@@ -1,4 +1,4 @@
-package com.pipai.adv.artemis.system.misc
+package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
 import com.badlogic.gdx.Input.Keys
