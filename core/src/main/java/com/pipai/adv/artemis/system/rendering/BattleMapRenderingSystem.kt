@@ -71,9 +71,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
         renderHealthbars()
         batch.shape.end()
         batch.spr.begin()
-        batch.spr.shader = globals.shaderProgram
         renderMapObjects()
-        batch.spr.shader = null
         renderText()
         batch.spr.end()
     }

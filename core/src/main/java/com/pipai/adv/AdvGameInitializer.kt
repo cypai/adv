@@ -26,6 +26,8 @@ data class AdvGameGlobals(var save: AdvSave?,
         val vertexShader = Gdx.files.local("assets/shaders/vertex.glsl").readString()
         val fragmentShader = Gdx.files.local("assets/shaders/fragment.glsl").readString()
         shaderProgram = ShaderProgram(vertexShader, fragmentShader)
+        shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+        shaderProgram.setAttributef("a_color_inter2", 0f, 0f, 0f, 0f)
         if (!shaderProgram.isCompiled) {
             throw RuntimeException("Could not compile shader: ${shaderProgram.log}")
         }

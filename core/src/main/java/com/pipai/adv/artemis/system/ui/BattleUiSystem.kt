@@ -667,7 +667,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
         game.spriteBatch.projectionMatrix = uiCamera.camera.combined
         game.spriteBatch.begin()
-        game.spriteBatch.shader = game.globals.shaderProgram
         game.shapeRenderer.projectionMatrix = uiCamera.camera.combined
         game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         game.smallFont.color = Color.BLACK
@@ -689,7 +688,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             textY += game.smallFont.lineHeight
         }
         game.spriteBatch.end()
-        game.spriteBatch.shader = null
         game.shapeRenderer.end()
 
         stage.act()

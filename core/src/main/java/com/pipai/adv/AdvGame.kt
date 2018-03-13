@@ -57,7 +57,10 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         logger.info("Starting AdvGame with the following config settings:")
         logger.info(advConfig.resolution.toDebugString())
 
-        spriteBatch = SpriteBatch()
+        logger.info("Loading schematics...")
+        globals = AdvGameInitializer().initializeGlobals()
+
+        spriteBatch = SpriteBatch(1000, globals.shaderProgram)
         shapeRenderer = ShapeRenderer()
 
         val fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("assets/binassets/graphics/fonts/SourceSansPro-Regular.ttf"))
@@ -74,8 +77,6 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
 
         initSkin()
 
-        logger.info("Loading schematics...")
-        globals = AdvGameInitializer().initializeGlobals()
         setScreen(MainMenuScreen(this))
     }
 

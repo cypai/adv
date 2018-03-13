@@ -40,7 +40,6 @@ class PccRenderingSystem(private val batch: BatchHelper,
 
         batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
-        batch.spr.shader = globals.shaderProgram
         for (entityId in pccEntities) {
             val cXy = mXy.get(entityId)
             val cPcc = mPcc.get(entityId)
@@ -65,7 +64,6 @@ class PccRenderingSystem(private val batch: BatchHelper,
                 batch.spr.flush()
             }
         }
-        batch.spr.shader = null
         batch.spr.end()
     }
 }
