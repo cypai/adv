@@ -96,8 +96,8 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("frameTexture", frameTexture)
         skin.add("frame", framePatch)
         val frameDrawable = MultiDrawable(arrayOf(
-                skin.getDrawable("bg"),
-                OffsetDrawable(skin.getDrawable("frame"), -1f, -3f, 4f, 4f)))
+                OffsetDrawable(skin.getTiledDrawable("bg"), 1f, 3f, -4f, -4f),
+                skin.getDrawable("frame")))
         skin.add("frameDrawable", frameDrawable, Drawable::class.java)
 
         val flatFrameTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/flatframe.png"))
@@ -105,8 +105,8 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         skin.add("flatFrameTexture", flatFrameTexture)
         skin.add("flatFrame", flatFramePatch)
         val flatFrameDrawable = MultiDrawable(arrayOf(
-                skin.getDrawable("bg"),
-                OffsetDrawable(skin.getDrawable("flatFrame"), -1f, -3f, 4f, 4f)))
+                OffsetDrawable(skin.getTiledDrawable("bg"), 1f, 3f, -4f, -4f),
+                skin.getDrawable("flatFrame")))
         skin.add("flatFrameDrawable", flatFrameDrawable, Drawable::class.java)
 
         val transparencyBgTexture = Texture(Gdx.files.local("assets/binassets/graphics/textures/transparencyBg.png"))

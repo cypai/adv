@@ -10,9 +10,9 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.ui.NewGameUiSystem
 import com.pipai.adv.artemis.system.misc.PccPreviewSystem
 import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
+import com.pipai.adv.artemis.system.ui.NewGameUiSystem
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -26,9 +26,7 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
     init {
         logger.debug("Starting NewGameScreen")
 
-        val globals = game.globals
-
-        val uiSystem = NewGameUiSystem(game, game.advConfig, globals)
+        val uiSystem = NewGameUiSystem(game)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -42,7 +40,7 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
                         PccPreviewSystem(uiSystem.pccCustomizer),
                         AnimationFrameIncrementSystem())
                 .withPassive(-2,
-                        PccRenderingSystem(game.batchHelper, game.globals, game.advConfig, globals.pccManager))
+                        PccRenderingSystem(game.batchHelper, game.globals, game.advConfig, game.globals.pccManager))
                 .build()
 
         world = World(config)
@@ -51,7 +49,6 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(uiSystem)
         inputProcessor.addAlwaysOnProcessor(uiSystem.stage)
-        inputProcessor.addAlwaysOnProcessor(uiSystem.pccCustomizer.stage)
         inputProcessor.activateInput()
 
         NewGameScreenInit(world, game, game.advConfig, uiSystem.pccCustomizer).initialize()
