@@ -121,6 +121,21 @@ class CharacterCustomizationUiSystem(private val game: AdvGame, private val stag
                     disable()
                     return true
                 }
+                Keys.NUM_0 -> {
+                    activate(0)
+                }
+                Keys.NUM_1 -> {
+                    activate(1)
+                }
+                Keys.NUM_2 -> {
+                    activate(2)
+                }
+                Keys.NUM_3 -> {
+                    activate(3)
+                }
+                Keys.NUM_4 -> {
+                    activate(4)
+                }
                 else -> stage.keyDown(keycode)
             }
         }
