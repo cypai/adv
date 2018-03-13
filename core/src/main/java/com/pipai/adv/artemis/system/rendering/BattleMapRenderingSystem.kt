@@ -63,6 +63,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
 
         batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
+        batch.spr.color = Color.WHITE
         renderBackgroundTiles(camera, mapState)
         renderTileHighlights()
         batch.spr.end()
