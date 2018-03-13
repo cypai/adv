@@ -10,7 +10,6 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.misc.PccPreviewSystem
 import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
 import com.pipai.adv.artemis.system.ui.NewGameUiSystem
 import com.pipai.adv.screen.SwitchableScreen
@@ -37,7 +36,6 @@ class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
 
                         uiSystem,
                         InputProcessingSystem(),
-                        PccPreviewSystem(uiSystem.pccCustomizer),
                         AnimationFrameIncrementSystem())
                 .withPassive(-2,
                         PccRenderingSystem(game.batchHelper, game.globals, game.advConfig, game.globals.pccManager))

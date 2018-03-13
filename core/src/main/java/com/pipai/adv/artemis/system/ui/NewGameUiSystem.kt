@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -14,31 +13,28 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.SchemaList
-import com.pipai.adv.artemis.components.AnimationFramesComponent
-import com.pipai.adv.artemis.components.PccComponent
-import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.gui.PccCustomizer
+import com.pipai.adv.gui.PccPreview
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
-import com.pipai.adv.utils.mapper
 
 class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
-    val stage = Stage(ScreenViewport())
+    val stage = Stage(ScreenViewport(), game.spriteBatch)
     private lateinit var nameText: TextField
     private lateinit var guildText: TextField
 
-    private val mXy by mapper<XYComponent>()
-    private val mAnimationFrames by mapper<AnimationFramesComponent>()
-    private val mPcc by mapper<PccComponent>()
+    private val pccPreviews: MutableList<PccPreview> = mutableListOf()
+    private var pccPreviewFrameTimer = 0
+    private val pccPreviewFrameTimerMax = 30
 
     val pccCustomizer: PccCustomizer
 
@@ -52,9 +48,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         defaultPcc.add(PccMetadata("etc", "etc_205.png", null, null))
 
         pccCustomizer = PccCustomizer(defaultPcc, game.globals.pccManager, game.skin)
-    }
-
-    override fun initialize() {
+        pccCustomizer.addChangeListener { pccPreviews.forEach { it.setPcc(pccCustomizer.getPcc()) } }
         createMainForm()
     }
 
@@ -99,59 +93,32 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         table.row()
 
         val imageTable = Table()
-        val previewBgDrawable =skin.newDrawable("white", Color.DARK_GRAY)
-        val previewBg = Image(previewBgDrawable)
-        imageTable.add(previewBg)
-                .width(PccManager.PCC_WIDTH.toFloat() + 2f)
-                .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
-                .pad(8f)
-        imageTable.add(Image(previewBgDrawable))
-                .width(PccManager.PCC_WIDTH.toFloat() + 2f)
-                .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
-                .pad(8f)
-        imageTable.add(Image(previewBgDrawable))
-                .width(PccManager.PCC_WIDTH.toFloat() + 2f)
-                .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
-                .pad(8f)
-        imageTable.add(Image(previewBgDrawable))
-                .width(PccManager.PCC_WIDTH.toFloat() + 2f)
-                .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
-                .pad(8f)
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.S, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.E, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.W, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.N, game.globals.pccManager, skin))
+        pccPreviews.forEach {
+            imageTable.add(it)
+                    .width(PccManager.PCC_WIDTH.toFloat() + 2f)
+                    .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
+                    .pad(8f)
+        }
         table.add(imageTable).left()
         table.row()
         table.add(pccCustomizer).pad(10f)
         table.validate()
 
         stage.addActor(table)
-        val previewPosition = stage.stageToScreenCoordinates(previewBg.localToStageCoordinates(Vector2.Zero))
-        generatePreview(previewPosition.x + 1f, game.advConfig.resolution.height - previewPosition.y + 1f, 9f)
-    }
-
-    private fun generatePreview(x: Float, y: Float, padding: Float) {
-        val horizontalSpace = PccManager.PCC_WIDTH + 2 * padding
-        val previewS = world.create()
-        createPreviewEntity(previewS, x, y, Direction.S)
-        val previewE = world.create()
-        createPreviewEntity(previewE, x + horizontalSpace, y, Direction.E)
-        val previewW = world.create()
-        createPreviewEntity(previewW, x + 2 * horizontalSpace, y, Direction.W)
-        val previewN = world.create()
-        createPreviewEntity(previewN, x + 3 * horizontalSpace, y, Direction.N)
-    }
-
-    private fun createPreviewEntity(id: Int, previewX: Float, previewY: Float, direction: Direction) {
-        val xy = mXy.create(id)
-        xy.x = previewX
-        xy.y = previewY
-        val animationFrames = mAnimationFrames.create(id)
-        animationFrames.frameMax = 3
-        animationFrames.tMax = 30
-        val pcc = mPcc.create(id)
-        pcc.pcc = pccCustomizer.getPcc()
-        pcc.direction = direction
     }
 
     override fun processSystem() {
+        pccPreviewFrameTimer++
+        if (pccPreviewFrameTimer >= pccPreviewFrameTimerMax) {
+            pccPreviewFrameTimer = 0
+            pccPreviews.forEach {
+                it.incrementFrame()
+            }
+        }
         stage.act()
         stage.draw()
     }
