@@ -8,8 +8,7 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.Interaction
-import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
-import com.pipai.adv.artemis.components.Interaction.TextInteraction
+import com.pipai.adv.artemis.components.Interaction.*
 import com.pipai.adv.artemis.components.InteractionComponent
 import com.pipai.adv.artemis.components.MultipleTextComponent
 import com.pipai.adv.artemis.components.PartialTextComponent
@@ -109,6 +108,9 @@ class InteractionInputSystem(private val game: AdvGame,
             is ScreenChangeInteraction -> {
                 game.screen = interaction.screenGenerator()
                 currentScreen.dispose()
+            }
+            is CallbackInteraction -> {
+               interaction.callback.invoke()
             }
         }
     }

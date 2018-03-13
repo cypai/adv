@@ -13,6 +13,7 @@ import com.pipai.adv.artemis.components.Interaction.TextInteraction
 import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
@@ -36,9 +37,12 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
     private lateinit var mCollision: ComponentMapper<CollisionComponent>
     private lateinit var mWallCollisionFlag: ComponentMapper<WallCollisionFlagComponent>
     private lateinit var mNpc: ComponentMapper<NpcComponent>
+    private lateinit var mNpcId: ComponentMapper<NpcIdComponent>
     private lateinit var mWall: ComponentMapper<WallComponent>
     private lateinit var mInteraction: ComponentMapper<InteractionComponent>
     private lateinit var mTileDescriptor: ComponentMapper<TileDescriptorComponent>
+
+    private lateinit var sCharacterCustomization: CharacterCustomizationUiSystem
 
     private lateinit var sTags: TagManager
 
@@ -79,9 +83,15 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         }
 
         addInteractionObjects()
+        sCharacterCustomization.isEnabled = false
     }
 
     private fun addInteractionObjects() {
+        addTestMapSign()
+        addCharacterCustomizationSign()
+    }
+
+    private fun addTestMapSign() {
         val signId = world.create()
         val cTileDescriptor = mTileDescriptor.create(signId)
         cTileDescriptor.descriptor = TileDescriptor("signs", TilePosition(1, 0))
@@ -97,10 +107,27 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game) }))
     }
 
+    private fun addCharacterCustomizationSign() {
+        val entityId = world.create()
+        val cTileDescriptor = mTileDescriptor.create(entityId)
+        cTileDescriptor.descriptor = TileDescriptor("signs", TilePosition(1, 0))
+        val cSignXy = mXy.create(entityId)
+        cSignXy.x = 32f
+        cSignXy.y = 32f * 6
+        mWall.create(entityId)
+        val tileSize = config.resolution.tileSize.toFloat()
+        val cCollision = mCollision.create(entityId)
+        cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
+        val cInteraction = mInteraction.create(entityId)
+        cInteraction.interactionList.add(Interaction.CallbackInteraction({ sCharacterCustomization.activate(0) }))
+    }
+
     private fun addNpcTile(npcId: Int, x: Int, y: Int) {
         val tileSize = config.resolution.tileSize.toFloat()
 
         val entityId = world.create()
+        val cNpcId = mNpcId.create(entityId)
+        cNpcId.npcId = npcId
 
         val npc = npcList.getNpc(npcId)!!
 

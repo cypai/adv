@@ -9,5 +9,6 @@ class InteractionComponent : Component() {
 
 sealed class Interaction {
     data class TextInteraction(val text: String): Interaction()
+    data class CallbackInteraction(val callback: () -> Unit): Interaction()
     data class ScreenChangeInteraction(val screenGenerator: () -> Screen): Interaction()
 }

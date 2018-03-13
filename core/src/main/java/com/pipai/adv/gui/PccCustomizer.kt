@@ -2,7 +2,6 @@ package com.pipai.adv.gui
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -242,6 +241,12 @@ class PccCustomizer(pcc: List<PccMetadata>,
 
         pccManager.loadPccTextures(arr.toList())
         dropDownList.setItems(arr)
+    }
+
+    fun setPcc(pcc: List<PccMetadata>) {
+        pccParts.clear()
+        pccParts.addAll(pcc)
+        rebuildList()
     }
 
     fun addPart(metadata: PccMetadata, index: Int) {

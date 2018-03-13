@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
+import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
@@ -64,6 +65,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         BattleMapRenderingSystem(game.skin, game.batchHelper, game.globals, mapTileset,
                                 game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-3,
+                        CharacterCustomizationUiSystem(game),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game))
                 .build()
@@ -71,6 +73,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java).stage)
         inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
