@@ -46,6 +46,7 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
         this.npcId = npcId
         isEnabled = true
         val pcc = (getNpc().tilesetMetadata as PccTilesetMetadata).pccMetadata
+        nameText.text = getNpc().unitInstance.nickname
         pccCustomizer.setPcc(pcc)
         pccPreviews.forEach { it.setPcc(pcc) }
     }
