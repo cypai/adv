@@ -7,21 +7,20 @@ import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
-import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.misc.PausableSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 
-class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem(), InputProcessor {
+class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val speed = 3
 
     private val mXy by mapper<XYComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
-    private val mCamera by mapper<OrthographicCameraComponent>()
 
     private val sTags by system<TagManager>()
 
@@ -46,7 +45,7 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
         cAnimationFrames.freeze = true
     }
 
-    override protected fun processSystem() {
+    override fun processSystem() {
         val charId = sTags.getEntityId(Tags.CONTROLLABLE_CHARACTER.toString())
         translateCharacter(charId)
     }

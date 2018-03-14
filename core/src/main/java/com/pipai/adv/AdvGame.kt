@@ -158,6 +158,9 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         val smallMenuListStyle = List.ListStyle(smallFont, Color.BLACK, Color.BLACK,
                 OffsetDrawable(skin.newDrawable("white", Color(0.5f, 0.5f, 0.5f, 0.5f)), 4f, 1f, -16f, -2f))
         skin.add("smallMenuList", smallMenuListStyle)
+
+        val windowStyle = Window.WindowStyle(smallFont, Color.BLACK, frameDrawable)
+        skin.add("default", windowStyle)
     }
 
     override fun render() {

@@ -10,13 +10,17 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
 import com.pipai.adv.artemis.system.init.GuildScreenInit
-import com.pipai.adv.artemis.system.input.*
+import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
+import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.input.InteractionInputSystem
+import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
+import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
@@ -67,7 +71,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-3,
                         CharacterCustomizationUiSystem(game),
                         FpsRenderingSystem(game.batchHelper),
-                        MainTextboxUiSystem(game))
+                        MainTextboxUiSystem(game),
+                        PauseUiSystem(game))
                 .build()
 
         world = World(config)
@@ -75,10 +80,11 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java).stage)
-        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java).stage)
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game, game.advConfig, npcList, map)
