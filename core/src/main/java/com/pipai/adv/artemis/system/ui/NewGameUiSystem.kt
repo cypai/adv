@@ -131,7 +131,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         if (keycode == Keys.ENTER) {
             val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex)
             game.globals.loadSave(save)
-            game.globals.writeSave(0)
+            game.globals.autoSave()
             game.screen = GuildScreen(game)
             dispose()
         } else {

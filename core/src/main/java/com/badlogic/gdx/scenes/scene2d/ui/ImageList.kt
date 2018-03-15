@@ -27,6 +27,8 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     var lockSelection = false
     var disabledFontColor = style.fontColorSelected
 
+    private var confirmCallbacks: MutableList<(T) -> Unit> = mutableListOf()
+
     internal val items = com.badlogic.gdx.utils.Array<T>()
     internal var itemHeight: Float = 0f
     internal var textOffsetX: Float = 0f
@@ -72,20 +74,28 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 if (pointer == 0 && button != 0) return false
                 if (selection.isDisabled) return false
                 if (selection.multiple) stage.keyboardFocus = this@ImageList
-                this@ImageList.touchDown(y)
+                this@ImageList.touchDown(y, true)
                 return true
             }
 
             override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
                 if (hoverSelect) {
-                    this@ImageList.touchDown(y)
+                    this@ImageList.touchDown(y, false)
                 }
                 return false
             }
         })
     }
 
-    private fun touchDown(touchY: Float) {
+    fun addConfirmCallback(callback: (T) -> Unit) {
+        confirmCallbacks.add(callback)
+    }
+
+    fun clearConfirmCallbacks() {
+        confirmCallbacks.clear()
+    }
+
+    private fun touchDown(touchY: Float, isConfirm: Boolean) {
         if (lockSelection) return
         var selectY = touchY
         if (items.size == 0) return
@@ -94,12 +104,14 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             height -= style.background.topHeight + style.background.bottomHeight
             selectY -= style.background.bottomHeight
         }
-        var index = ((height - selectY) / itemHeight).toInt()
-        index = Math.max(0, index)
-        index = Math.min(items.size - 1, index)
+        val index = ((height - selectY) / itemHeight).toInt()
+        if (index < 0 || index >= items.size) return
         val item = items[index]
         if (!disabledItems.contains(item)) {
             selection.choose(item)
+            if (isConfirm) {
+                confirmCallbacks.forEach { it.invoke(getSelected()) }
+            }
         }
     }
 
@@ -123,8 +135,8 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 val scale = font.lineHeight / image.regionHeight
                 imageWidth = image.regionWidth * scale
             }
-            layout.setText(font, itemView.getItemText(item))
-            val itemWidth = imageWidth + itemView.getSpacing() + layout.width + itemView.getSpacing()
+            layout.setText(font, itemView.getItemText(item) + itemView.getItemRightText(item))
+            val itemWidth = imageWidth + itemView.getSpacing() + layout.width + itemView.getMinCenterSpacing()
             prefWidth = Math.max(itemWidth, prefWidth)
         }
         layoutPool.free(layout)
@@ -278,6 +290,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         fun getItemText(item: T): String
         fun getItemRightText(item: T): String = ""
         fun getSpacing(): Float = 0f
+        fun getMinCenterSpacing(): Float = 0f
         fun getRightSpacing(): Float = 0f
     }
 }

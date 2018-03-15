@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.gui.SaveGameDisplay
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -24,6 +25,7 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private val sEvent by system<EventSystem>()
 
     val stage = Stage(ScreenViewport(), game.spriteBatch)
+    private val saveGameDisplay = SaveGameDisplay(game)
 
     init {
         createMainForm()
@@ -66,6 +68,7 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 handleMainMenuConfirm(mainMenuList.getSelected())
             }
         })
+        mainMenuList.hoverSelect = true
         table.add(mainMenuList)
                 .width(mainMenuWidth - 20f)
                 .left()
@@ -76,6 +79,9 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
+            "Save Game" -> {
+                saveGameDisplay.show(stage)
+            }
             "Quit Game" -> {
                 showDialog("Are you sure you want to quit?", { Gdx.app.exit() }, {})
             }
@@ -118,8 +124,12 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
-                isEnabled = !isEnabled
-                sEvent.dispatch(PauseEvent(isEnabled))
+                if (saveGameDisplay.stage == null) {
+                    isEnabled = !isEnabled
+                    sEvent.dispatch(PauseEvent(isEnabled))
+                } else {
+                    saveGameDisplay.remove()
+                }
                 return true
             }
             else -> stage.keyDown(keycode)

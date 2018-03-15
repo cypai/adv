@@ -37,7 +37,11 @@ data class AdvGameGlobals(var save: AdvSave?,
         saveManager.save(slot, save!!)
     }
 
-    fun load(slot: Int) {
+    fun autoSave() {
+        saveManager.save(0, save!!)
+    }
+
+    fun loadSave(slot: Int) {
         val loadedSave = saveManager.load(slot)
         loadSave(loadedSave)
     }

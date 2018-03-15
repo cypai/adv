@@ -147,7 +147,7 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
             val cEnvObjTile = mEnvObjTile.get(it)
             cEnvObjTile.tilesetMetadata = PccTilesetMetadata(pcc)
         }
-        game.globals.saveManager.save(0, game.globals.save!!)
+        game.globals.autoSave()
 
         disable()
     }

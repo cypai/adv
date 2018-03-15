@@ -15,7 +15,7 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.UnitAnimationFrame
-import com.pipai.adv.utils.PccComparator
+import com.pipai.adv.utils.AlphanumComparator
 
 class PccCustomizer(pcc: List<PccMetadata>,
                     private val pccManager: PccManager,
@@ -236,7 +236,7 @@ class PccCustomizer(pcc: List<PccMetadata>,
     private fun setPartsDropDownParts(dropDownList: ImageSelectBox<PccMetadata>, type: String) {
         val arr = Array<PccMetadata>()
         pccManager.listPccs(type)
-                .sortedWith(PccComparator())
+                .sortedWith(AlphanumComparator({ it.filename }))
                 .forEach { arr.add(it) }
 
         pccManager.loadPccTextures(arr.toList())

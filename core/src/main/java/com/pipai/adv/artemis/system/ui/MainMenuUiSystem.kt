@@ -10,16 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.SchemaList
 import com.pipai.adv.ScreenResolution
 import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.screens.NewGameScreen
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
-import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.adv.npc.Npc
-import com.pipai.adv.save.AdvSave
-import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -79,7 +73,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         loadGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                game.globals.load(0)
+                game.globals.loadSave(0)
                 game.screen = GuildScreen(game)
                 dispose()
             }
