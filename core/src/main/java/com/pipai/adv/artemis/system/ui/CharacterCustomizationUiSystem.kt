@@ -113,10 +113,6 @@ class CharacterCustomizationUiSystem(private val game: AdvGame, private val stag
         }
     }
 
-    override fun dispose() {
-        stage.dispose()
-    }
-
     override fun keyDown(keycode: Int): Boolean {
         if (isEnabled) {
             when (keycode) {

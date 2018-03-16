@@ -118,5 +118,6 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
     override fun dispose() {
         world.dispose()
+        stage.dispose()
     }
 }

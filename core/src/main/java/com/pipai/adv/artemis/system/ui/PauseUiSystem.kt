@@ -128,10 +128,6 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
         }
     }
 
-    override fun dispose() {
-        stage.dispose()
-    }
-
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
