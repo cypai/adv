@@ -2,24 +2,28 @@ package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.fsm.StackStateMachine
+import com.badlogic.gdx.ai.fsm.State
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.ScreenResolution
 import com.pipai.adv.artemis.events.ScreenResolutionChangeEvent
-import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.screens.NewGameScreen
+import com.pipai.adv.gui.LoadGameDisplay
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
+class MainMenuUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor {
 
     private val logger = getLogger()
 
@@ -28,11 +32,12 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
     private val batch = game.batchHelper
     private val config = game.advConfig
 
-    val stage = Stage(ScreenViewport())
-
     private val background = game.skin.get("mainMenuBg", Texture::class.java)
 
     private val skin = Skin(Gdx.files.internal("assets/binassets/graphics/skins/neutralizer-ui.json"))
+
+    private val loadGameDisplay = LoadGameDisplay(game)
+    private val stateMachine = StackStateMachine<MainMenuUiSystem, MainMenuUiSystem.MainMenuUiState>(this)
 
     private val BUTTON_WIDTH_RATIO = 0.3f
     private val BUTTON_HEIGHT_RATIO = 0.1f
@@ -40,6 +45,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
     init {
         initUi(game.advConfig.resolution)
+        stateMachine.setInitialState(MainMenuUiState.INITIAL)
     }
 
     @Subscribe
@@ -73,9 +79,7 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
 
         loadGameBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                game.globals.loadSave(0)
-                game.screen = GuildScreen(game)
-                dispose()
+                stateMachine.changeState(MainMenuUiState.SHOWING_LOAD_MENU)
             }
         })
 
@@ -124,13 +128,67 @@ class MainMenuUiSystem(private val game: AdvGame) : BaseSystem() {
         batch.spr.begin()
         batch.spr.draw(background, 0f, 0f, config.resolution.width.toFloat(), config.resolution.height.toFloat())
         batch.spr.end()
-        stage.act()
-        stage.draw()
     }
 
     override fun dispose() {
         skin.dispose()
-        stage.dispose()
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        when (keycode) {
+            Input.Keys.ESCAPE -> {
+                if (stateMachine.isInState(MainMenuUiState.SHOWING_LOAD_MENU)) {
+                    stateMachine.revertToPreviousState()
+                }
+                return true
+            }
+            else -> stage.keyDown(keycode)
+        }
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean = false
+
+    override fun keyTyped(character: Char) = false
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
+
+    override fun mouseMoved(screenX: Int, screenY: Int) = false
+
+    override fun scrolled(amount: Int): Boolean = false
+
+    enum class MainMenuUiState : State<MainMenuUiSystem> {
+        INITIAL() {
+            override fun enter(uiSystem: MainMenuUiSystem) {
+                uiSystem.loadGameDisplay.remove()
+            }
+        },
+        SHOWING_LOAD_MENU() {
+            override fun enter(uiSystem: MainMenuUiSystem) {
+                uiSystem.loadGameDisplay.show(uiSystem.stage)
+            }
+
+            override fun exit(uiSystem: MainMenuUiSystem) {
+                uiSystem.loadGameDisplay.remove()
+            }
+        };
+
+        override fun enter(uiSystem: MainMenuUiSystem) {
+        }
+
+        override fun exit(uiSystem: MainMenuUiSystem) {
+        }
+
+        override fun onMessage(uiSystem: MainMenuUiSystem, telegram: Telegram): Boolean {
+            return false
+        }
+
+        override fun update(uiSystem: MainMenuUiSystem) {
+        }
     }
 
 }

@@ -6,17 +6,17 @@ import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.ui.MainMenuUiSystem
-import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.screen.SwitchableScreen
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class MainMenuScreen(game: AdvGame) : SwitchableScreen(game) {
 
-    private val batch: BatchHelper = game.batchHelper
+    private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
     private val world: World
 
@@ -29,13 +29,14 @@ class MainMenuScreen(game: AdvGame) : SwitchableScreen(game) {
                         EventSystem(),
 
                         InputProcessingSystem(),
-                        MainMenuUiSystem(game))
+                        MainMenuUiSystem(game, stage))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(MainMenuUiSystem::class.java).stage)
+        inputProcessor.addAlwaysOnProcessor(stage)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(MainMenuUiSystem::class.java))
         inputProcessor.activateInput()
     }
 
@@ -45,6 +46,8 @@ class MainMenuScreen(game: AdvGame) : SwitchableScreen(game) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
         world.process()
+        stage.act()
+        stage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -64,5 +67,6 @@ class MainMenuScreen(game: AdvGame) : SwitchableScreen(game) {
 
     override fun dispose() {
         world.dispose()
+        stage.dispose()
     }
 }
