@@ -37,6 +37,17 @@ class PathInterpolationComponent : Component() {
     val endpoints: MutableList<Vector2> = mutableListOf()
     var endpointIndex = 0
 
+    fun clear() {
+        endpoints.clear()
+        endpointIndex = 0
+        speed = 0.0
+        t = 0
+        maxT = 0
+        tIncrement = 1
+        onEndpoint = null
+        onEnd = EndStrategy.REMOVE
+    }
+
     fun getCurrentPos(): Vector2 {
         val a = t.toFloat() / maxT.toFloat()
         val start = endpoints[endpointIndex]

@@ -38,9 +38,12 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
 
         if (targetEntityId == null) {
             updateSideUiHp(damageEvent)
+            sEvent.dispatch(BattleEventAnimationEndEvent(damageEvent))
         } else {
             val targetXy = mXy.get(targetEntityId)
-            sCameraInterpolation.sendCameraToPosition(targetXy.toVector2(), { animateDamage(damageEvent, targetEntityId) })
+            sCameraInterpolation.sendCameraToPosition(targetXy.toVector2(), {
+                animateDamage(damageEvent, targetEntityId)
+            })
         }
     }
 

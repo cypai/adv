@@ -35,11 +35,10 @@ class CameraInterpolationSystem : IteratingSystem(allOf()) {
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val cCamera = mCamera.get(cameraId)
         val cInterpolation = mPath.create(cameraId)
+        cInterpolation.clear()
         cInterpolation.interpolation = Interpolation.sineOut
-        cInterpolation.endpoints.clear()
         cInterpolation.endpoints.add(Vector2(cCamera.camera.position.x, cCamera.camera.position.y))
         cInterpolation.endpoints.add(position)
-        cInterpolation.t = 0
         cInterpolation.maxT = 20
         cInterpolation.onEndpoint = { callback?.invoke() }
     }

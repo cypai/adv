@@ -7,11 +7,9 @@ import com.badlogic.gdx.math.Interpolation
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
-import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.log.MoveEvent
 import com.pipai.adv.utils.DirectionUtils
 import com.pipai.adv.utils.GridUtils
@@ -24,12 +22,10 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
     private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mCameraFollow: ComponentMapper<CameraFollowComponent>
-    private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
 
     private lateinit var sNpcId: NpcIdSystem
     private lateinit var sCameraInterpolation: CameraInterpolationSystem
     private lateinit var sEvent: EventSystem
-    private lateinit var sTags: TagManager
 
     private var movingEntityId: Int? = null
     private lateinit var previousDirection: Direction
@@ -38,28 +34,18 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
         world.inject(this)
     }
 
-    private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
-
     fun animate(moveEvent: MoveEvent) {
         val entityId = sNpcId.getNpcEntityId(moveEvent.npcId)
         movingEntityId = entityId
 
         if (entityId != null) {
-            val backend = getBackend()
-            if (backend.getNpcTeam(moveEvent.npcId) == Team.AI) {
-                val cXy = mXy.get(entityId)
-                sCameraInterpolation.sendCameraToPosition(cXy.toVector2(), { animateMovement(entityId, moveEvent) })
-            } else {
-                animateMovement(entityId, moveEvent)
-            }
+            val cXy = mXy.get(entityId)
+            sCameraInterpolation.sendCameraToPosition(cXy.toVector2(), { animateMovement(entityId, moveEvent) })
         }
     }
 
     private fun animateMovement(entityId: Int, moveEvent: MoveEvent) {
-        val backend = getBackend()
-        if (backend.getNpcTeam(moveEvent.npcId) == Team.AI) {
-            mCameraFollow.create(entityId)
-        }
+        mCameraFollow.create(entityId)
         val cAnimationFrames = mAnimationFrames.get(entityId)
         setMovingAnimation(cAnimationFrames)
         val cPath = mPath.create(entityId)
