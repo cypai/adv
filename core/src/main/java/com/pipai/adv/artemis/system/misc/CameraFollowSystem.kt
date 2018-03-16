@@ -23,10 +23,11 @@ class CameraFollowSystem(private val config: AdvConfig) : IteratingSystem(allOf(
 
     override fun process(entityId: Int) {
         val cXy = mXy.get(entityId)
+        val cCameraFollow = mCameraFollow.get(entityId)
 
         val camera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString())).camera
-        camera.position.x = cXy.x + config.resolution.tileSize / 2
-        camera.position.y = cXy.y + config.resolution.tileSize / 2
+        camera.position.x = cXy.x + cCameraFollow.xOffset
+        camera.position.y = cXy.y + cCameraFollow.yOffset
         camera.update()
     }
 

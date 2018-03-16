@@ -133,7 +133,9 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
 
         if (npcId == 0) {
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
-            mCameraFollow.create(entityId)
+            val cCameraFollow = mCameraFollow.create(entityId)
+            cCameraFollow.xOffset = config.resolution.tileSize / 2f
+            cCameraFollow.yOffset = config.resolution.tileSize / 2f
         } else {
             val cInteraction = mInteraction.create(entityId)
             cInteraction.interactionList.add(TextInteraction("Hi, my name is ${npc.unitInstance.nickname}."))

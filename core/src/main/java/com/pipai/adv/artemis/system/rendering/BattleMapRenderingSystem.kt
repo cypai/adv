@@ -61,6 +61,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
 
+        System.out.println(camera.position)
         batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
         batch.spr.color = Color.WHITE

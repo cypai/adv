@@ -82,4 +82,7 @@ class OrthographicCameraComponent : Component() {
 
 }
 
-class CameraFollowComponent : Component()
+class CameraFollowComponent : Component() {
+    var xOffset = 0f
+    var yOffset = 0f
+}
