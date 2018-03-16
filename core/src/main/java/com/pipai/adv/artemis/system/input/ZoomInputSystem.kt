@@ -3,14 +3,12 @@ package com.pipai.adv.artemis.system.input
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.events.ZoomScrollDisableEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.utils.MathUtils
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
-import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class ZoomInputSystem : NoProcessingSystem(), InputProcessor {

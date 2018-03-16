@@ -5,14 +5,11 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
@@ -20,11 +17,11 @@ import com.pipai.adv.gui.SaveGameDisplay
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
+class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor {
 
     private val sEvent by system<EventSystem>()
 
-    val stage = Stage(ScreenViewport(), game.spriteBatch)
+    private val table = Table()
     private val saveGameDisplay = SaveGameDisplay(game)
 
     init {
@@ -41,7 +38,6 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         val mainMenuWidth = game.advConfig.resolution.width / 3f
         val mainMenuHeight = game.advConfig.resolution.height / 2f
 
-        val table = Table()
         table.x = (game.advConfig.resolution.width - mainMenuWidth) / 2
         table.y = (game.advConfig.resolution.height - mainMenuHeight) / 2
         table.width = mainMenuWidth
@@ -63,18 +59,12 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 StringMenuItem("Load Game", null, ""),
                 StringMenuItem("Options", null, ""),
                 StringMenuItem("Quit Game", null, "")))
-        mainMenuList.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                handleMainMenuConfirm(mainMenuList.getSelected())
-            }
-        })
+        mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
         mainMenuList.hoverSelect = true
         table.add(mainMenuList)
                 .width(mainMenuWidth - 20f)
                 .left()
         table.validate()
-
-        stage.addActor(table)
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
@@ -127,6 +117,11 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 if (saveGameDisplay.stage == null) {
                     isEnabled = !isEnabled
                     sEvent.dispatch(PauseEvent(isEnabled))
+                    if (isEnabled) {
+                        stage.addActor(table)
+                    } else {
+                        table.remove()
+                    }
                 } else {
                     saveGameDisplay.remove()
                 }
@@ -141,11 +136,7 @@ class PauseUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     override fun keyTyped(character: Char) = false
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        stage.keyboardFocus = null
-        stage.touchDown(screenX, screenY, pointer, button)
-        return false
-    }
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 

@@ -6,6 +6,8 @@ import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
@@ -21,7 +23,6 @@ import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
-import com.pipai.adv.gui.BatchHelper
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
@@ -31,7 +32,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
     private val logger = getLogger()
 
-    private val batch: BatchHelper = game.batchHelper
+    private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
     private val world: World
 
@@ -69,22 +70,21 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         BattleMapRenderingSystem(game.skin, game.batchHelper, game.globals, mapTileset,
                                 game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-3,
-                        CharacterCustomizationUiSystem(game),
+                        CharacterCustomizationUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game),
-                        PauseUiSystem(game))
+                        PauseUiSystem(game, stage))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java).stage)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java).stage)
+        inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game, game.advConfig, npcList, map)
@@ -97,6 +97,8 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
         world.process()
+        stage.act()
+        stage.draw()
     }
 
     override fun resize(width: Int, height: Int) {

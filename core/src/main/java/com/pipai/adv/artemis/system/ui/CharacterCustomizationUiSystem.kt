@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.NpcIdComponent
@@ -22,12 +21,12 @@ import com.pipai.adv.utils.allOf
 import com.pipai.adv.utils.fetch
 import com.pipai.adv.utils.mapper
 
-class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
+class CharacterCustomizationUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor {
 
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mNpcId by mapper<NpcIdComponent>()
 
-    val stage = Stage(ScreenViewport(), game.spriteBatch)
+    private lateinit var table: Table
     private lateinit var nameText: TextField
 
     private var npcId = 0
@@ -49,11 +48,11 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
         nameText.text = getNpc().unitInstance.nickname
         pccCustomizer.setPcc(pcc)
         pccPreviews.forEach { it.setPcc(pcc) }
+        stage.addActor(table)
     }
 
     fun disable() {
-        stage.keyboardFocus = null
-        pccCustomizer.stage.keyboardFocus = null
+        table.remove()
         isEnabled = false
     }
 
@@ -63,7 +62,7 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
         val formWidth = game.advConfig.resolution.width.toFloat()
         val formHeight = game.advConfig.resolution.height.toFloat()
 
-        val table = Table()
+        table = Table()
         val tablePadding = formHeight / 12
 
         table.x = tablePadding
@@ -98,8 +97,6 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
         table.row()
         table.add(pccCustomizer).pad(10f)
         table.validate()
-
-        stage.addActor(table)
     }
 
     override fun processSystem() {
@@ -158,11 +155,7 @@ class CharacterCustomizationUiSystem(private val game: AdvGame) : BaseSystem(), 
 
     override fun keyTyped(character: Char) = false
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        stage.keyboardFocus = null
-        pccCustomizer.stage.keyboardFocus = null
-        return false
-    }
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
