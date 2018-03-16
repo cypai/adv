@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.PauseEvent
+import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.LoadGameDisplay
 import com.pipai.adv.gui.SaveGameDisplay
@@ -60,6 +61,7 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
                 StringMenuItem("Save Game", null, ""),
                 StringMenuItem("Load Game", null, ""),
                 StringMenuItem("Options", null, ""),
+                StringMenuItem("Quit to Main Menu", null, ""),
                 StringMenuItem("Quit Game", null, "")))
         mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
         mainMenuList.hoverSelect = true
@@ -76,6 +78,15 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
             }
             "Load Game" -> {
                 loadGameDisplay.show(stage)
+            }
+            "Quit to Main Menu" -> {
+                showDialog("Are you sure you want to quit?",
+                        {
+                            val currentScreen = game.screen
+                            game.screen = MainMenuScreen(game)
+                            currentScreen.dispose()
+                        },
+                        {})
             }
             "Quit Game" -> {
                 showDialog("Are you sure you want to quit?", { Gdx.app.exit() }, {})
