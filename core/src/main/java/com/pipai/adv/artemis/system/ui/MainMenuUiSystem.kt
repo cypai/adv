@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.fsm.StackStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -125,6 +126,7 @@ class MainMenuUiSystem(private val game: AdvGame, private val stage: Stage) : Ba
     }
 
     override fun processSystem() {
+        batch.spr.color = Color.WHITE
         batch.spr.begin()
         batch.spr.draw(background, 0f, 0f, config.resolution.width.toFloat(), config.resolution.height.toFloat())
         batch.spr.end()
