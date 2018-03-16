@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.gui.LoadGameDisplay
 import com.pipai.adv.gui.SaveGameDisplay
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -23,6 +24,7 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
 
     private val table = Table()
     private val saveGameDisplay = SaveGameDisplay(game)
+    private val loadGameDisplay = LoadGameDisplay(game)
 
     init {
         createMainForm()
@@ -71,6 +73,9 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
         when (menuItem.text) {
             "Save Game" -> {
                 saveGameDisplay.show(stage)
+            }
+            "Load Game" -> {
+                loadGameDisplay.show(stage)
             }
             "Quit Game" -> {
                 showDialog("Are you sure you want to quit?", { Gdx.app.exit() }, {})
