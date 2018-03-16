@@ -998,6 +998,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     enum class BattleUiState : State<BattleUiSystem> {
         NOTHING_SELECTED() {
             override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.selectedNpcId = null
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.deselectRightUiBoxes()
                 uiSystem.stage.clear()
