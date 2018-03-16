@@ -4,6 +4,9 @@ import com.artemis.BaseSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.fsm.StackStateMachine
+import com.badlogic.gdx.ai.fsm.State
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
@@ -11,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.MainMenuScreen
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.LoadGameDisplay
@@ -23,11 +25,14 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
 
     private val sEvent by system<EventSystem>()
 
+    private val stateMachine = StackStateMachine<PauseUiSystem, PauseUiState>(this)
+
     private val table = Table()
     private val saveGameDisplay = SaveGameDisplay(game)
     private val loadGameDisplay = LoadGameDisplay(game)
 
     init {
+        stateMachine.setInitialState(PauseUiState.DISABLED)
         createMainForm()
     }
 
@@ -74,10 +79,10 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
             "Save Game" -> {
-                saveGameDisplay.show(stage)
+                stateMachine.changeState(PauseUiState.SHOWING_SAVE_MENU)
             }
             "Load Game" -> {
-                loadGameDisplay.show(stage)
+                stateMachine.changeState(PauseUiState.SHOWING_LOAD_MENU)
             }
             "Quit to Main Menu" -> {
                 showDialog("Are you sure you want to quit?",
@@ -130,16 +135,10 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
-                if (saveGameDisplay.stage == null) {
-                    isEnabled = !isEnabled
-                    sEvent.dispatch(PauseEvent(isEnabled))
-                    if (isEnabled) {
-                        stage.addActor(table)
-                    } else {
-                        table.remove()
-                    }
+                if (stateMachine.isInState(PauseUiState.DISABLED)) {
+                    stateMachine.changeState(PauseUiState.SHOWING_MAIN_MENU)
                 } else {
-                    saveGameDisplay.remove()
+                    stateMachine.revertToPreviousState()
                 }
                 return true
             }
@@ -161,5 +160,49 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
     override fun mouseMoved(screenX: Int, screenY: Int) = false
 
     override fun scrolled(amount: Int): Boolean = false
+
+    enum class PauseUiState : State<PauseUiSystem> {
+        DISABLED() {
+            override fun enter(uiSystem: PauseUiSystem) {
+                uiSystem.table.remove()
+            }
+        },
+        SHOWING_MAIN_MENU() {
+            override fun enter(uiSystem: PauseUiSystem) {
+                uiSystem.stage.addActor(uiSystem.table)
+            }
+        },
+        SHOWING_SAVE_MENU() {
+            override fun enter(uiSystem: PauseUiSystem) {
+                uiSystem.saveGameDisplay.show(uiSystem.stage)
+            }
+
+            override fun exit(uiSystem: PauseUiSystem) {
+                uiSystem.saveGameDisplay.remove()
+            }
+        },
+        SHOWING_LOAD_MENU() {
+            override fun enter(uiSystem: PauseUiSystem) {
+                uiSystem.loadGameDisplay.show(uiSystem.stage)
+            }
+
+            override fun exit(uiSystem: PauseUiSystem) {
+                uiSystem.loadGameDisplay.remove()
+            }
+        };
+
+        override fun enter(uiSystem: PauseUiSystem) {
+        }
+
+        override fun exit(uiSystem: PauseUiSystem) {
+        }
+
+        override fun onMessage(uiSystem: PauseUiSystem, telegram: Telegram): Boolean {
+            return false
+        }
+
+        override fun update(uiSystem: PauseUiSystem) {
+        }
+    }
 
 }

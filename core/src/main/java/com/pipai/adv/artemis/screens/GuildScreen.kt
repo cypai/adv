@@ -79,12 +79,12 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
+        inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterCustomizationUiSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 
         GuildScreenInit(world, game, game.advConfig, npcList, map)
