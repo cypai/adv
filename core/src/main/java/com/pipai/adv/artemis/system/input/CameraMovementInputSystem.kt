@@ -7,9 +7,12 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.events.EndTurnEvent
 import com.pipai.adv.artemis.events.MouseCameraMoveDisableEvent
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.backend.battle.domain.Direction
+import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
@@ -39,6 +42,14 @@ class CameraMovementInputSystem(val config: AdvConfig) : BaseSystem(), InputProc
     fun mouseCameraMoveDisableListener(event: MouseCameraMoveDisableEvent) {
         mouseCameraMoveDisabled = event.disabled
         if (event.disabled) mouseEdges.replaceAll { _, _ -> false }
+    }
+
+    @Subscribe
+    fun endTurnListener(event: EndTurnEvent) {
+        when (event.team) {
+            Team.PLAYER -> isEnabled = false
+            Team.AI -> isEnabled = true
+        }
     }
 
     override fun processSystem() {
