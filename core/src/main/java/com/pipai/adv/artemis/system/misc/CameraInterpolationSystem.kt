@@ -28,6 +28,10 @@ class CameraInterpolationSystem : IteratingSystem(allOf()) {
     }
 
     fun sendCameraToPosition(position: Vector2) {
+        sendCameraToPosition(position, null)
+    }
+
+    fun sendCameraToPosition(position: Vector2, callback: (() -> Unit)?) {
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val cCamera = mCamera.get(cameraId)
         val cInterpolation = mPath.create(cameraId)
@@ -37,5 +41,6 @@ class CameraInterpolationSystem : IteratingSystem(allOf()) {
         cInterpolation.endpoints.add(position)
         cInterpolation.t = 0
         cInterpolation.maxT = 20
+        cInterpolation.onEndpoint = { callback?.invoke() }
     }
 }

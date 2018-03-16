@@ -59,6 +59,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         ActorInterpolationSystem(),
                         PartialRenderHeightInterpolationSystem(),
 
+                        CameraFollowSystem(game.advConfig),
                         NpcIdSystem(),
                         BattleAnimationSystem(game),
                         BattleAiSystem())
