@@ -275,6 +275,14 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
             Team.PLAYER -> stateMachine.changeState(BattleUiState.DISABLED)
             Team.AI -> {
                 stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+
+                val firstPlayerUnit = fetchPlayerUnits()
+                        .filter { BattleUtils.canTakeAction(mNpcId.get(it).npcId, 1, getBackend()) }
+                        .map { Pair(mPlayerUnit.get(it).index, it) }
+                        .sortedBy { it.first }
+                        .first().second
+                val cXy = mXy.get(firstPlayerUnit)
+                sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
             }
         }
     }
