@@ -88,17 +88,19 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
     override fun keyDown(keycode: Int): Boolean {
         heldKeys.keyDown(keycode)
 
-        if (keycode == Keys.W || keycode == Keys.UP) {
-            keyDownDirection.add(Direction.N)
-        }
-        if (keycode == Keys.A || keycode == Keys.LEFT) {
-            keyDownDirection.add(Direction.W)
-        }
-        if (keycode == Keys.S || keycode == Keys.DOWN) {
-            keyDownDirection.add(Direction.S)
-        }
-        if (keycode == Keys.D || keycode == Keys.RIGHT) {
-            keyDownDirection.add(Direction.E)
+        if (isEnabled) {
+            if (keycode == Keys.W || keycode == Keys.UP) {
+                keyDownDirection.add(Direction.N)
+            }
+            if (keycode == Keys.A || keycode == Keys.LEFT) {
+                keyDownDirection.add(Direction.W)
+            }
+            if (keycode == Keys.S || keycode == Keys.DOWN) {
+                keyDownDirection.add(Direction.S)
+            }
+            if (keycode == Keys.D || keycode == Keys.RIGHT) {
+                keyDownDirection.add(Direction.E)
+            }
         }
         return false
     }
@@ -106,17 +108,19 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
     override fun keyUp(keycode: Int): Boolean {
         heldKeys.keyUp(keycode)
 
-        if (keycode == Keys.W || keycode == Keys.UP) {
-            keyDownDirection.remove(Direction.N)
-        }
-        if (keycode == Keys.A || keycode == Keys.LEFT) {
-            keyDownDirection.remove(Direction.W)
-        }
-        if (keycode == Keys.S || keycode == Keys.DOWN) {
-            keyDownDirection.remove(Direction.S)
-        }
-        if (keycode == Keys.D || keycode == Keys.RIGHT) {
-            keyDownDirection.remove(Direction.E)
+        if (isEnabled) {
+            if (keycode == Keys.W || keycode == Keys.UP) {
+                keyDownDirection.remove(Direction.N)
+            }
+            if (keycode == Keys.A || keycode == Keys.LEFT) {
+                keyDownDirection.remove(Direction.W)
+            }
+            if (keycode == Keys.S || keycode == Keys.DOWN) {
+                keyDownDirection.remove(Direction.S)
+            }
+            if (keycode == Keys.D || keycode == Keys.RIGHT) {
+                keyDownDirection.remove(Direction.E)
+            }
         }
         return false
     }

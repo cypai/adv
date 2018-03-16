@@ -144,7 +144,6 @@ class MainMenuUiSystem(private val game: AdvGame, private val stage: Stage) : Ba
                 }
                 return true
             }
-            else -> stage.keyDown(keycode)
         }
         return false
     }

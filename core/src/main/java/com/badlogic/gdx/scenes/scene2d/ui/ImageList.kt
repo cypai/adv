@@ -25,6 +25,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
 
     var hoverSelect = false
     var lockSelection = false
+    var keySelection = false
     var disabledFontColor = style.fontColorSelected
 
     private var confirmCallbacks: MutableList<(T) -> Unit> = mutableListOf()
@@ -66,6 +67,22 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                     selection.clear()
                     selection.addAll(items)
                     return true
+                }
+                if (keySelection) {
+                    val index = items.indexOf(selection.first())
+                    when (keycode) {
+                        Input.Keys.UP -> {
+                            val prevIndex = if (index == 0) items.size - 1 else index - 1
+                            selection.set(items[prevIndex])
+                        }
+                        Input.Keys.DOWN -> {
+                            val nextIndex = if (index == items.size - 1) 0 else index + 1
+                            selection.set(items[nextIndex])
+                        }
+                        Input.Keys.ENTER -> {
+                            confirmCallbacks.forEach { it.invoke(getSelected()) }
+                        }
+                    }
                 }
                 return false
             }

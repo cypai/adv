@@ -23,6 +23,7 @@ class LoadGameDisplay(private val game: AdvGame) : ScrollPane(Table(), game.skin
     init {
         table.background = game.skin.getDrawable("frameDrawable")
         saveList.hoverSelect = true
+        saveList.keySelection = true
         saveList.addConfirmCallback {
             openConfirmationDialog(it)
         }
@@ -42,6 +43,7 @@ class LoadGameDisplay(private val game: AdvGame) : ScrollPane(Table(), game.skin
         y = (game.advConfig.resolution.height - table.height) / 2f
         setSize(table.width, table.height)
         stage.addActor(this)
+        stage.keyboardFocus = saveList
     }
 
     private fun openConfirmationDialog(slot: AdvSaveSlot) {

@@ -1,6 +1,5 @@
 package com.pipai.adv.artemis.system.ui
 
-import com.artemis.BaseSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
@@ -14,20 +13,28 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.MainMenuScreen
+import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.LoadGameDisplay
 import com.pipai.adv.gui.SaveGameDisplay
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor {
+class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : NoProcessingSystem(), InputProcessor {
 
     private val sEvent by system<EventSystem>()
 
     private val stateMachine = StackStateMachine<PauseUiSystem, PauseUiState>(this)
 
     private val table = Table()
+    private val mainMenuList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
+        override fun getItemImage(item: StringMenuItem): TextureRegion? = null
+        override fun getItemText(item: StringMenuItem): String = item.text
+        override fun getItemRightText(item: StringMenuItem): String = item.rightText
+        override fun getSpacing(): Float = 10f
+    })
     private val saveGameDisplay = SaveGameDisplay(game)
     private val loadGameDisplay = LoadGameDisplay(game)
 
@@ -56,12 +63,6 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
         table.add(Label("Pause", skin))
         table.row()
 
-        val mainMenuList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
-            override fun getItemImage(item: StringMenuItem): TextureRegion? = null
-            override fun getItemText(item: StringMenuItem): String = item.text
-            override fun getItemRightText(item: StringMenuItem): String = item.rightText
-            override fun getSpacing(): Float = 10f
-        })
         mainMenuList.setItems(listOf(
                 StringMenuItem("Save Game", null, ""),
                 StringMenuItem("Load Game", null, ""),
@@ -70,6 +71,7 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
                 StringMenuItem("Quit Game", null, "")))
         mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
         mainMenuList.hoverSelect = true
+        mainMenuList.keySelection = true
         table.add(mainMenuList)
                 .width(mainMenuWidth - 20f)
                 .left()
@@ -121,13 +123,6 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
         dialog.show(stage)
     }
 
-    override fun processSystem() {
-        if (isEnabled) {
-            stage.act()
-            stage.draw()
-        }
-    }
-
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
@@ -138,7 +133,6 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
                 }
                 return true
             }
-            else -> stage.keyDown(keycode)
         }
         return false
     }
@@ -161,11 +155,14 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : BaseS
         DISABLED() {
             override fun enter(uiSystem: PauseUiSystem) {
                 uiSystem.table.remove()
+                uiSystem.sEvent.dispatch(PauseEvent(false))
             }
         },
         SHOWING_MAIN_MENU() {
             override fun enter(uiSystem: PauseUiSystem) {
                 uiSystem.stage.addActor(uiSystem.table)
+                uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
+                uiSystem.sEvent.dispatch(PauseEvent(true))
             }
         },
         SHOWING_SAVE_MENU() {

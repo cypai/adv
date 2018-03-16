@@ -143,6 +143,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
 
     override fun initialize() {
         primaryActionMenu.hoverSelect = true
+        primaryActionMenu.keySelection = true
         primaryActionMenu.disabledFontColor = Color.GRAY
         primaryActionMenu.x = PADDING
         primaryActionMenu.y = PADDING
@@ -1032,6 +1033,7 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                     if (uiSystem.getBackend().getNpcAp(uiSystem.selectedNpcId!!) > 0) {
                         uiSystem.activatePrimaryActionMenu()
                         uiSystem.stage.addActor(uiSystem.primaryActionMenu)
+                        uiSystem.stage.keyboardFocus = uiSystem.primaryActionMenu
                     }
                 }
                 uiSystem.showMoveTileHighlights(uiSystem.selectedNpcId!!)
