@@ -1,6 +1,7 @@
 package com.pipai.adv.map
 
 import com.pipai.adv.SchemaList
+import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.index.WeaponSchemaIndex
@@ -27,27 +28,8 @@ class TestMapGenerator : MapGenerator {
             currentY++
         }
 
-        val defaultMelee = weapons.getWeaponSchema("Monster Melee")!!
-        val defaultRanged = weapons.getWeaponSchema("Monster Ranged")!!
-
-        val slimeSchema = schemas.getSchema("Slime")
-        val slimeId = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime", defaultRanged), slimeSchema.tilesetMetadata))
-        map.getCell(3, 3).fullEnvObject = NpcEnvObject(slimeId, Team.AI, slimeSchema.tilesetMetadata)
-
-        val slime2Id = npcList.addNpc(Npc(UnitInstance(slimeSchema.schema, "Slime", defaultRanged), slimeSchema.tilesetMetadata))
-        map.getCell(7, 4).fullEnvObject = NpcEnvObject(slime2Id, Team.AI, slimeSchema.tilesetMetadata)
-
-        val killerRabbitSchema = schemas.getSchema("Killer Rabbit")
-        val rabbitId = npcList.addNpc(Npc(UnitInstance(killerRabbitSchema.schema, "Killer Rabbit", defaultMelee), killerRabbitSchema.tilesetMetadata))
-        map.getCell(5, 6).fullEnvObject = NpcEnvObject(rabbitId, Team.AI, killerRabbitSchema.tilesetMetadata)
-
-        val ratSchema = schemas.getSchema("Brown Rat")
-        val ratId = npcList.addNpc(Npc(UnitInstance(ratSchema.schema, "Brown Rat", defaultMelee), ratSchema.tilesetMetadata))
-        map.getCell(8, 4).fullEnvObject = NpcEnvObject(ratId, Team.AI, ratSchema.tilesetMetadata)
-
-        val blackButterflySchema = schemas.getSchema("Black Butterfly")
-        val blackButterflyId = npcList.addNpc(Npc(UnitInstance(blackButterflySchema.schema, "Black Butterfly", defaultRanged), blackButterflySchema.tilesetMetadata))
-        map.getCell(9, 9).fullEnvObject = NpcEnvObject(blackButterflyId, Team.AI, blackButterflySchema.tilesetMetadata)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + 4, RNG.nextInt((height - 10) + 6)), map, schemas, weapons, npcList)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt((height - 10) + 6)), map, schemas, weapons, npcList)
 
         generateWallBoundary(map)
         return map
@@ -92,4 +74,70 @@ private fun generateWallBoundary(map: BattleMap) {
         map.getCell(0, y).fullEnvObject = FullEnvObject.FULL_WALL
         map.getCell(map.width - 1, y).fullEnvObject = FullEnvObject.FULL_WALL
     }
+}
+
+private fun generatePod(position: GridPosition, map: BattleMap, schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList) {
+
+    val defaultMelee = weapons.getWeaponSchema("Monster Melee")!!
+    val defaultRanged = weapons.getWeaponSchema("Monster Ranged")!!
+
+    val podSchemas = generatePodSchemas(schemas).shuffled()
+    val podPositions = generatePodPositions(position, podSchemas.size).shuffled()
+
+    val schemaPositions = podSchemas.zip(podPositions)
+    schemaPositions.forEach {
+        val schema = it.first
+        val schemaPosition = it.second
+        val weaponSchema = when (schema.schema.name) {
+            "Slime" -> defaultRanged
+            "Brown Rat" -> defaultMelee
+            "Killer Rabbit" -> defaultMelee
+            "Brown Butterfly" -> defaultMelee
+            else -> defaultMelee
+        }
+        val id = npcList.addNpc(Npc(UnitInstance(schema.schema, schema.schema.name, weaponSchema), schema.tilesetMetadata))
+        map.getCell(schemaPosition).fullEnvObject = NpcEnvObject(id, Team.AI, schema.tilesetMetadata)
+    }
+}
+
+private fun generatePodSchemas(schemas: SchemaList): List<SchemaMetadata> {
+    val potentialPods: MutableList<List<SchemaMetadata>> = mutableListOf(
+            listOf(schemas.getSchema("Slime"),
+                    schemas.getSchema("Slime"),
+                    schemas.getSchema("Slime")),
+            listOf(schemas.getSchema("Slime"),
+                    schemas.getSchema("Brown Rat"),
+                    schemas.getSchema("Brown Rat"),
+                    schemas.getSchema("Black Butterfly")),
+            listOf(schemas.getSchema("Brown Rat"),
+                    schemas.getSchema("Brown Rat"),
+                    schemas.getSchema("Brown Rat"),
+                    schemas.getSchema("Black Butterfly"),
+                    schemas.getSchema("Black Butterfly")),
+            listOf(schemas.getSchema("Killer Rabbit"),
+                    schemas.getSchema("Killer Rabbit"),
+                    schemas.getSchema("Black Butterfly"),
+                    schemas.getSchema("Black Butterfly"))
+    )
+    return potentialPods[RNG.nextInt(potentialPods.size)]
+}
+
+private fun generatePodPositions(position: GridPosition, amount: Int): List<GridPosition> {
+    val potentialPositions: MutableList<GridPosition> = mutableListOf(
+            position,
+            position.copy(x = position.x + 1),
+            position.copy(x = position.x - 1),
+            position.copy(y = position.y + 1),
+            position.copy(y = position.y - 1),
+            GridPosition(position.x + 1, position.y + 1),
+            GridPosition(position.x + 1, position.y - 1),
+            GridPosition(position.x - 1, position.y + 1),
+            GridPosition(position.x - 1, position.y + 1))
+
+    val positions: MutableList<GridPosition> = mutableListOf()
+    for (i in 0 until amount) {
+        val index = RNG.nextInt(potentialPositions.size)
+        positions.add(potentialPositions.removeAt(index))
+    }
+    return positions
 }

@@ -85,11 +85,11 @@ class AdvGameInitializer() {
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
         schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
                 EnvObjTilesetMetadata.NONE)
-        schemaList.addSchema("Brown Rat", UnitStats(100, 10, 8, 7, 10, 5, 5, 5, 12),
+        schemaList.addSchema("Brown Rat", UnitStats(70, 10, 8, 7, 10, 5, 5, 5, 12),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("brown_rat.png"))
-        schemaList.addSchema("Black Butterfly", UnitStats(50, 30, 5, 5, 20, 15, 5, 15, 12),
+        schemaList.addSchema("Black Butterfly", UnitStats(40, 30, 5, 5, 20, 15, 5, 15, 12),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("black_butterfly.png"))
-        schemaList.addSchema("Killer Rabbit", UnitStats(100, 10, 12, 10, 12, 5, 5, 0, 14),
+        schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("rabbit.png"))
         schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
