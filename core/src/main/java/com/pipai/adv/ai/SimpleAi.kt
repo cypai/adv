@@ -4,9 +4,13 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.domain.WeaponRange
 import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.backend.battle.engine.commands.*
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.MoveCommandFactory
+import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
+import com.pipai.adv.backend.battle.engine.commands.WaitCommand
 import com.pipai.adv.backend.battle.engine.rules.execution.AttackCalculationExecutionRule
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.utils.GridUtils
@@ -33,13 +37,15 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         stateMachine.update()
         val npc = backend.getNpc(npcId)!!
         logger.debug("${npc.unitInstance.nickname} AI state: ${stateMachine.currentState}")
-        return when (stateMachine.currentState) {
+        val command = when (stateMachine.currentState) {
             SimpleAiState.WANDERING -> generateWanderingCommand()
             SimpleAiState.ALERT -> generateAlertCommand()
             SimpleAiState.ATTACKING -> generateAttackingCommand()
             SimpleAiState.FLEEING -> generateFleeingCommand()
             else -> generateWanderingCommand()
         }
+        logger.debug("AI chose command $command")
+        return command
     }
 
     private fun generateWanderingCommand(): BattleCommand {
@@ -66,14 +72,25 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
                     val destination = it.path.last()
                     val bestAttack = generateScoredAttackCommands(destination)
                             .maxBy { it.first }
+                    val nearbyTeammates = BattleUtils.teammatesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
+                    val nearbyEnemies = BattleUtils.enemiesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
+                    val minEnemyDistance = nearbyEnemies.map { GridUtils.gridDistance(destination, backend.getNpcPosition(it)!!) }
+                            .min()?.roundToInt() ?: 100
+                    val decay = -10
+                    val teammateBoost = nearbyTeammates.size * 1
+                    val enemyDistanceBoost = if (backend.getNpc(npcId)!!.unitInstance.weapon!!.schema.range == WeaponRange.MELEE) {
+                        -1 * minEnemyDistance
+                    } else {
+                        0
+                    }
                     if (bestAttack == null) {
                         Pair(0, it)
                     } else {
-                        Pair(bestAttack.first, it)
+                        Pair(bestAttack.first + decay + teammateBoost + enemyDistanceBoost, it)
                     }
                 }
         scoredCommands.addAll(scoredMoveCommands)
-        return scoredCommands.sortedBy { it.first }.firstOrNull()?.second ?: DefendCommand(npcId)
+        return getBestCommand(scoredCommands)
     }
 
     private fun generateScoredAttackCommands(position: GridPosition): List<Pair<Int, BattleCommand>> {
@@ -84,7 +101,8 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
             val damageRange = attackCalculator.calculateDamageRange(preview)!!
             val targetHp = backend.getNpc(it.targetId)!!.unitInstance.hp
             val koScoreBoost = if (targetHp < damageRange.second) 100 else 0
-            Pair(toHit + koScoreBoost, it)
+            val apBoost = if (backend.getNpcAp(npcId) == 1) 50 else 0
+            Pair(toHit + koScoreBoost + apBoost, it)
         }
     }
 
@@ -101,7 +119,15 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
             val distanceBoost = minEnemyDistance ?: 50
             Pair(teammateBoost + enemyBoost + distanceBoost, it)
         }
-        return scoredMoveCommands.sortedBy { it.first }.firstOrNull()?.second ?: DefendCommand(npcId)
+        return getBestCommand(scoredMoveCommands)
+    }
+
+    private fun getBestCommand(commands: List<Pair<Int, BattleCommand>>): BattleCommand {
+        val sortedCommands = commands.sortedBy { it.first }.asReversed()
+        val highestScore = sortedCommands.first().first
+        val filteredCommands = sortedCommands.filter { it.first == highestScore }
+        val commandIndex = RNG.nextInt(filteredCommands.size)
+        return filteredCommands[commandIndex].second
     }
 
     enum class SimpleAiState : State<SimpleAi> {

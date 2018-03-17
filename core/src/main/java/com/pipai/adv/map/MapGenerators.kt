@@ -46,7 +46,7 @@ class TestMapGenerator : MapGenerator {
         map.getCell(8, 4).fullEnvObject = NpcEnvObject(ratId, Team.AI, ratSchema.tilesetMetadata)
 
         val blackButterflySchema = schemas.getSchema("Black Butterfly")
-        val blackButterflyId = npcList.addNpc(Npc(UnitInstance(blackButterflySchema.schema, "Black Butterfly"), blackButterflySchema.tilesetMetadata))
+        val blackButterflyId = npcList.addNpc(Npc(UnitInstance(blackButterflySchema.schema, "Black Butterfly", defaultRanged), blackButterflySchema.tilesetMetadata))
         map.getCell(9, 9).fullEnvObject = NpcEnvObject(blackButterflyId, Team.AI, blackButterflySchema.tilesetMetadata)
 
         generateWallBoundary(map)
