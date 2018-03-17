@@ -44,10 +44,10 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     private fun initializeMap() {
         val startX = Math.max(0, start.x - mobility)
         val startY = Math.max(0, start.y - mobility)
-        val width = Math.min(mobility * 2 + 1, map.width)
-        val height = Math.min(mobility * 2 + 1, map.height)
-        for (x in startX until width) {
-            for (y in startY until height) {
+        val endX = Math.min(start.x + mobility, map.width)
+        val endY = Math.min(start.y + mobility, map.height)
+        for (x in startX until endX) {
+            for (y in startY until endY) {
                 val cellPos = GridPosition(x, y)
                 if (map.getCell(cellPos).fullEnvObject == null || cellPos == start) {
                     val cell = Node(cellPos)
