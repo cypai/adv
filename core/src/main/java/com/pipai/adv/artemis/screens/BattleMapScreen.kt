@@ -6,25 +6,26 @@ import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
-import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
-import com.pipai.adv.gui.BatchHelper
+import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
-    private val batch: BatchHelper = game.batchHelper
+    private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
     private val world: World
 
@@ -67,7 +68,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         BattleMapRenderingSystem(game.skin, game.batchHelper, game.globals, mapTileset,
                                 game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
                 .withPassive(-5,
-                        BattleUiSystem(game))
+                        BattleUiSystem(game, stage),
+                        PauseUiSystem(game, stage, false))
                 .withPassive(-6,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
@@ -78,8 +80,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java))
-        inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java).stage)
-        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
+        inputProcessor.addProcessor(world.getSystem(PauseUiSystem::class.java))
+        inputProcessor.addProcessor(stage)
         inputProcessor.activateInput()
 
         BattleMapScreenInit(world, game.advConfig, game.globals.save!!, npcList, partyList, map)
@@ -92,6 +94,8 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
         world.process()
+        stage.act()
+        stage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -111,5 +115,6 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
 
     override fun dispose() {
         world.dispose()
+        stage.dispose()
     }
 }

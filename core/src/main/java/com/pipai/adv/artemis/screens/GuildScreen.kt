@@ -73,7 +73,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         CharacterCustomizationUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game),
-                        PauseUiSystem(game, stage))
+                        PauseUiSystem(game, stage, true))
                 .build()
 
         world = World(config)

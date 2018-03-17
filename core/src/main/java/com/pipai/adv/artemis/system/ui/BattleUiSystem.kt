@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.*
@@ -25,6 +24,7 @@ import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
+import com.pipai.adv.artemis.system.misc.PausableSystem
 import com.pipai.adv.artemis.system.ui.menu.ActionMenuCommandItem
 import com.pipai.adv.artemis.system.ui.menu.MenuItem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
@@ -44,7 +44,7 @@ import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
+class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val logger = getLogger()
 
@@ -74,7 +74,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     private val frameBgDrawable = game.skin.getDrawable("bg")
     private val portraitBgDrawable = game.skin.newDrawable("white", Color.DARK_GRAY)
 
-    val stage = Stage(ScreenViewport())
     private val primaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<MenuItem> {
         override fun getItemImage(item: MenuItem): TextureRegion? = item.image
         override fun getItemText(item: MenuItem): String = item.text
@@ -703,10 +702,6 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
         stage.draw()
     }
 
-    override fun dispose() {
-        stage.dispose()
-    }
-
     private fun drawPortraitLeftUi(cUiBox: SideUiBoxComponent, cXy: XYComponent) {
         frameBgDrawable.draw(game.spriteBatch, cXy.x, cXy.y, UI_WIDTH, UI_HEIGHT)
         frameDrawable.draw(game.spriteBatch,
@@ -856,6 +851,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
+        if (!isEnabled) return false
+
         when (keycode) {
             Input.Keys.SHIFT_LEFT -> {
                 when (stateMachine.currentState) {
@@ -868,8 +865,10 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
                 }
             }
             Input.Keys.ESCAPE -> {
-                changeStateBack()
-                return true
+                if (!stateMachine.isInState(BattleUiState.NOTHING_SELECTED)) {
+                    changeStateBack()
+                    return true
+                }
             }
         }
         return false
@@ -884,6 +883,8 @@ class BattleUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor {
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        if (!isEnabled) return false
+
         val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
         val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
         val mouseX = pickRay.origin.x

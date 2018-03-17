@@ -22,7 +22,9 @@ import com.pipai.adv.gui.SaveGameDisplay
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : NoProcessingSystem(), InputProcessor {
+class PauseUiSystem(private val game: AdvGame,
+                    private val stage: Stage,
+                    private val allowSave: Boolean) : NoProcessingSystem(), InputProcessor {
 
     private val sEvent by system<EventSystem>()
 
@@ -63,12 +65,16 @@ class PauseUiSystem(private val game: AdvGame, private val stage: Stage) : NoPro
         table.add(Label("Pause", skin))
         table.row()
 
-        mainMenuList.setItems(listOf(
+        val menuItems = mutableListOf(
                 StringMenuItem("Save Game", null, ""),
                 StringMenuItem("Load Game", null, ""),
                 StringMenuItem("Options", null, ""),
                 StringMenuItem("Quit to Main Menu", null, ""),
-                StringMenuItem("Quit Game", null, "")))
+                StringMenuItem("Quit Game", null, ""))
+        if (!allowSave) {
+            menuItems.removeAt(0)
+        }
+        mainMenuList.setItems(menuItems)
         mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
         mainMenuList.hoverSelect = true
         mainMenuList.keySelection = true

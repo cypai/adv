@@ -10,14 +10,14 @@ import com.pipai.adv.artemis.components.OrthographicCameraComponent
 import com.pipai.adv.artemis.events.EndTurnEvent
 import com.pipai.adv.artemis.events.MouseCameraMoveDisableEvent
 import com.pipai.adv.artemis.screens.Tags
-import com.pipai.adv.artemis.system.ui.BattleUiSystem
+import com.pipai.adv.artemis.system.misc.PausableSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class CameraMovementInputSystem(val config: AdvConfig) : BaseSystem(), InputProcessor {
+class CameraMovementInputSystem(val config: AdvConfig) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val speed = 3
     private val mouseEdgeBuffer = 48
