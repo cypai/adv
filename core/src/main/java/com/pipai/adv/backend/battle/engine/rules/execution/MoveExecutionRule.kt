@@ -25,7 +25,7 @@ class MoveExecutionRule : CommandExecutionRule {
         val npc = state.npcList.getNpc(cmd.unitId)!!
         val apMax = ActionPointState.startingNumAPs
         val mobility = npc.unitInstance.schema.baseStats.mobility
-        val distancePerAp = mobility / apMax
+        val distancePerAp = mobility.toFloat() / apMax.toFloat()
 
         val distance = cmd.path.zipWithNext()
                 .map { GridUtils.gridDistance(it.first, it.second) }
