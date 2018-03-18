@@ -6,36 +6,40 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
-import com.pipai.adv.AdvConfig
-import com.pipai.adv.AdvGameGlobals
+import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.TileHighlightUpdateEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
-import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.gui.BatchHelper
-import com.pipai.adv.tiles.*
+import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.map.FogOfWar
+import com.pipai.adv.map.TileVisibility
+import com.pipai.adv.tiles.MapTileset
+import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleMapRenderingSystem(private val skin: Skin,
-                               private val batch: BatchHelper,
-                               private val globals: AdvGameGlobals,
+class BattleMapRenderingSystem(game: AdvGame,
                                private val mapTileset: MapTileset,
-                               private val advConfig: AdvConfig,
-                               private val pccManager: PccManager,
-                               private val animatedTilesetManager: AnimatedTilesetManager,
-                               private val textureManager: TextureManager) : IteratingSystem(allOf()) {
+                               private val enableFogOfWar: Boolean) : IteratingSystem(allOf()) {
+
+    private val batch = game.batchHelper
+    private val skin = game.skin
+    private val advConfig = game.advConfig
+    private val pccManager = game.globals.pccManager
+    private val globals = game.globals
+    private val animatedTilesetManager = game.globals.animatedTilesetManager
+    private val textureManager = game.globals.textureManager
 
     private val mBackend by require<BattleBackendComponent>()
 
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mXy by mapper<XYComponent>()
+    private val mNpcId by mapper<NpcIdComponent>()
     private val mDrawable by mapper<DrawableComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
@@ -49,6 +53,8 @@ class BattleMapRenderingSystem(private val skin: Skin,
     private var tileHighlights: Map<Color, List<GridPosition>> = mapOf()
     private val drawableCache: MutableMap<Color, Drawable> = mutableMapOf()
 
+    private val fogOfWar = FogOfWar()
+
     @Subscribe
     fun movementTileUpdateListener(event: TileHighlightUpdateEvent) {
         tileHighlights = event.tileHighlights
@@ -56,7 +62,6 @@ class BattleMapRenderingSystem(private val skin: Skin,
 
     override fun process(entityId: Int) {
         val cBackend = mBackend.get(entityId)
-        val mapState = cBackend.backend.getBattleMapState()
 
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
@@ -64,7 +69,7 @@ class BattleMapRenderingSystem(private val skin: Skin,
         batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
         batch.spr.color = Color.WHITE
-        renderBackgroundTiles(camera, mapState)
+        renderBackgroundTiles(camera, cBackend.backend)
         renderTileHighlights()
         batch.spr.end()
         batch.shape.projectionMatrix = camera.combined
@@ -77,24 +82,58 @@ class BattleMapRenderingSystem(private val skin: Skin,
         batch.spr.end()
     }
 
-    private fun renderBackgroundTiles(camera: OrthographicCamera, mapState: BattleMap) {
+    private fun renderBackgroundTiles(camera: OrthographicCamera, backend: BattleBackend) {
+        if (enableFogOfWar) {
+            fetchPlayerPositions().forEach {
+                fogOfWar.calculateVisibility(backend, it.first, it.second)
+            }
+        }
+
+        val map = backend.getBattleMapUnsafe()
         val tileSize = advConfig.resolution.tileSize.toFloat()
         val center = GridUtils.localToGridPosition(camera.position.x, camera.position.y, tileSize)
         val zoom = sZoom.currentZoom()
         val gridViewWidth = (advConfig.resolution.width / tileSize * zoom).toInt() + 4
         val gridViewHeight = (advConfig.resolution.height / tileSize * zoom).toInt() + 4
         val gridViewLeft = Math.max(center.x - gridViewWidth / 2, 0)
-        val gridViewRight = Math.min(center.x + gridViewWidth / 2, mapState.width)
+        val gridViewRight = Math.min(center.x + gridViewWidth / 2, map.width)
         val gridViewBottom = Math.max(center.y - gridViewHeight / 2, 0)
-        val gridViewTop = Math.min(center.y + gridViewHeight / 2, mapState.height)
+        val gridViewTop = Math.min(center.y + gridViewHeight / 2, map.height)
         for (y in gridViewBottom until gridViewTop) {
             for (x in gridViewLeft until gridViewRight) {
-                val cell = mapState.cells[x][y]
-                for (bgTileInfo in cell.backgroundTiles) {
-                    val tile = mapTileset.tiles(bgTileInfo.tileType)[bgTileInfo.index]
-                    batch.spr.draw(tile, x.toFloat() * tileSize, y.toFloat() * tileSize, tileSize, tileSize)
+                val visibility = if (enableFogOfWar) {
+                    fogOfWar.getPlayerTileVisibility(GridPosition(x, y))
+                } else {
+                    TileVisibility.VISIBLE
+                }
+                if (visibility != TileVisibility.NEVER_SEEN) {
+                    val cell = map.cells[x][y]
+                    for (bgTileInfo in cell.backgroundTiles) {
+                        val tile = mapTileset.tiles(bgTileInfo.tileType)[bgTileInfo.index]
+                        if (visibility == TileVisibility.VISIBLE) {
+                            batch.spr.draw(tile, x.toFloat() * tileSize, y.toFloat() * tileSize, tileSize, tileSize)
+                        } else {
+                            batch.spr.flush()
+                            globals.shaderProgram.setAttributef("a_color_inter1", 0.5f, 0.5f, 0.5f, 1f)
+                            batch.spr.draw(tile, x.toFloat() * tileSize, y.toFloat() * tileSize, tileSize, tileSize)
+                            batch.spr.flush()
+                            globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private fun fetchPlayerPositions(): List<Pair<Int, GridPosition>> {
+        val tileSize = advConfig.resolution.tileSize.toFloat()
+        val playerUnitEntityBag = world.aspectSubscriptionManager.get(allOf(
+                NpcIdComponent::class, PlayerUnitComponent::class, XYComponent::class, CollisionComponent::class)).entities
+        val playerEntityIds = playerUnitEntityBag.data.slice(0 until playerUnitEntityBag.size())
+        return playerEntityIds.map {
+            Pair(
+                    mNpcId.get(it).npcId,
+                    GridUtils.localToGridPosition(mXy.get(it).toVector2(), tileSize))
         }
     }
 
@@ -159,6 +198,9 @@ class BattleMapRenderingSystem(private val skin: Skin,
         val tilesetMetadata = cEnvObjTile.tilesetMetadata
         when (tilesetMetadata) {
             is PccTilesetMetadata -> {
+                if (enableFogOfWar && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
+                    return
+                }
                 for (pcc in tilesetMetadata.pccMetadata) {
                     val pccTexture = pccManager.getPccFrame(pcc, animationFrame)
                     val scaleFactor = tileSize / pccTexture.regionWidth
@@ -177,9 +219,27 @@ class BattleMapRenderingSystem(private val skin: Skin,
                 }
             }
             is MapTilesetMetadata -> {
-                batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
+                val visibility = if (enableFogOfWar) {
+                    fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize))
+                } else {
+                    TileVisibility.VISIBLE
+                }
+                if (visibility != TileVisibility.NEVER_SEEN) {
+                    if (visibility == TileVisibility.VISIBLE) {
+                        batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
+                    } else {
+                        batch.spr.flush()
+                        globals.shaderProgram.setAttributef("a_color_inter1", 0.5f, 0.5f, 0.5f, 1f)
+                        batch.spr.draw(mapTileset.tiles(tilesetMetadata.mapTileType)[0], cXy.x, cXy.y, tileSize, tileSize)
+                        batch.spr.flush()
+                        globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                    }
+                }
             }
             is AnimatedUnitTilesetMetadata -> {
+                if (enableFogOfWar && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
+                    return
+                }
                 val unitTexture = animatedTilesetManager.getTilesetFrame(tilesetMetadata.filename, animationFrame)
                 val scaleFactor = tileSize / unitTexture.regionWidth
                 val cPartialRender = mPartialRender.getSafe(id, null)

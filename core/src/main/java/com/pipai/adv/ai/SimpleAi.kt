@@ -72,8 +72,8 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
                     val destination = it.path.last()
                     val bestAttack = generateScoredAttackCommands(destination)
                             .maxBy { it.first }
-                    val nearbyTeammates = BattleUtils.teammatesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
-                    val nearbyEnemies = BattleUtils.enemiesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
+                    val nearbyTeammates = BattleUtils.teammatesInRange(npcId, destination, backend, BattleBackend.VISIBLE_DISTANCE2)
+                    val nearbyEnemies = BattleUtils.enemiesInRange(npcId, destination, backend, BattleBackend.VISIBLE_DISTANCE2)
                     val minEnemyDistance = nearbyEnemies.map { GridUtils.gridDistance(destination, backend.getNpcPosition(it)!!) }
                             .min()?.roundToInt() ?: 100
                     val decay = -10
@@ -110,8 +110,8 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         val moveCommands = moveCommandFactory.generate(npcId, 1)
         val scoredMoveCommands = moveCommands.map {
             val destination = it.path.last()
-            val nearbyTeammates = BattleUtils.teammatesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
-            val nearbyEnemies = BattleUtils.enemiesInRange(npcId, destination, backend, BattleBackend.AGGRO_DISTANCE2)
+            val nearbyTeammates = BattleUtils.teammatesInRange(npcId, destination, backend, BattleBackend.VISIBLE_DISTANCE2)
+            val nearbyEnemies = BattleUtils.enemiesInRange(npcId, destination, backend, BattleBackend.VISIBLE_DISTANCE2)
             val minEnemyDistance = nearbyEnemies.map { GridUtils.gridDistance(destination, backend.getNpcPosition(it)!!) }
                     .min()?.roundToInt()
             val teammateBoost = nearbyTeammates.size * 100
@@ -133,7 +133,7 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
     enum class SimpleAiState : State<SimpleAi> {
         WANDERING() {
             override fun update(entity: SimpleAi) {
-                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.AGGRO_DISTANCE2)
+                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isNotEmpty()) {
                     entity.stateMachine.changeState(ATTACKING)
                 }
@@ -141,7 +141,7 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         },
         ALERT() {
             override fun update(entity: SimpleAi) {
-                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.AGGRO_DISTANCE2)
+                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isNotEmpty()) {
                     entity.stateMachine.changeState(ATTACKING)
                 }
@@ -149,7 +149,7 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         },
         ATTACKING() {
             override fun update(entity: SimpleAi) {
-                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.AGGRO_DISTANCE2)
+                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isEmpty()) {
                     entity.stateMachine.changeState(ALERT)
                 }
@@ -160,12 +160,12 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         },
         FLEEING() {
             override fun update(entity: SimpleAi) {
-                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.AGGRO_DISTANCE2)
+                val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isEmpty()) {
                     entity.stateMachine.changeState(ALERT)
                 }
                 val position = entity.backend.getNpcPosition(entity.npcId)!!
-                val nearbyTeammates = BattleUtils.teammatesInRange(entity.npcId, position, entity.backend, BattleBackend.AGGRO_DISTANCE2)
+                val nearbyTeammates = BattleUtils.teammatesInRange(entity.npcId, position, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (nearbyTeammates.isNotEmpty()) {
                     entity.stateMachine.changeState(ATTACKING)
                 }

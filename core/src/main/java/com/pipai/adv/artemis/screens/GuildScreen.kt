@@ -67,8 +67,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-1,
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,
-                        BattleMapRenderingSystem(game.skin, game.batchHelper, game.globals, mapTileset,
-                                game.advConfig, globals.pccManager, globals.animatedTilesetManager, globals.textureManager))
+                        BattleMapRenderingSystem(game, mapTileset, false))
                 .withPassive(-3,
                         CharacterCustomizationUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
