@@ -2,15 +2,16 @@ package com.pipai.adv.artemis.system.animation.handlers
 
 import com.artemis.ComponentMapper
 import com.artemis.World
-import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Interpolation
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
+import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.engine.log.MoveEvent
+import com.pipai.adv.map.TileVisibility
 import com.pipai.adv.utils.DirectionUtils
 import com.pipai.adv.utils.GridUtils
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -25,6 +26,7 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
 
     private lateinit var sNpcId: NpcIdSystem
     private lateinit var sCameraInterpolation: CameraInterpolationSystem
+    private lateinit var sBattleMapRenderer: BattleMapRenderingSystem
     private lateinit var sEvent: EventSystem
 
     private var movingEntityId: Int? = null
@@ -40,7 +42,19 @@ class MoveAnimationHandler(val config: AdvConfig, world: World) {
 
         if (entityId != null) {
             val cXy = mXy.get(entityId)
-            sCameraInterpolation.sendCameraToPosition(cXy.toVector2(), { animateMovement(entityId, moveEvent) })
+
+            val visiblePath = moveEvent.path.any { sBattleMapRenderer.fogOfWar.getPlayerTileVisibility(it) == TileVisibility.VISIBLE }
+            if (visiblePath) {
+                sCameraInterpolation.sendCameraToPosition(cXy.toVector2(), { animateMovement(entityId, moveEvent) })
+            } else {
+                val newPosition = GridUtils.gridPositionToLocalOffset(
+                        moveEvent.path.last(),
+                        config.resolution.tileSize.toFloat(),
+                        0f,
+                        config.resolution.tileOffset.toFloat())
+                cXy.setXy(newPosition)
+                sEvent.dispatch(BattleEventAnimationEndEvent(moveEvent))
+            }
         }
     }
 

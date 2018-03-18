@@ -53,7 +53,7 @@ class BattleMapRenderingSystem(game: AdvGame,
     private var tileHighlights: Map<Color, List<GridPosition>> = mapOf()
     private val drawableCache: MutableMap<Color, Drawable> = mutableMapOf()
 
-    private val fogOfWar = FogOfWar()
+    val fogOfWar = FogOfWar()
 
     @Subscribe
     fun movementTileUpdateListener(event: TileHighlightUpdateEvent) {

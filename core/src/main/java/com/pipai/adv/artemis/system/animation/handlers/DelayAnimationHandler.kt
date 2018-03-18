@@ -13,18 +13,14 @@ class DelayAnimationHandler(private val world: World) {
 
     private lateinit var sEvent: EventSystem
 
-    companion object {
-        const val ANIMATION_DELAY = 20
-    }
-
     init {
         world.inject(this)
     }
 
-    fun animate(event: BattleLogEvent) {
+    fun animate(event: BattleLogEvent, delay: Int) {
         val entityId = world.create()
         val cTimer = mTimer.create(entityId)
-        cTimer.maxT = ANIMATION_DELAY
+        cTimer.maxT = delay
         cTimer.onEndCallback = { sEvent.dispatch(BattleEventAnimationEndEvent(event)) }
     }
 

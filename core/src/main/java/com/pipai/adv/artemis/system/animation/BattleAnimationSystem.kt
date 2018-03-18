@@ -75,7 +75,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
                 val backend = getBackend()
                 when (backend.getCurrentTurn()) {
                     Team.PLAYER -> sEvent.dispatch(BattleEventAnimationEndEvent(event))
-                    Team.AI -> delayAnimationHandler.animate(event)
+                    Team.AI -> delayAnimationHandler.animate(event, 1)
                 }
             }
         }
