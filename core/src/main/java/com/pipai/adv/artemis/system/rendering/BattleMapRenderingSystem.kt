@@ -275,10 +275,17 @@ class BattleMapRenderingSystem(game: AdvGame,
         val height = 5f
         val healthbarEntities = world.fetch(allOf(UnitHealthbarComponent::class, XYComponent::class))
         healthbarEntities.forEach {
-            val cHealthbar = mUnitHealthbar.get(it)
             val cXy = mXy.get(it)
-            batch.shape.drawHealthbar(cXy.x + xOffset, cXy.y - height, width, height,
-                    Color.DARK_GRAY, Color.RED, Color.YELLOW, Color.BLACK, cHealthbar.percentage)
+            val visibility = if (enableFogOfWar) {
+                fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize))
+            } else {
+                TileVisibility.VISIBLE
+            }
+            if (visibility != TileVisibility.NEVER_SEEN) {
+                val cHealthbar = mUnitHealthbar.get(it)
+                batch.shape.drawHealthbar(cXy.x + xOffset, cXy.y - height, width, height,
+                        Color.DARK_GRAY, Color.RED, Color.YELLOW, Color.BLACK, cHealthbar.percentage)
+            }
         }
     }
 
