@@ -14,8 +14,8 @@ uniform sampler2D u_texture;
 
 void main()
 {
-    if (v_color_inter1.a == 0) {
-        if (v_color_inter2.a == 0) {
+    if (v_color_inter1.a == 0.0) {
+        if (v_color_inter2.a == 0.0) {
             gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
         } else {
             vec4 tex_color = texture2D(u_texture, v_texCoords);
@@ -28,7 +28,7 @@ void main()
             }
         }
     } else {
-        if (v_color_inter2.a == 0) {
+        if (v_color_inter2.a == 0.0) {
             gl_FragColor = v_color_inter1 * texture2D(u_texture, v_texCoords);
         } else {
             vec4 tex_color = texture2D(u_texture, v_texCoords);
