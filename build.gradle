@@ -93,6 +93,8 @@ project(":core") {
         testCompile "junit:junit:$junitVersion"
         testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+        testCompile "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         testCompile "org.mockito:mockito-core:$mockitoVersion"
 
         checkstyle "com.github.sevntu.checkstyle:sevntu-checks:$sevntuCheckstyleVersion"

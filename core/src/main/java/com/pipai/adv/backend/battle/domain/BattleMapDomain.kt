@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.google.common.base.Preconditions
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.utils.DeepCopyable
 import com.pipai.adv.utils.deepCopy
 
@@ -105,6 +106,10 @@ sealed class EnvObjTilesetMetadata : DeepCopyable<EnvObjTilesetMetadata> {
 
     class NoEnvObjectTilesetMetadata : EnvObjTilesetMetadata() {
         override fun deepCopy() = NoEnvObjectTilesetMetadata()
+    }
+
+    data class SingleTilesetMetadata(val tileDescriptor: TileDescriptor) : EnvObjTilesetMetadata() {
+        override fun deepCopy() = copy()
     }
 
     data class MapTilesetMetadata(val mapTileType: MapTileType) : EnvObjTilesetMetadata() {

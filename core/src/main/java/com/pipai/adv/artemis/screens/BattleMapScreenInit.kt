@@ -113,6 +113,14 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                     }
                 }
             }
+            is SingleTilesetMetadata -> {
+                val cEnvObjTile = mEnvObjTile.create(id)
+                cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()
+                val cXy = mXy.create(id)
+                cXy.x = config.resolution.tileSize * x.toFloat()
+                cXy.y = config.resolution.tileSize * y.toFloat()
+                mAnimationFrames.create(id)
+            }
             is MapTilesetMetadata -> {
                 val cEnvObjTile = mEnvObjTile.create(id)
                 cEnvObjTile.tilesetMetadata = tilesetMetadata.deepCopy()

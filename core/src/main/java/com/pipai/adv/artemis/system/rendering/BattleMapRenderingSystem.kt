@@ -218,6 +218,26 @@ class BattleMapRenderingSystem(game: AdvGame,
                     globals.shaderProgram.setAttributef("a_color_inter2", 0f, 0f, 0f, 0f)
                 }
             }
+            is SingleTilesetMetadata -> {
+                val visibility = if (enableFogOfWar) {
+                    fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize))
+                } else {
+                    TileVisibility.VISIBLE
+                }
+                if (visibility != TileVisibility.NEVER_SEEN) {
+                    val tile = textureManager.getTile(tilesetMetadata.tileDescriptor)
+                    val width = tile.regionWidth.toFloat()
+                    if (visibility == TileVisibility.VISIBLE) {
+                        batch.spr.draw(tile, cXy.x - (width - tileSize) / 2f, cXy.y, width, tile.regionHeight.toFloat())
+                    } else {
+                        batch.spr.flush()
+                        globals.shaderProgram.setAttributef("a_color_inter1", 0.5f, 0.5f, 0.5f, 1f)
+                        batch.spr.draw(tile, cXy.x - (width - tileSize) / 2f, cXy.y, width, tile.regionHeight.toFloat())
+                        batch.spr.flush()
+                        globals.shaderProgram.setAttributef("a_color_inter1", 0f, 0f, 0f, 0f)
+                    }
+                }
+            }
             is MapTilesetMetadata -> {
                 val visibility = if (enableFogOfWar) {
                     fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize))

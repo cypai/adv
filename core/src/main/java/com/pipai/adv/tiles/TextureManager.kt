@@ -9,6 +9,7 @@ class TextureManager {
 
     fun loadAllTextures() {
         tilesets.put("signs", FileTileset(Gdx.files.internal("assets/binassets/graphics/tilesets/signs.png"), 32, 32))
+        tilesets.put("trees", FileTileset(Gdx.files.internal("assets/binassets/graphics/tilesets/tree.png"), 48, 96))
     }
 
     fun getTile(descriptor: TileDescriptor): TextureRegion {
