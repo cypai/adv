@@ -4,7 +4,7 @@ import com.pipai.adv.SchemaList
 import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
-import com.pipai.adv.backend.battle.generators.OpenBattleMapGenerator
+import com.pipai.adv.backend.battle.generators.ParcelBattleMapGenerator
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.npc.NpcList
@@ -16,10 +16,28 @@ interface MapGenerator {
     fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
+class GuildMapGenerator : MapGenerator {
+
+    override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+        val map = BattleMap.createBattleMap(width, height)
+        generateGround(map)
+        generateGroundDeco(map, 4, tileset)
+
+        var currentY = 1
+        for (index in party) {
+            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], Team.PLAYER, npcList.getNpc(party[index])!!.tilesetMetadata)
+            currentY++
+        }
+        generateWallBoundary(map)
+        return map
+    }
+
+}
+
 class TestMapGenerator : MapGenerator {
 
     override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
-        val generator = OpenBattleMapGenerator()
+        val generator = ParcelBattleMapGenerator()
         val map = generator.generate(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)

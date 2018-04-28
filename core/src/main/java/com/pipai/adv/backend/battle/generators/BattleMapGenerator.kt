@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.generators
 
-import com.badlogic.gdx.assets.loaders.resolvers.ExternalFileHandleResolver
+import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.BattleMapCellSpecialFlag.Exit
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
@@ -24,7 +24,7 @@ interface BattleMapGenerator {
 class ParcelBattleMapGenerator : BattleMapGenerator {
     override fun generate(width: Int, height: Int): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
-        val mapParcel = MapParcel.Factory.readMapParcel(ExternalFileHandleResolver(), "binassets/maps/parcel1.tmx")
+        val mapParcel = MapParcel.Factory.readMapParcel(LocalFileHandleResolver(), "assets/binassets/maps/parcel1.tmx")
         placeParcelInMap(map, mapParcel)
         return map
     }

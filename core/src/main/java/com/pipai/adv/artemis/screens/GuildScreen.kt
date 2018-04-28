@@ -23,7 +23,7 @@ import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
-import com.pipai.adv.map.TestMapGenerator
+import com.pipai.adv.map.GuildMapGenerator
 import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -45,7 +45,7 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
 
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
-        val map = TestMapGenerator()
+        val map = GuildMapGenerator()
                 .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
