@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
+import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
@@ -9,7 +10,7 @@ import com.pipai.adv.backend.battle.engine.log.ApChangeEvent
 
 class ChangeApExecutionRule : CommandExecutionRule {
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return true
+        return previews.any { it is ApUsedPreviewComponent }
     }
 
     override fun preview(command: BattleCommand,
@@ -21,6 +22,7 @@ class ChangeApExecutionRule : CommandExecutionRule {
 
     override fun execute(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
 

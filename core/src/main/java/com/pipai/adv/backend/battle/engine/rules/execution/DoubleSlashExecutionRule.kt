@@ -4,34 +4,40 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.*
-import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
+import com.pipai.adv.backend.battle.engine.log.TargetSkillEvent
+import com.pipai.adv.classes.skills.DoubleSlash
 
-class NormalAttackExecutionRule : CommandExecutionRule {
+class DoubleSlashExecutionRule : CommandExecutionRule {
 
     companion object {
         const val DAMAGE_RANGE = 2
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is NormalAttackCommand
+        return command is TargetSkillCommand && command.skill is DoubleSlash
     }
 
     override fun preview(command: BattleCommand,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
-        val cmd = command as NormalAttackCommand
+        val cmd = command as TargetSkillCommand
+        val skill = cmd.skill as DoubleSlash
+
         val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))
         previewComponents.add(ToCritPreviewComponent(25))
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
-        previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
+        previewComponents.add(DamageScaleAdjustmentPreviewComponent((skill.level - 1) * 5, "Skill level ${skill.level}"))
 
-        return previewComponents.toList()
+        return listOf(
+                ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)),
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents),
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents))
     }
 
     override fun execute(command: BattleCommand,
@@ -40,12 +46,13 @@ class NormalAttackExecutionRule : CommandExecutionRule {
                          state: BattleState,
                          cache: BattleBackendCache) {
 
-        val cmd = command as NormalAttackCommand
-        state.battleLog.addEvent(NormalAttackEvent(
+        val cmd = command as TargetSkillCommand
+        state.battleLog.addEvent(TargetSkillEvent(
                 cmd.unitId,
-                state.getNpc(cmd.unitId)!!,
+                state.npcList.getNpc(cmd.unitId)!!,
                 cmd.targetId,
-                state.getNpc(cmd.targetId)!!,
-                state.getNpcWeapon(cmd.unitId)!!))
+                state.npcList.getNpc(cmd.targetId)!!,
+                cmd.skill))
     }
+
 }

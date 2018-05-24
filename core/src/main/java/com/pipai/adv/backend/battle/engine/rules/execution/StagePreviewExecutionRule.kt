@@ -4,25 +4,24 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.commands.WaitCommand
-import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
+import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
+import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
-class WaitExecutionRule : CommandExecutionRule {
+/**
+ * This execution rule should be after everything else is evaluated to calculate damage correctly.
+ */
+class StagePreviewExecutionRule : CommandExecutionRule {
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is WaitCommand
+        return previews.any { it is TargetStagePreviewComponent }
     }
 
     override fun preview(command: BattleCommand,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
-        val cmd = command as WaitCommand
-        val ap = Math.max(1, state.getNpcAp(cmd.unitId))
-        val apComponent = ApUsedPreviewComponent(cmd.unitId, ap)
-
-        return listOf(apComponent)
+        return listOf()
     }
 
     override fun execute(command: BattleCommand,
@@ -31,5 +30,8 @@ class WaitExecutionRule : CommandExecutionRule {
                          state: BattleState,
                          cache: BattleBackendCache) {
 
+        previews.filter { it is TargetStagePreviewComponent }
+                .map { it as TargetStagePreviewComponent }
+                .forEach { backend.executeStagePreview(TargetStageExecuteCommand(it)) }
     }
 }

@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
+import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
@@ -29,6 +30,7 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
 
     override fun execute(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
 
@@ -68,9 +70,19 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
             null
         } else {
             val baseDamage = damageComponents.first
-            val flatAdjustment = damageComponents.second.sumBy { (it as DamageFlatAdjustmentPreviewComponent).adjustment }
+            val flatAdjustment = damageComponents.second
+                    .filter { it is DamageFlatAdjustmentPreviewComponent }
+                    .sumBy { (it as DamageFlatAdjustmentPreviewComponent).adjustment }
 
-            Pair(baseDamage.minDamage + flatAdjustment, baseDamage.maxDamage + flatAdjustment)
+            val baseRange = Pair(baseDamage.minDamage + flatAdjustment, baseDamage.maxDamage + flatAdjustment)
+
+            val scaleAdjustment = damageComponents.second
+                    .filter { it is DamageScaleAdjustmentPreviewComponent }
+                    .sumBy { (it as DamageScaleAdjustmentPreviewComponent).adjustment } / 100f
+
+            Pair(
+                    baseRange.first + (baseRange.first * scaleAdjustment).toInt(),
+                    baseRange.second + (baseRange.second * scaleAdjustment).toInt())
         }
     }
 
@@ -82,8 +94,8 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
         return if (baseDamage == null) {
             null
         } else {
-            val flatAdjustment = previews.filter { it is DamageFlatAdjustmentPreviewComponent }
-            Pair(baseDamage, flatAdjustment)
+            val adjustments = previews.filter { it is DamageFlatAdjustmentPreviewComponent || it is DamageScaleAdjustmentPreviewComponent }
+            Pair(baseDamage, adjustments)
         }
     }
 

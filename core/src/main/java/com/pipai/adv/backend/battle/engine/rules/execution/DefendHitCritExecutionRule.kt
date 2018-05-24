@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
+import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
@@ -31,6 +32,7 @@ class DefendHitCritExecutionRule : CommandExecutionRule {
 
     override fun execute(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
     }

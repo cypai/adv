@@ -2,6 +2,7 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.engine.ActionPointState
+import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
@@ -39,6 +40,7 @@ class MoveExecutionRule : CommandExecutionRule {
 
     override fun execute(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
 

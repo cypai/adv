@@ -1,6 +1,7 @@
 package com.pipai.adv.backend.battle.engine.commands
 
 import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
 import com.pipai.adv.classes.skills.UnitSkill
 
 interface BattleCommand {
@@ -19,10 +20,15 @@ data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) :
 data class NormalAttackCommand(override val unitId: Int,
                                override val targetId: Int) : ActionCommand, TargetCommand
 
-data class SkillCommand(val skill: UnitSkill, val command: ActionCommand) : ActionCommand {
-    override val unitId: Int = command.unitId
-}
+data class TargetSkillCommand(val skill: UnitSkill,
+                              override val unitId: Int,
+                              override val targetId: Int) : ActionCommand, TargetCommand
 
 data class DefendCommand(override val unitId: Int) : ActionCommand
 
 data class WaitCommand(override val unitId: Int) : ActionCommand
+
+data class TargetStageExecuteCommand(val preview: TargetStagePreviewComponent) : ActionCommand, TargetCommand {
+    override val unitId: Int = preview.unitId
+    override val targetId: Int = preview.targetId
+}

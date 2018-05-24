@@ -30,6 +30,16 @@ data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override va
     }
 }
 
+data class DamageScaleAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
+    override fun rightText(): String {
+        return if (adjustment > 0) {
+            "+ $adjustment %"
+        } else {
+            "- ${-adjustment} %"
+        }
+    }
+}
+
 data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent {
     override val description: String = "Base"
     override fun rightText(): String = "$toHit %"
@@ -62,4 +72,11 @@ data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override va
 
 data class SecondaryEffectPreviewComponent(val chance: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String = "$chance %"
+}
+
+data class TargetStagePreviewComponent(val unitId: Int,
+                                       val targetId: Int,
+                                       val previews: List<PreviewComponent>) : PreviewComponent {
+    override val description: String = ""
+    override fun rightText(): String = ""
 }

@@ -5,6 +5,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
@@ -48,7 +49,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             KoCannotTakeActionRule(),
             KoCannotBeAttackedRule(),
             MoveCommandSanityRule(),
-            NormalAttackCommandSanityRule())
+            NormalAttackCommandSanityRule(),
+            DoubleSlashSanityRule())
 
     /**
      * Rules that verify that the battle state shown by the preview is OK
@@ -72,6 +74,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             DefendExecutionRule(),
             WaitExecutionRule(),
             NormalAttackExecutionRule(),
+            DoubleSlashExecutionRule(),
             MeleeHitCritExecutionRule(),
             RangedHitCritExecutionRule(),
             AvoidHitCritExecutionRule(),
@@ -79,6 +82,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
             ChangeApExecutionRule(),
+            StagePreviewExecutionRule(),
             KoExecutionRule())
 
     companion object {
@@ -179,13 +183,24 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         commandExecutionRules.forEach {
             if (it.matches(command, previewComponents)) {
                 logger.debug("Executing rule: ${it::class}")
-                it.execute(command, previewComponents, state, cache)
+                it.execute(command, previewComponents, this, state, cache)
             }
         }
         refreshCache()
         val events = state.battleLog.getEventsDuringExecution()
         events.forEach { logger.debug("BATTLE EVENT: ${it::class.simpleName} ${it.description()}") }
         return events
+    }
+
+    fun executeStagePreview(command: TargetStageExecuteCommand) {
+        val previewComponents = command.preview.previews
+        previewComponents.forEach { logger.debug("$it") }
+        commandExecutionRules.forEach {
+            if (it.matches(command, previewComponents)) {
+                logger.debug("Executing rule: ${it::class}")
+                it.execute(command, previewComponents, this, state, cache)
+            }
+        }
     }
 
     fun endTurn() {

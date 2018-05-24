@@ -22,6 +22,7 @@ class DevHpChangeExecutionRule : CommandExecutionRule {
 
     override fun execute(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
 

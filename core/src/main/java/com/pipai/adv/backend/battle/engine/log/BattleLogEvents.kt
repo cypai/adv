@@ -2,6 +2,7 @@ package com.pipai.adv.backend.battle.engine.log
 
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
+import com.pipai.adv.classes.skills.UnitSkill
 import com.pipai.adv.npc.Npc
 
 interface BattleLogEvent {
@@ -70,6 +71,16 @@ data class NormalAttackEvent(val attackerId: Int,
 
     override fun description() = "$attacker (id $attackerId) attacked $target (id $targetId) with $weapon"
     override fun userFriendlyDescription() = "${attacker.unitInstance.nickname} attacked ${target.unitInstance.nickname}!"
+}
+
+data class TargetSkillEvent(val npcId: Int,
+                            val npc: Npc,
+                            val targetId: Int,
+                            val target: Npc,
+                            val skill: UnitSkill) : BattleLogEvent {
+
+    override fun description() = "$npc (id $npcId) used ${skill.name} on $target (id $targetId)"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} used ${skill.name}!"
 }
 
 data class TextEvent(val text: String) : BattleLogEvent {
