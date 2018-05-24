@@ -72,7 +72,6 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             DefendExecutionRule(),
             WaitExecutionRule(),
             NormalAttackExecutionRule(),
-            BaseHitCritExecutionRule(),
             MeleeHitCritExecutionRule(),
             RangedHitCritExecutionRule(),
             AvoidHitCritExecutionRule(),
@@ -161,7 +160,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun preview(command: BattleCommand): List<PreviewComponent> {
         val previews: MutableList<PreviewComponent> = mutableListOf()
         commandExecutionRules.forEach {
-            if (it.matches(command)) {
+            if (it.matches(command, previews)) {
                 previews.addAll(it.preview(command, state, cache))
             }
         }
@@ -178,7 +177,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         val previewComponents = preview(command)
         previewComponents.forEach { logger.debug("$it") }
         commandExecutionRules.forEach {
-            if (it.matches(command)) {
+            if (it.matches(command, previewComponents)) {
                 logger.debug("Executing rule: ${it::class}")
                 it.execute(command, previewComponents, state, cache)
             }
@@ -229,6 +228,7 @@ data class BattleState(var turn: Team,
 
     fun getNpc(npcId: Int) = npcList.getNpc(npcId)
     fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)
+    fun getNpcWeapon(npcId: Int) = getNpc(npcId)?.unitInstance?.weapon
     fun getNpcAilment(npcId: Int) = npcStatusState.getNpcAilment(npcId)
     fun getNpcStatus(npcId: Int) = npcStatusState.getNpcStatus(npcId)
     fun checkNpcStatus(npcId: Int, status: NpcStatus) = npcStatusState.checkNpcStatus(npcId, status)

@@ -12,7 +12,7 @@ import com.pipai.adv.backend.battle.engine.log.TextEvent
 
 class DefendExecutionRule : CommandExecutionRule {
 
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return command is DefendCommand
     }
 

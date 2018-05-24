@@ -13,7 +13,7 @@ import com.pipai.adv.utils.GridUtils
 
 class MoveExecutionRule : CommandExecutionRule {
 
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return command is MoveCommand
     }
 

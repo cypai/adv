@@ -3,7 +3,7 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.engine.domain.*
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.DamageOutcome
@@ -14,8 +14,10 @@ import com.pipai.adv.utils.RNG
  */
 class AttackCalculationExecutionRule : CommandExecutionRule {
 
-    override fun matches(command: BattleCommand): Boolean {
-        return command is HitCritCommand
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
+        return command is TargetCommand
+                && previews.any { it is ToHitPreviewComponent }
+                && previews.any { it is ToCritPreviewComponent }
     }
 
     override fun preview(command: BattleCommand,
@@ -30,7 +32,7 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
                          state: BattleState,
                          cache: BattleBackendCache) {
 
-        val cmd = command as HitCritCommand
+        val cmd = command as TargetCommand
         val damageRange = calculateDamageRange(previews)
         val toHit = calculateToHit(previews)
         val toCrit = calculateToCrit(previews)

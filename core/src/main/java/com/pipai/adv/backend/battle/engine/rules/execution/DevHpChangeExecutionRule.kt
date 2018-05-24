@@ -9,7 +9,7 @@ import com.pipai.adv.backend.battle.engine.log.DamageOutcome
 import com.pipai.adv.backend.battle.engine.log.HealEvent
 
 class DevHpChangeExecutionRule : CommandExecutionRule {
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return command is DevHpChangeCommand
     }
 

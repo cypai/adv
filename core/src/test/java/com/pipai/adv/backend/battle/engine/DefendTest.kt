@@ -39,7 +39,7 @@ class DefendTest {
 
         backend.endTurn()
 
-        val attackCommand = NormalAttackCommand(enemyId, playerId, sword)
+        val attackCommand = NormalAttackCommand(enemyId, playerId)
         Assert.assertTrue(backend.canBeExecuted(attackCommand).executable)
         Assert.assertTrue(backend.preview(attackCommand)
                 .filter { it is ToHitFlatAdjustmentPreviewComponent }

@@ -4,9 +4,7 @@ import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
-import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
-import com.pipai.adv.backend.battle.engine.domain.DamagePreviewComponent
-import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.*
 import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
 
 class NormalAttackExecutionRule : CommandExecutionRule {
@@ -15,7 +13,7 @@ class NormalAttackExecutionRule : CommandExecutionRule {
         const val DAMAGE_RANGE = 2
     }
 
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return command is NormalAttackCommand
     }
 
@@ -24,11 +22,12 @@ class NormalAttackExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as NormalAttackCommand
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + cmd.weapon.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
+        previewComponents.add(ToHitPreviewComponent(65))
+        previewComponents.add(ToCritPreviewComponent(25))
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
-
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
 
         return previewComponents.toList()
@@ -42,9 +41,9 @@ class NormalAttackExecutionRule : CommandExecutionRule {
         val cmd = command as NormalAttackCommand
         state.battleLog.addEvent(NormalAttackEvent(
                 cmd.unitId,
-                state.npcList.getNpc(cmd.unitId)!!,
+                state.getNpc(cmd.unitId)!!,
                 cmd.targetId,
-                state.npcList.getNpc(cmd.targetId)!!,
-                cmd.weapon))
+                state.getNpc(cmd.targetId)!!,
+                state.getNpcWeapon(cmd.unitId)!!))
     }
 }

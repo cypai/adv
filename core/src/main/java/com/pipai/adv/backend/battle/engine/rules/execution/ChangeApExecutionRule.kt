@@ -8,7 +8,7 @@ import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.ApChangeEvent
 
 class ChangeApExecutionRule : CommandExecutionRule {
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return true
     }
 

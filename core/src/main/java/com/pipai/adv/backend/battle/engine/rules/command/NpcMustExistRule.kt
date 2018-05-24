@@ -1,9 +1,10 @@
 package com.pipai.adv.backend.battle.engine.rules.command
 
-import com.pipai.adv.backend.battle.engine.*
+import com.pipai.adv.backend.battle.engine.BattleBackendCache
+import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.ActionCommand
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 
 class NpcMustExistRule : CommandRule {
@@ -13,7 +14,7 @@ class NpcMustExistRule : CommandRule {
             state.npcList.getNpc(command.unitId)
                     ?: return ExecutableStatus(false, "Npc ${command.unitId} does not exist")
         }
-        if (command is HitCritCommand) {
+        if (command is TargetCommand) {
             state.npcList.getNpc(command.targetId)
                     ?: return ExecutableStatus(false, "Npc ${command.targetId} does not exist")
         }

@@ -14,7 +14,7 @@ class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory<
                 && BattleUtils.weaponCanAttack(weapon, 1)) {
 
             val targets = BattleUtils.enemiesInWeaponRange(npcId, backend)
-            commands.addAll(targets.map { NormalAttackCommand(npcId, it, weapon) })
+            commands.addAll(targets.map { NormalAttackCommand(npcId, it) })
         }
         return commands
     }
@@ -27,7 +27,7 @@ class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory<
                 && weapon != null) {
 
             val targets = BattleUtils.enemiesInWeaponRange(npcId, backend)
-            commands.addAll(targets.map { NormalAttackCommand(npcId, it, weapon) })
+            commands.addAll(targets.map { NormalAttackCommand(npcId, it) })
         }
         return commands
     }
@@ -41,7 +41,7 @@ class NormalAttackCommandFactory(backend: BattleBackend) : ActionCommandFactory<
                 && BattleUtils.weaponCanAttack(weapon, 1)) {
 
             val targets = BattleUtils.enemiesInWeaponRange(npcId, position, backend)
-            commands.addAll(targets.map { NormalAttackCommand(npcId, it, weapon) })
+            commands.addAll(targets.map { NormalAttackCommand(npcId, it) })
         }
         return commands
     }

@@ -2,25 +2,27 @@ package com.pipai.adv.backend.battle.engine.rules.execution
 
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
-import com.pipai.adv.backend.battle.engine.commands.ActionCommand
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.commands.HitCritCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToCritPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.ToHitPreviewComponent
 
 class AvoidHitCritExecutionRule : CommandExecutionRule {
 
-    override fun matches(command: BattleCommand): Boolean {
-        return command is ActionCommand
-                && command is HitCritCommand
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
+        return command is TargetCommand
+                && previews.any { it is ToHitPreviewComponent }
+                && previews.any { it is ToCritPreviewComponent }
     }
 
     override fun preview(command: BattleCommand,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
-        val hitCritCommand = command as HitCritCommand
-        val targetId = hitCritCommand.targetId
+        val cmd = command as TargetCommand
+        val targetId = cmd.targetId
         val avoid = state.getNpc(targetId)!!.unitInstance.schema.baseStats.avoid
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()

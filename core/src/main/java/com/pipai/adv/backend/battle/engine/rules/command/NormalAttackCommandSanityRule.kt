@@ -14,13 +14,10 @@ class NormalAttackCommandSanityRule : CommandRule {
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is NormalAttackCommand) {
-            val attacker = state.npcList.getNpc(command.unitId)!!
-            val weapon = command.weapon
-            if (attacker.unitInstance.weapon != weapon) {
-                return ExecutableStatus(false, "Attacker is not wielding this weapon")
-            }
+            val weapon = state.getNpcWeapon(command.unitId)
+            weapon ?: return ExecutableStatus(false, "Attacker is not wielding a weapon")
 
-            val range = command.weapon.schema.range
+            val range = weapon.schema.range
             val attackerPosition = cache.npcPositions[command.unitId]!!
             val targetPosition = cache.npcPositions[command.targetId]!!
 

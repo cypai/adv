@@ -9,7 +9,7 @@ import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
 class KoExecutionRule : CommandExecutionRule {
-    override fun matches(command: BattleCommand): Boolean {
+    override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
         return true
     }
 

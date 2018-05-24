@@ -2,7 +2,6 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
-import com.pipai.adv.backend.battle.engine.log.AmmoChangeEvent
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
 import com.pipai.adv.npc.NpcList
@@ -32,7 +31,7 @@ class NormalAttackTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = NormalAttackCommand(attackerId, targetId, sword)
+        val cmd = NormalAttackCommand(attackerId, targetId)
 
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
 
@@ -61,7 +60,7 @@ class NormalAttackTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = NormalAttackCommand(attackerId, targetId, sword)
+        val cmd = NormalAttackCommand(attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
@@ -84,7 +83,7 @@ class NormalAttackTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = NormalAttackCommand(attackerId, targetId, bow)
+        val cmd = NormalAttackCommand(attackerId, targetId)
 
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
 
@@ -119,7 +118,7 @@ class NormalAttackTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = NormalAttackCommand(attackerId, targetId, sword)
+        val cmd = NormalAttackCommand(attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
@@ -143,7 +142,7 @@ class NormalAttackTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = NormalAttackCommand(attackerId, targetId, bow)
+        val cmd = NormalAttackCommand(attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
