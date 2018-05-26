@@ -118,12 +118,16 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         pixmap.fill()
         skin.add("white", Texture(pixmap));
 
-        skin.add("default", LabelStyle(font, Color.BLACK))
-        skin.add("small", LabelStyle(smallFont, Color.BLACK))
-
         val whiteDrawable = skin.newDrawable("white", Color.WHITE)
         val grayDrawable = skin.newDrawable("white", Color.LIGHT_GRAY)
         val blackDrawable = skin.newDrawable("white", Color.BLACK)
+
+        skin.add("default", LabelStyle(font, Color.BLACK))
+        skin.add("small", LabelStyle(smallFont, Color.BLACK))
+        val devLabelStyle = LabelStyle(font, Color.BLACK)
+        devLabelStyle.background = whiteDrawable
+        skin.add("dev", devLabelStyle)
+
         val textFieldStyle = TextFieldStyle(font, Color.BLACK,
                 blackDrawable, grayDrawable, whiteDrawable)
         skin.add("default", textFieldStyle)
