@@ -4,6 +4,7 @@ import com.pipai.adv.SchemaList
 import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
+import com.pipai.adv.backend.battle.generators.OpenBattleMapGenerator
 import com.pipai.adv.backend.battle.generators.ParcelBattleMapGenerator
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
@@ -37,7 +38,7 @@ class GuildMapGenerator : MapGenerator {
 class TestMapGenerator : MapGenerator {
 
     override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
-        val generator = ParcelBattleMapGenerator()
+        val generator = OpenBattleMapGenerator()
         val map = generator.generate(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
