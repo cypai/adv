@@ -295,7 +295,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
             stateMachine.changeState(BattleUiState.ANIMATING)
             sBattleAnimation.processBattleEvents(events)
         } else {
-            logger.debug("Unable to execute: ${executionStatus.reason}")
+            logger.debug("Unable to evaluate: ${executionStatus.reason}")
         }
     }
 

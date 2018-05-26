@@ -10,6 +10,17 @@ interface BattleLogEvent {
     fun userFriendlyDescription(): String = ""
 }
 
+data class BattleEndEvent(val endingType: EndingType) : BattleLogEvent {
+    override fun description(): String = endingType.description
+    override fun userFriendlyDescription(): String = endingType.description
+}
+
+enum class EndingType(val description: String) {
+    MAP_CLEAR("The map is clear of enemies!"),
+    RAN_AWAY("The party ran away..."),
+    GAME_OVER("The party was defeated...")
+}
+
 data class ApChangeEvent(val npcId: Int, val newApAmount: Int) : BattleLogEvent {
     override fun description() = "NPC id $npcId AP set to $newApAmount"
 }

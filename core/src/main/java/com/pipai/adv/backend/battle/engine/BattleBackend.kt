@@ -10,9 +10,13 @@ import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.log.BattleEndEvent
 import com.pipai.adv.backend.battle.engine.log.BattleLog
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
 import com.pipai.adv.backend.battle.engine.rules.command.*
+import com.pipai.adv.backend.battle.engine.rules.ending.EndingRule
+import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
+import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApRequirementRule
 import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
@@ -86,6 +90,10 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             ChangeApExecutionRule(),
             StagePreviewExecutionRule(),
             KoExecutionRule())
+
+    private val endingRules: List<EndingRule> = listOf(
+            TotalPartyKillEndingRule(),
+            MapClearEndingRule())
 
     companion object {
         const val MELEE_WEAPON_DISTANCE = 1.8
@@ -189,6 +197,13 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             }
         }
         refreshCache()
+        endingRules.forEach {
+            val ended = it.evaluate(this, state, cache)
+            if (ended) {
+                state.battleLog.addEvent(BattleEndEvent(it.endingType))
+                return@forEach
+            }
+        }
         val events = state.battleLog.getEventsDuringExecution()
         events.forEach { logger.debug("BATTLE EVENT: ${it::class.simpleName} ${it.description()}") }
         return events
