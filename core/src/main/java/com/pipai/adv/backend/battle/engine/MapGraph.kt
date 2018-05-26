@@ -5,6 +5,7 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.utils.MathUtils
 import com.pipai.adv.utils.getLogger
 import java.util.*
+import kotlin.math.pow
 
 /*
 * To be used as a disposable BattleMap representation for Dijkstra's and other pathfinding algorithms
@@ -44,10 +45,10 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
     private fun initializeMap() {
         val startX = Math.max(0, start.x - mobility)
         val startY = Math.max(0, start.y - mobility)
-        val endX = Math.min(start.x + mobility, map.width)
-        val endY = Math.min(start.y + mobility, map.height)
-        for (x in startX until endX) {
-            for (y in startY until endY) {
+        val endX = Math.min(start.x + mobility, map.width - 1)
+        val endY = Math.min(start.y + mobility, map.height - 1)
+        for (x in startX..endX) {
+            for (y in startY..endY) {
                 val cellPos = GridPosition(x, y)
                 if (map.getCell(cellPos).fullEnvObject == null || cellPos == start) {
                     val cell = Node(cellPos)
@@ -116,7 +117,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
 
     private fun runDijkstra(maxMove: Float) {
         root.totalCost = 0.0
-        val pqueue = PriorityQueue((maxMove * maxMove).toInt(), NodeComparator())
+        val pqueue = PriorityQueue(maxMove.pow(2).toInt(), NodeComparator())
         pqueue.addAll(nodeMap.values)
 
         while (pqueue.isNotEmpty()) {
@@ -126,10 +127,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
                 logger.debug("Current $current")
             }
             if (current != root) {
-                val apNeeded = apRequiredToMoveTo(current)
-                if (apNeeded == null) {
-                    return
-                }
+                val apNeeded = apRequiredToMoveTo(current) ?: return
                 val index = apNeeded - 1
                 val reachableList = reachableLists[index]
                 reachableList.add(current.position)
