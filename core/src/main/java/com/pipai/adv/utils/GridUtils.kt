@@ -74,4 +74,8 @@ object GridUtils {
         }
     }
 
+    fun isNeighbor(pos1: GridPosition, pos2: GridPosition): Boolean {
+        return (pos1.x - pos2.x) in -1..1 && (pos1.y - pos2.y) in -1..1
+    }
+
 }

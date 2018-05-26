@@ -4,6 +4,7 @@ import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.engine.calculators.CoverCalculator
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
@@ -79,6 +80,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             RangedHitCritExecutionRule(),
             AvoidHitCritExecutionRule(),
             DefendHitCritExecutionRule(),
+            CoverHitCritExecutionRule(CoverCalculator(battleMap)),
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
             ChangeApExecutionRule(),

@@ -5,6 +5,10 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 
 object DirectionUtils {
 
+    fun directionFor(from: GridPosition, to: GridPosition): Direction {
+        return directionFor(from.x.toFloat(), from.y.toFloat(), to.x.toFloat(), to.y.toFloat())
+    }
+
     fun directionFor(fromX: Float, fromY: Float, toX: Float, toY: Float): Direction {
         if (fromX == toX) {
             if (fromY > toY) {
@@ -70,6 +74,19 @@ object DirectionUtils {
         }
     }
 
+    fun cardinalDefendingDirections(attackDirection: Direction): List<Direction> {
+        return when (attackDirection) {
+            Direction.N -> listOf(Direction.N)
+            Direction.S -> listOf(Direction.S)
+            Direction.E -> listOf(Direction.E)
+            Direction.W -> listOf(Direction.W)
+            Direction.NE -> listOf(Direction.N, Direction.E)
+            Direction.NW -> listOf(Direction.N, Direction.W)
+            Direction.SE -> listOf(Direction.S, Direction.E)
+            Direction.SW -> listOf(Direction.S, Direction.W)
+        }
+    }
+
     fun perpendicularsFor(direction: Direction): List<Direction> {
         return when (direction) {
             Direction.N -> listOf(Direction.W, Direction.E)
@@ -93,6 +110,19 @@ object DirectionUtils {
             Direction.NW -> Direction.SE
             Direction.SE -> Direction.NW
             Direction.SW -> Direction.NE
+        }
+    }
+
+    fun neighborCellInDirection(position: GridPosition, direction: Direction): GridPosition {
+        return when (direction) {
+            Direction.N -> GridPosition(position.x, position.y + 1)
+            Direction.S -> GridPosition(position.x, position.y - 1)
+            Direction.E -> GridPosition(position.x + 1, position.y)
+            Direction.W -> GridPosition(position.x - 1, position.y)
+            Direction.NE -> GridPosition(position.x + 1, position.y + 1)
+            Direction.NW -> GridPosition(position.x - 1, position.y + 1)
+            Direction.SE -> GridPosition(position.x + 1, position.y - 1)
+            Direction.SW -> GridPosition(position.x - 1, position.y - 1)
         }
     }
 }

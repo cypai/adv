@@ -2,6 +2,7 @@ package com.pipai.adv.backend.battle.domain
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.google.common.base.Preconditions
+import com.pipai.adv.backend.battle.engine.domain.CoverType
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.TileDescriptor
@@ -23,6 +24,18 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
         Preconditions.checkElementIndex(x, width)
         Preconditions.checkElementIndex(y, height)
         return cells[x][y]
+    }
+
+    fun getCellSafe(position: GridPosition): BattleMapCell? {
+        return getCellSafe(position.x, position.y)
+    }
+
+    fun getCellSafe(x: Int, y: Int): BattleMapCell? {
+        return if (x in 0 until width && y in 0 until height) {
+            getCell(x, y)
+        } else {
+            null
+        }
     }
 
     companion object Factory {
@@ -74,8 +87,10 @@ sealed class FullEnvObject : DeepCopyable<FullEnvObject> {
         override fun getTilesetMetadata() = envObjTilesetMetadata
     }
 
-    enum class DestructibleEnvObjectType(val defaultMinHp: Int, val defaultMaxHp: Int) {
-        TREE(100, 120), ROCK(70, 100), BOULDER(170, 200)
+    enum class DestructibleEnvObjectType(val defaultMinHp: Int, val defaultMaxHp: Int, val coverType: CoverType) {
+        TREE(100, 120, CoverType.FULL),
+        ROCK(70, 100, CoverType.HALF),
+        BOULDER(170, 200, CoverType.FULL)
     }
 
     data class FullWall(val type: FullWallType) : FullEnvObject() {
