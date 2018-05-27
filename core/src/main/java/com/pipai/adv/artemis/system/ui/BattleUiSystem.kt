@@ -81,6 +81,13 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     })
     private var primaryActionMenuEntityId: Int = 0
 
+    private val secondaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<MenuItem> {
+        override fun getItemImage(item: MenuItem): TextureRegion? = item.image
+        override fun getItemText(item: MenuItem): String = item.text
+        override fun getSpacing(): Float = 10f
+    })
+    private var secondaryActionMenuEntityId: Int = 0
+
     private val commandPreviewTable = Table()
     private val commandPreviewTitle = Label("", game.skin)
     private val commandPreviewList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
@@ -132,6 +139,8 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         const val UI_WIDTH = PADDING + PORTRAIT_WIDTH + PADDING + BAR_WIDTH + POST_BAR_PADDING + SELECTION_DISTANCE
         const val UI_HEIGHT = PADDING + PORTRAIT_HEIGHT + PADDING
 
+        const val SECONDARY_X = 80f
+
         const val SELECTION_TIME = 10
 
         const val ACTION_UI_WIDTH = 160f
@@ -161,6 +170,25 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         primaryActionMenuEntityId = world.create()
         val cPrimaryActionMenu = mActor.create(primaryActionMenuEntityId)
         cPrimaryActionMenu.actor = primaryActionMenu
+
+        secondaryActionMenu.hoverSelect = true
+        secondaryActionMenu.keySelection = true
+        secondaryActionMenu.disabledFontColor = Color.GRAY
+        secondaryActionMenu.x = PADDING
+        secondaryActionMenu.y = PADDING
+        secondaryActionMenu.width = ACTION_UI_WIDTH * 2
+        secondaryActionMenu.height = primaryActionMenu.prefHeight
+        secondaryActionMenu.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (!secondaryActionMenu.lockSelection) {
+                    handleMenuSelect(secondaryActionMenu.getSelected())
+                }
+            }
+        })
+
+        secondaryActionMenuEntityId = world.create()
+        val cSecondaryActionMenu = mActor.create(secondaryActionMenuEntityId)
+        cSecondaryActionMenu.actor = secondaryActionMenu
 
         commandPreviewTitle.setText("Attack")
         commandPreviewList.disabledFontColor = Color.GRAY
@@ -424,6 +452,43 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         primaryActionMenu.height = primaryActionMenu.prefHeight
     }
 
+    private fun activateSecondaryActionMenu() {
+        setSecondaryActionMenuItems()
+        val cSecondaryMenuPath = mPath.create(secondaryActionMenuEntityId)
+        cSecondaryMenuPath.interpolation = Interpolation.linear
+        cSecondaryMenuPath.endpoints.clear()
+        cSecondaryMenuPath.endpoints.add(Vector2(-ACTION_UI_WIDTH, secondaryActionMenu.y))
+        cSecondaryMenuPath.endpoints.add(Vector2(SECONDARY_X, secondaryActionMenu.y))
+        cSecondaryMenuPath.maxT = SELECTION_TIME
+        stage.addActor(secondaryActionMenu)
+    }
+
+    private fun setSecondaryActionMenuItems() {
+        val backend = getBackend()
+        when (stateMachine.currentState) {
+            BattleUiState.SKILL_SELECTION -> {
+                val npcId = selectedNpcId!!
+                val skills = backend.getNpc(npcId)!!.unitInstance.skills
+                val menuItems: MutableList<MenuItem> =
+                        skills.map { TargetMenuCommandItem(it.schema.name, null, TargetSkillCommandFactory(backend, it)) }.toMutableList()
+                if (menuItems.size < 6) {
+                    repeat(6 - menuItems.size) {
+                        menuItems.add(StringMenuItem("", null, ""))
+                    }
+                }
+                secondaryActionMenu.setItems(menuItems)
+                for (i in 0 until menuItems.size) {
+                    if (menuItems[i] is StringMenuItem) {
+                        secondaryActionMenu.setDisabledIndex(i, true)
+                    }
+                }
+            }
+            else -> {
+            }
+        }
+        secondaryActionMenu.height = secondaryActionMenu.prefHeight
+    }
+
     private fun handleMenuSelect(menuItem: MenuItem) {
         when (menuItem) {
             is TargetMenuCommandItem -> {
@@ -436,6 +501,11 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 val command = menuItem.factory.generate(selectedNpcId!!).firstOrNull()
                 if (command != null) {
                     executeCommand(command)
+                }
+            }
+            is StringMenuItem -> {
+                if (menuItem.text == "Skill") {
+                    stateMachine.changeState(BattleUiState.SKILL_SELECTION)
                 }
             }
         }
@@ -855,8 +925,9 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         when (stateMachine.currentState) {
             BattleUiState.PLAYER_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
             BattleUiState.ENEMY_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+            BattleUiState.SKILL_SELECTION -> stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
             BattleUiState.TARGET_SELECTION -> {
-                stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+                stateMachine.revertToPreviousState()
 
                 val npcEntityId = sNpcId.getNpcEntityId(selectedNpcId!!)!!
                 val cXy = mXy.get(npcEntityId)
@@ -1045,6 +1116,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 uiSystem.clearLeftUiBoxes()
                 uiSystem.deselectRightUiBoxes()
                 uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)
+                uiSystem.secondaryActionMenu.remove()
                 if (uiSystem.primaryActionMenu.lockSelection) {
                     uiSystem.primaryActionMenu.lockSelection = false
                 } else {
@@ -1062,9 +1134,33 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 uiSystem.clearMovementPreview()
             }
         },
+        SKILL_SELECTION() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.commandPreviewTable.remove()
+                uiSystem.clearLeftUiBoxes()
+                uiSystem.deselectRightUiBoxes()
+                uiSystem.selectRightUiBox(uiSystem.selectedNpcId!!)
+                if (uiSystem.secondaryActionMenu.lockSelection) {
+                    uiSystem.secondaryActionMenu.lockSelection = false
+                } else {
+                    if (uiSystem.getBackend().getNpcAp(uiSystem.selectedNpcId!!) > 0) {
+                        uiSystem.activateSecondaryActionMenu()
+                        uiSystem.stage.addActor(uiSystem.secondaryActionMenu)
+                        uiSystem.stage.keyboardFocus = uiSystem.secondaryActionMenu
+                    }
+                }
+                uiSystem.showMoveTileHighlights(uiSystem.selectedNpcId!!)
+            }
+
+            override fun exit(uiSystem: BattleUiSystem) {
+                uiSystem.clearTileHighlights()
+                uiSystem.clearMovementPreview()
+            }
+        },
         TARGET_SELECTION() {
             override fun enter(uiSystem: BattleUiSystem) {
                 uiSystem.primaryActionMenu.lockSelection = true
+                uiSystem.secondaryActionMenu.lockSelection = true
                 if (uiSystem.targetNpcIds.isNotEmpty()) {
                     var index = 0
                     uiSystem.targetNpcIds.forEach {
