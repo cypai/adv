@@ -25,7 +25,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))

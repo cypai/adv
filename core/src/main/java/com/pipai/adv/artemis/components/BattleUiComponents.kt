@@ -23,9 +23,9 @@ class SideUiBoxComponent : Component() {
         if (npc != null) {
             name = npc.unitInstance.nickname
             hp = npc.unitInstance.hp
-            hpMax = npc.unitInstance.schema.baseStats.hpMax
+            hpMax = npc.unitInstance.stats.hpMax
             tp = npc.unitInstance.tp
-            tpMax = npc.unitInstance.schema.baseStats.tpMax
+            tpMax = npc.unitInstance.stats.tpMax
             onFieldPortrait = npc.tilesetMetadata
         }
     }
@@ -43,7 +43,7 @@ class UnitHealthbarComponent : Component() {
         this.npcId = npcId
         val npc = backend.getBattleState().npcList.getNpc(npcId)
         if (npc != null) {
-            percentage = npc.unitInstance.hp.toFloat() / npc.unitInstance.schema.baseStats.hpMax.toFloat()
+            percentage = npc.unitInstance.hp.toFloat() / npc.unitInstance.stats.hpMax.toFloat()
         }
     }
 }

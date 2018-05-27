@@ -24,7 +24,7 @@ class AvoidHitCritExecutionRule : CommandExecutionRule {
 
         val cmd = command as TargetCommand
         val targetId = cmd.targetId
-        val avoid = state.getNpc(targetId)!!.unitInstance.schema.baseStats.avoid
+        val avoid = state.getNpc(targetId)!!.unitInstance.stats.avoid
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         if (avoid != 0) {

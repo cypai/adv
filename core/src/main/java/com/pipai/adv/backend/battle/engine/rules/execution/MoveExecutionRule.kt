@@ -25,7 +25,7 @@ class MoveExecutionRule : CommandExecutionRule {
         val cmd = command as MoveCommand
         val npc = state.npcList.getNpc(cmd.unitId)!!
         val apMax = ActionPointState.startingNumAPs
-        val mobility = npc.unitInstance.schema.baseStats.mobility
+        val mobility = npc.unitInstance.stats.mobility
         val distancePerAp = mobility.toFloat() / apMax.toFloat()
 
         val distance = cmd.path.zipWithNext()

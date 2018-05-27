@@ -68,7 +68,7 @@ class DamageAnimationHandler(val config: AdvConfig, private val textFont: Bitmap
         val cUnitHealthbar = mUnitHealthbar.getSafe(targetEntityId, null)
         if (cUnitHealthbar != null) {
             val npcInstance = damageEvent.npc.unitInstance
-            cUnitHealthbar.percentage = npcInstance.hp.toFloat() / npcInstance.schema.baseStats.hpMax.toFloat()
+            cUnitHealthbar.percentage = npcInstance.hp.toFloat() / npcInstance.stats.hpMax.toFloat()
         }
         updateSideUiHp(damageEvent)
     }

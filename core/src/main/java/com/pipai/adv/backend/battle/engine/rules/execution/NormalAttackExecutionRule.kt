@@ -23,7 +23,7 @@ class NormalAttackExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as NormalAttackCommand
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))

@@ -27,7 +27,7 @@ class MoveCommandFactory(backend: BattleBackend) : ActionCommandFactory<MoveComm
         return MapGraph(
                 backend.getBattleMapState(),
                 backend.getNpcPositions()[npcId]!!,
-                state.npcList.getNpc(npcId)!!.unitInstance.schema.baseStats.mobility,
+                state.npcList.getNpc(npcId)!!.unitInstance.stats.mobility,
                 currentAp,
                 ActionPointState.startingNumAPs)
     }
