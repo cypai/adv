@@ -7,7 +7,6 @@ import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.*
 import com.pipai.adv.backend.battle.engine.log.TargetSkillEvent
-import com.pipai.adv.classes.skills.DoubleSlash
 
 class DoubleSlashExecutionRule : CommandExecutionRule {
 
@@ -16,7 +15,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill is DoubleSlash
+        return command is TargetSkillCommand && command.skill.schema.name == "Double Slash"
     }
 
     override fun preview(command: BattleCommand,
@@ -24,7 +23,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as TargetSkillCommand
-        val skill = cmd.skill as DoubleSlash
+        val skill = cmd.skill
 
         val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.schema.baseStats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 

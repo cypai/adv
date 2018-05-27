@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.domain
 
+import com.pipai.adv.classes.skills.UnitSkill
 import com.pipai.adv.utils.DeepCopyable
 
 data class UnitStats(
@@ -100,12 +101,16 @@ data class UnitInstance(
         var nickname: String,
         var hp: Int,
         var tp: Int,
-        var weapon: InventoryItem.WeaponInstance?) : DeepCopyable<UnitInstance> {
+        var weapon: InventoryItem.WeaponInstance?,
+        val skills: MutableList<UnitSkill>) : DeepCopyable<UnitInstance> {
 
-    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, null)
+    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, null, mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
-            : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1))
+            : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), mutableListOf())
+
+    constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema, skills: List<UnitSkill>)
+            : this(schema, nickname, schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), skills.toMutableList())
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
 }

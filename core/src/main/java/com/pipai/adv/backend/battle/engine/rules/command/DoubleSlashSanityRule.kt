@@ -8,7 +8,6 @@ import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
-import com.pipai.adv.classes.skills.DoubleSlash
 import com.pipai.adv.utils.MathUtils
 
 class DoubleSlashSanityRule : CommandRule {
@@ -16,7 +15,7 @@ class DoubleSlashSanityRule : CommandRule {
     private val usableWeaponTypes = listOf(WeaponType.SWORD, WeaponType.DAGGER)
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is TargetSkillCommand && command.skill is DoubleSlash) {
+        if (command is TargetSkillCommand && command.skill.schema.name == "Double Slash") {
             val weapon = state.getNpcWeapon(command.unitId)
             weapon ?: return ExecutableStatus(false, "Attacker is not wielding a weapon")
 

@@ -18,8 +18,10 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
+import com.pipai.adv.classes.skills.UnitSkill
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
+import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.npc.Npc
 import com.pipai.adv.save.AdvSave
@@ -129,7 +131,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Keys.ENTER) {
-            val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex)
+            val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex, game.globals.skillIndex)
             game.globals.loadSave(save)
             game.globals.autoSave()
             game.screen = GuildScreen(game)
@@ -140,15 +142,19 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         return false
     }
 
-    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex): AdvSave {
+    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex, skillIndex: SkillIndex): AdvSave {
         val save = AdvSave()
 
         save.changePlayerGuildName(guildText.text)
 
         val playerPcc: List<PccMetadata> = pccCustomizer.getPcc()
-        val playerNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, nameText.text),
+        val playerNpc = Npc(
+                UnitInstance(
+                        schemas.getSchema("Human").schema,
+                        nameText.text,
+                        weaponSchemaIndex.getWeaponSchema("Toy Sword")!!,
+                        listOf(UnitSkill(1, skillIndex.getSkillSchema("Double Slash")!!))),
                 PccTilesetMetadata(playerPcc))
-        playerNpc.unitInstance.weapon = InventoryItem.WeaponInstance(weaponSchemaIndex.getWeaponSchema("Toy Sword")!!, 1)
         val playerId = save.globalNpcList.addNpc(playerNpc)
         save.addToGuild(guildText.text, playerId)
 

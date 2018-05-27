@@ -1,21 +1,24 @@
 package com.pipai.adv.backend.battle.engine
 
+import com.badlogic.gdx.Gdx
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
-import com.pipai.adv.classes.skills.DoubleSlash
+import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.npc.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
+import com.pipai.test.libgdx.GdxMockedTest
 import org.junit.Assert
 import org.junit.Test
 
-class DoubleSlashTest {
+class DoubleSlashTest : GdxMockedTest() {
 
     @Test
     fun testDoubleSlash() {
+        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
         val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
@@ -31,7 +34,7 @@ class DoubleSlashTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = TargetSkillCommand(DoubleSlash(1), attackerId, targetId)
+        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
 
@@ -49,6 +52,7 @@ class DoubleSlashTest {
 
     @Test
     fun testDoubleSlashOutOfRange() {
+        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
         val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
@@ -63,7 +67,7 @@ class DoubleSlashTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = TargetSkillCommand(DoubleSlash(1), attackerId, targetId)
+        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
@@ -72,6 +76,7 @@ class DoubleSlashTest {
 
     @Test
     fun testDoubleSlashBow() {
+        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
         val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
@@ -86,7 +91,7 @@ class DoubleSlashTest {
 
         val backend = BattleBackend(save, npcList, map)
 
-        val cmd = TargetSkillCommand(DoubleSlash(1), attackerId, targetId)
+        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
