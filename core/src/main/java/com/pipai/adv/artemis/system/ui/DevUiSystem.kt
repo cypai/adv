@@ -1,5 +1,6 @@
 package com.pipai.adv.artemis.system.ui
 
+import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine
@@ -8,15 +9,24 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.events.PauseEvent
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.engine.commands.DevHpChangeCommand
+import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class DevUiSystem(private val game: AdvGame,
                   private val stage: Stage) : NoProcessingSystem(), InputProcessor {
 
+    private val mBackend by mapper<BattleBackendComponent>()
+
+    private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
+    private val sBattleUi by system<BattleUiSystem>()
 
     private val stateMachine = DefaultStateMachine<DevUiSystem, DevUiState>(this)
 
@@ -70,9 +80,29 @@ class DevUiSystem(private val game: AdvGame,
         addTerminalOutput("$ $commandLine")
         val tokens = commandLine.split(" ").filter { it.isNotBlank() }
         val command = tokens.firstOrNull()
+        val args: List<String> = if (tokens.size > 1) tokens.subList(1, tokens.size) else listOf()
         when (command) {
             "killall" -> {
-                addTerminalOutput("Killing all")
+                val team = args.firstOrNull()
+                if (team == null || !listOf("player", "ai").contains(team)) {
+                    addTerminalOutput("No team specified")
+                } else {
+                    addTerminalOutput("Killing all npcs in team $team")
+                    val backend = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
+                    when (team) {
+                        "player" -> {
+                            val playerTeam = backend.getTeam(Team.PLAYER)
+                            sBattleUi.bufferExecuteCommand(playerTeam.map { DevHpChangeCommand(it, 0) })
+                        }
+                        "ai" -> {
+                            val aiTeam = backend.getTeam(Team.AI)
+                            sBattleUi.bufferExecuteCommand(aiTeam.map { DevHpChangeCommand(it, 0) })
+                        }
+                    }
+                }
+            }
+            "uistate" -> {
+                addTerminalOutput(sBattleUi.getState().toString())
             }
             else -> {
                 addTerminalOutput("Unknown command.")

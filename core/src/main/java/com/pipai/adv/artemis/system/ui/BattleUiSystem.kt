@@ -103,6 +103,8 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     private val movePreviewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
     private val movePreviewDrawableSize = 6f
 
+    private val commandBuffer: MutableList<BattleCommand> = mutableListOf()
+
     var selectedNpcId: Int? = null
         private set
 
@@ -244,7 +246,9 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     @Subscribe
     fun commandAnimationEndListener(@Suppress("UNUSED_PARAMETER") event: CommandAnimationEndEvent) {
         if (stateMachine.currentState != BattleUiState.DISABLED) {
-            if (selectedNpcId != null) {
+            if (selectedNpcId == null) {
+                stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
+            } else {
                 val backend = getBackend()
                 if (backend.getNpcAp(selectedNpcId!!) <= 0) {
                     selectNextPlayer()
@@ -285,6 +289,12 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
             }
         }
+    }
+
+    fun getState() = stateMachine.currentState
+
+    fun bufferExecuteCommand(commands: List<BattleCommand>) {
+        commandBuffer.addAll(commands)
     }
 
     private fun executeCommand(command: BattleCommand) {
@@ -670,6 +680,13 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     }
 
     override fun processSystem() {
+        if (!stateMachine.isInState(BattleUiState.ANIMATING)
+                && !stateMachine.isInState(BattleUiState.DISABLED)
+                && commandBuffer.isNotEmpty()) {
+
+            executeCommand(commandBuffer.removeAt(0))
+        }
+
         val uiCamera = mCamera.get(sTags.getEntityId(Tags.UI_CAMERA.toString()))
         val sideUiEntities = world.fetch(allOf(SideUiBoxComponent::class, XYComponent::class))
 
