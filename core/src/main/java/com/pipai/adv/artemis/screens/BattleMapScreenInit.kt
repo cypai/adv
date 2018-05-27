@@ -14,7 +14,7 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager

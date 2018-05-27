@@ -20,7 +20,7 @@ import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApRequirementRule
 import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.getLogger
 

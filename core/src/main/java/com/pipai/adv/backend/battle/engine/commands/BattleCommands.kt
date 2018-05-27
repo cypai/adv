@@ -2,7 +2,7 @@ package com.pipai.adv.backend.battle.engine.commands
 
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
-import com.pipai.adv.classes.skills.UnitSkill
+import com.pipai.adv.domain.UnitSkill
 
 interface BattleCommand {
 }

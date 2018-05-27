@@ -2,12 +2,10 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.DevHpChangeCommand
-import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NpcKoEvent
 import com.pipai.adv.backend.battle.engine.log.PlayerKoEvent
-import com.pipai.adv.npc.Npc
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.*
 import org.junit.Assert

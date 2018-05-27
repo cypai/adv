@@ -5,10 +5,9 @@ import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.generators.OpenBattleMapGenerator
-import com.pipai.adv.backend.battle.generators.ParcelBattleMapGenerator
 import com.pipai.adv.index.WeaponSchemaIndex
-import com.pipai.adv.npc.Npc
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG

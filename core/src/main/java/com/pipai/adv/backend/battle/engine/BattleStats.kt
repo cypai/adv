@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 
 class BattleStats(private val npcList: NpcList) {
 

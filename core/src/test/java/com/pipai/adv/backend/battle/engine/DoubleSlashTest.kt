@@ -5,7 +5,7 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.index.SkillIndex
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats

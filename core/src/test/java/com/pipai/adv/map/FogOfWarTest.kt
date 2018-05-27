@@ -2,7 +2,7 @@ package com.pipai.adv.map
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.GridUtils
 import com.pipai.test.fixtures.npcFromStats

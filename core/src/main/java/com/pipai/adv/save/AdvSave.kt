@@ -2,7 +2,7 @@ package com.pipai.adv.save
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 
 class AdvSave() {
 

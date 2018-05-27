@@ -20,7 +20,7 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetad
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
 

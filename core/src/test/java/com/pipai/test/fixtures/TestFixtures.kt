@@ -2,7 +2,7 @@ package com.pipai.test.fixtures
 
 import com.pipai.adv.SchemaList
 import com.pipai.adv.backend.battle.domain.*
-import com.pipai.adv.npc.Npc
+import com.pipai.adv.domain.Npc
 
 fun npcFromStats(stats: UnitStats, weapon: InventoryItem.WeaponInstance?): Npc {
     val schema = UnitSchema("Test Unit", stats, 0)

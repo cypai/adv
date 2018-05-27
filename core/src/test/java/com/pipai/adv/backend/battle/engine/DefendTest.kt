@@ -6,7 +6,7 @@ import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.ToCritFlatAdjustmentPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture

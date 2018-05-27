@@ -3,7 +3,7 @@ package com.pipai.adv.backend.battle.engine.commands
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.utils.BattleUtils
-import com.pipai.adv.classes.skills.UnitSkill
+import com.pipai.adv.domain.UnitSkill
 
 class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitSkill) : ActionCommandFactory<TargetSkillCommand>(backend) {
     override fun generate(npcId: Int): List<TargetSkillCommand> {

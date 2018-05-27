@@ -3,7 +3,7 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.engine.domain.AilmentInstance
 import com.pipai.adv.backend.battle.engine.domain.NpcStatus
 import com.pipai.adv.backend.battle.engine.domain.NpcStatusInstance
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 
 class NpcStatusState(npcList: NpcList) {
 

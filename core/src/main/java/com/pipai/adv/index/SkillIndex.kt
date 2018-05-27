@@ -1,8 +1,8 @@
 package com.pipai.adv.index
 
 import com.badlogic.gdx.files.FileHandle
-import com.pipai.adv.classes.skills.SkillSchema
-import com.pipai.adv.classes.skills.SkillType
+import com.pipai.adv.domain.SkillSchema
+import com.pipai.adv.domain.SkillType
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 

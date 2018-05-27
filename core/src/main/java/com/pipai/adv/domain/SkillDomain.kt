@@ -1,4 +1,4 @@
-package com.pipai.adv.classes.skills
+package com.pipai.adv.domain
 
 enum class SkillType {
     PASSIVE, ACTIVE, ACTIVE_TARGET, ACTIVE_TARGET_PARTY, ACTIVE_AOE

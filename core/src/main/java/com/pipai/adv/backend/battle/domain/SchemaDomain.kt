@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.domain
 
-import com.pipai.adv.classes.skills.UnitSkill
+import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.utils.DeepCopyable
 
 data class UnitStats(

@@ -4,7 +4,7 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.DevHpChangeCommand
 import com.pipai.adv.backend.battle.engine.log.BattleEndEvent
 import com.pipai.adv.backend.battle.engine.log.EndingType
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
 import org.junit.Assert

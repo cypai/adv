@@ -12,9 +12,9 @@ import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.NpcIdComponent
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
-import com.pipai.adv.npc.Npc
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.allOf

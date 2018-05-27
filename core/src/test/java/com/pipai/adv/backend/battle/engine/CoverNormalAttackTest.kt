@@ -4,7 +4,7 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.ToCritFlatAdjustmentPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
-import com.pipai.adv.npc.NpcList
+import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.test.fixtures.bowFixture

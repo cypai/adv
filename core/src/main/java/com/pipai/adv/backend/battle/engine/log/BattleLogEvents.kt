@@ -3,8 +3,8 @@ package com.pipai.adv.backend.battle.engine.log
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.engine.BattleStats
-import com.pipai.adv.classes.skills.UnitSkill
-import com.pipai.adv.npc.Npc
+import com.pipai.adv.domain.UnitSkill
+import com.pipai.adv.domain.Npc
 
 interface BattleLogEvent {
     fun description(): String

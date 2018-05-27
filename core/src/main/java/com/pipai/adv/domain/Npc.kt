@@ -1,4 +1,4 @@
-package com.pipai.adv.npc
+package com.pipai.adv.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata

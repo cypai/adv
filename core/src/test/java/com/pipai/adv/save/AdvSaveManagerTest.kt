@@ -1,18 +1,17 @@
 package com.pipai.adv.save
 
-import java.util.ArrayList
-
-import org.junit.After
-import org.junit.Assert
-import org.junit.Test
-
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.backend.battle.domain.UnitStats
-import com.pipai.adv.npc.Npc
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.tiles.PccMetadata
-import com.pipai.test.fixtures.*
+import com.pipai.test.fixtures.getSchemaList
+import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
+import org.junit.After
+import org.junit.Assert
+import org.junit.Test
+import java.util.*
 
 class AdvSaveManagerTest : GdxMockedTest() {
 

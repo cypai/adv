@@ -18,12 +18,12 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.adv.classes.skills.UnitSkill
+import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
 import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
-import com.pipai.adv.npc.Npc
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.tiles.PccMetadata
