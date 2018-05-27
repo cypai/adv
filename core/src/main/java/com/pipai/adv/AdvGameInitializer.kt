@@ -86,15 +86,15 @@ class AdvGameInitializer() {
         val schemaList = SchemaList()
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
-        schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
+        schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10), 0,
                 EnvObjTilesetMetadata.NONE)
-        schemaList.addSchema("Brown Rat", UnitStats(70, 10, 8, 7, 10, 5, 5, 5, 12),
+        schemaList.addSchema("Brown Rat", UnitStats(60, 10, 8, 7, 10, 5, 5, 5, 12), 10,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("brown_rat.png"))
-        schemaList.addSchema("Black Butterfly", UnitStats(40, 30, 5, 5, 20, 15, 5, 15, 12),
+        schemaList.addSchema("Black Butterfly", UnitStats(35, 30, 5, 5, 20, 15, 5, 15, 12), 12,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("black_butterfly.png"))
-        schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14),
+        schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14), 17,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("rabbit.png"))
-        schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7),
+        schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7), 21,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
         return schemaList
     }
@@ -116,8 +116,8 @@ class SchemaList : Iterable<SchemaMetadata> {
         return schemas.values.iterator()
     }
 
-    fun addSchema(name: String, stats: UnitStats, tilesetMetadata: EnvObjTilesetMetadata) {
-        schemas.put(name, SchemaMetadata(UnitSchema(name, stats), tilesetMetadata))
+    fun addSchema(name: String, stats: UnitStats, expGiven: Int, tilesetMetadata: EnvObjTilesetMetadata) {
+        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, expGiven), tilesetMetadata))
     }
 
     fun getSchema(name: String): SchemaMetadata {

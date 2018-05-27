@@ -94,28 +94,30 @@ class UnitStatsFactory {
 
 data class UnitSchema(
         val name: String,
-        val baseStats: UnitStats)
+        val baseStats: UnitStats,
+        val expGiven: Int)
 
 data class UnitInstance(
         val schema: UnitSchema,
         var nickname: String,
         var level: Int,
         var exp: Int,
+        var expGiven: Int,
         var stats: UnitStats,
         var hp: Int,
         var tp: Int,
         var weapon: InventoryItem.WeaponInstance?,
         val skills: MutableList<UnitSkill>) : DeepCopyable<UnitInstance> {
 
-    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, 1, 0, schema.baseStats.copy(),
+    constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, null, mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
-            : this(schema, nickname, 1, 0, schema.baseStats.copy(),
+            : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema, skills: List<UnitSkill>)
-            : this(schema, nickname, 1, 0, schema.baseStats.copy(),
+            : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), skills.toMutableList())
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
