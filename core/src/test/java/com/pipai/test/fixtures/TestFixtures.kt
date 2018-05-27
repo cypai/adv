@@ -1,14 +1,13 @@
 package com.pipai.test.fixtures
 
-import com.badlogic.gdx.files.FileHandle
 import com.pipai.adv.SchemaList
 import com.pipai.adv.backend.battle.domain.*
-import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.npc.Npc
 
 fun npcFromStats(stats: UnitStats, weapon: InventoryItem.WeaponInstance?): Npc {
     val schema = UnitSchema("Test Unit", stats)
-    val unitInstance = UnitInstance(schema, "Test Unit Nickname", schema.baseStats.hpMax, schema.baseStats.tpMax, weapon, mutableListOf())
+    val unitInstance = UnitInstance(schema, "Test Unit Nickname", 1, 0, schema.baseStats.copy(),
+            schema.baseStats.hpMax, schema.baseStats.tpMax, weapon, mutableListOf())
     return Npc(unitInstance, EnvObjTilesetMetadata.NONE)
 }
 
