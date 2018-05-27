@@ -9,6 +9,7 @@ import com.pipai.adv.artemis.events.CommandAnimationEndEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.handlers.*
+import com.pipai.adv.artemis.system.ui.BattleEndSystem
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.log.*
 import com.pipai.adv.utils.getLogger
@@ -25,6 +26,8 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
 
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
+
+    private val sBattleEnd by system<BattleEndSystem>()
 
     private lateinit var moveAnimationHandler: MoveAnimationHandler
     private lateinit var damageAnimationHandler: DamageAnimationHandler
@@ -71,6 +74,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
             is DamageEvent -> damageAnimationHandler.animate(event)
             is NpcKoEvent -> npcKoAnimationHandler.animate(event)
             is NormalAttackEvent -> normalAttackAnimationHandler.animate(event)
+            is BattleEndEvent -> sBattleEnd.activateEndSequence(event)
             else -> {
                 val backend = getBackend()
                 when (backend.getCurrentTurn()) {

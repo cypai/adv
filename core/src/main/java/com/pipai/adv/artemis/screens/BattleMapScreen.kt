@@ -17,6 +17,7 @@ import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
+import com.pipai.adv.artemis.system.ui.BattleEndSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.artemis.system.ui.DevUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
@@ -70,6 +71,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                 .withPassive(-5,
                         BattleUiSystem(game, stage),
                         PauseUiSystem(game, stage, false),
+                        BattleEndSystem(game, stage),
                         DevUiSystem(game, stage))
                 .withPassive(-6,
                         FpsRenderingSystem(game.batchHelper))
