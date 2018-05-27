@@ -43,7 +43,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private val logger = getLogger()
 
     private var state: BattleState = BattleState(Team.PLAYER, npcList, battleMap, BattleLog(),
-            ActionPointState(npcList), NpcStatusState(npcList))
+            ActionPointState(npcList), NpcStatusState(npcList), BattleStats(npcList))
     private lateinit var cache: BattleBackendCache
 
     /**
@@ -200,7 +200,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         endingRules.forEach {
             val ended = it.evaluate(this, state, cache)
             if (ended) {
-                state.battleLog.addEvent(BattleEndEvent(it.endingType))
+                state.battleLog.addEvent(BattleEndEvent(it.endingType, state.battleStats))
                 return@forEach
             }
         }
@@ -256,7 +256,8 @@ data class BattleState(var turn: Team,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog,
                        val apState: ActionPointState,
-                       val npcStatusState: NpcStatusState) {
+                       val npcStatusState: NpcStatusState,
+                       val battleStats: BattleStats) {
 
     fun getNpc(npcId: Int) = npcList.getNpc(npcId)
     fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)

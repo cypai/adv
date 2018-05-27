@@ -4,10 +4,11 @@ import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
+import com.pipai.adv.backend.battle.engine.commands.BattleCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetCommand
+import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.NpcKoEvent
 import com.pipai.adv.backend.battle.engine.log.PlayerKoEvent
-import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
 class KoExecutionRule : CommandExecutionRule {
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
@@ -41,6 +42,11 @@ class KoExecutionRule : CommandExecutionRule {
                 val position = cache.npcPositions[npcId]!!
                 state.battleMap.getCell(position).fullEnvObject = null
                 state.battleLog.addEvent(NpcKoEvent(npcId, npc))
+                if (command is TargetCommand) {
+                    state.battleStats.recordTargetedKill(command.unitId, npcId)
+                } else {
+                    state.battleStats.recordUntargetedKill(npcId)
+                }
             }
         }
     }

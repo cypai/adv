@@ -2,6 +2,7 @@ package com.pipai.adv.backend.battle.engine.log
 
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
+import com.pipai.adv.backend.battle.engine.BattleStats
 import com.pipai.adv.classes.skills.UnitSkill
 import com.pipai.adv.npc.Npc
 
@@ -10,7 +11,7 @@ interface BattleLogEvent {
     fun userFriendlyDescription(): String = ""
 }
 
-data class BattleEndEvent(val endingType: EndingType) : BattleLogEvent {
+data class BattleEndEvent(val endingType: EndingType, val battleStats: BattleStats) : BattleLogEvent {
     override fun description(): String = endingType.description
     override fun userFriendlyDescription(): String = endingType.description
 }
