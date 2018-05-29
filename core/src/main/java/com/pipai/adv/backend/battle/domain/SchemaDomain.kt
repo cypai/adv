@@ -95,6 +95,7 @@ class UnitStatsFactory {
 data class UnitSchema(
         val name: String,
         val baseStats: UnitStats,
+        val resistances: Resistances,
         val expGiven: Int)
 
 data class UnitInstance(
@@ -106,21 +107,49 @@ data class UnitInstance(
         var stats: UnitStats,
         var hp: Int,
         var tp: Int,
+        val resistances: Resistances,
         var weapon: InventoryItem.WeaponInstance?,
         val skills: MutableList<UnitSkill>) : DeepCopyable<UnitInstance> {
 
     constructor(schema: UnitSchema, nickname: String) : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, null, mutableListOf())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), null, mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
             : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), mutableListOf())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema, 1), mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema, skills: List<UnitSkill>)
             : this(schema, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, InventoryItem.WeaponInstance(weaponSchema, 1), skills.toMutableList())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema, 1), skills.toMutableList())
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
+}
+
+data class Resistances(var fire: Resistance,
+                       var ice: Resistance,
+                       var lightning: Resistance,
+                       var poison: Resistance,
+                       var acid: Resistance,
+                       var paralyze: Resistance,
+                       var blind: Resistance,
+                       var head: Resistance,
+                       var arm: Resistance,
+                       var leg: Resistance) {
+    constructor() : this(
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL,
+            Resistance.NEUTRAL)
+}
+
+enum class Resistance {
+    WEAK, NEUTRAL, RESIST
 }
 
 enum class WeaponType {

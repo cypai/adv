@@ -2,10 +2,8 @@ package com.pipai.adv
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
-import com.pipai.adv.backend.battle.domain.UnitSchema
-import com.pipai.adv.backend.battle.domain.UnitStats
 import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.save.AdvSave
@@ -86,15 +84,25 @@ class AdvGameInitializer() {
         val schemaList = SchemaList()
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
-        schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10), 0,
+        schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
+                Resistances(),
+                0,
                 EnvObjTilesetMetadata.NONE)
-        schemaList.addSchema("Brown Rat", UnitStats(60, 10, 8, 7, 10, 5, 5, 5, 12), 10,
+        schemaList.addSchema("Brown Rat", UnitStats(60, 10, 8, 7, 10, 5, 5, 5, 12),
+                Resistances().copy(blind = Resistance.WEAK, head = Resistance.WEAK),
+                10,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("brown_rat.png"))
-        schemaList.addSchema("Black Butterfly", UnitStats(35, 30, 5, 5, 20, 15, 5, 15, 12), 12,
+        schemaList.addSchema("Black Butterfly", UnitStats(35, 30, 5, 5, 20, 15, 5, 15, 12),
+                Resistances().copy(lightning = Resistance.WEAK, poison = Resistance.WEAK, blind = Resistance.RESIST),
+                12,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("black_butterfly.png"))
-        schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14), 17,
+        schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14),
+                Resistances().copy(ice = Resistance.WEAK, leg = Resistance.WEAK),
+                17,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("rabbit.png"))
-        schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7), 21,
+        schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7),
+                Resistances().copy(fire = Resistance.WEAK, ice = Resistance.RESIST, poison = Resistance.RESIST, acid = Resistance.RESIST),
+                21,
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
         return schemaList
     }
@@ -116,8 +124,8 @@ class SchemaList : Iterable<SchemaMetadata> {
         return schemas.values.iterator()
     }
 
-    fun addSchema(name: String, stats: UnitStats, expGiven: Int, tilesetMetadata: EnvObjTilesetMetadata) {
-        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, expGiven), tilesetMetadata))
+    fun addSchema(name: String, stats: UnitStats, resistances: Resistances, expGiven: Int, tilesetMetadata: EnvObjTilesetMetadata) {
+        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, resistances, expGiven), tilesetMetadata))
     }
 
     fun getSchema(name: String): SchemaMetadata {
