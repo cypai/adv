@@ -18,10 +18,8 @@ import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
-import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
-import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.save.AdvSave
@@ -131,7 +129,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Keys.ENTER) {
-            val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex, game.globals.skillIndex)
+            val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex)
             game.globals.loadSave(save)
             game.globals.autoSave()
             game.screen = GuildScreen(game)
@@ -142,7 +140,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         return false
     }
 
-    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex, skillIndex: SkillIndex): AdvSave {
+    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex): AdvSave {
         val save = AdvSave()
 
         save.changePlayerGuildName(guildText.text)
