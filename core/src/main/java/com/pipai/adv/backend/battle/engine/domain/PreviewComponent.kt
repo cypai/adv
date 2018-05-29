@@ -17,6 +17,21 @@ data class AmmoChangePreviewComponent(val npcId: Int, val newAmount: Int) : Prev
     override fun rightText(): String = newAmount.toString()
 }
 
+data class HealPreviewComponent(val minHeal: Int, val maxHeal: Int) : PreviewComponent {
+    override val description: String = "Base"
+    override fun rightText(): String = "$minHeal - $maxHeal"
+}
+
+data class HealScaleAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
+    override fun rightText(): String {
+        return if (adjustment >= 0) {
+            "+ $adjustment"
+        } else {
+            "- ${-adjustment}"
+        }
+    }
+}
+
 data class DamagePreviewComponent(val minDamage: Int, val maxDamage: Int) : PreviewComponent {
     override val description: String = "Base"
     override fun rightText(): String = "$minDamage - $maxDamage"
@@ -24,7 +39,7 @@ data class DamagePreviewComponent(val minDamage: Int, val maxDamage: Int) : Prev
 
 data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String {
-        return if (adjustment > 0) {
+        return if (adjustment >= 0) {
             "+ $adjustment"
         } else {
             "- ${-adjustment}"
@@ -34,7 +49,7 @@ data class DamageFlatAdjustmentPreviewComponent(val adjustment: Int, override va
 
 data class DamageScaleAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String {
-        return if (adjustment > 0) {
+        return if (adjustment >= 0) {
             "+ $adjustment %"
         } else {
             "- ${-adjustment} %"
@@ -49,7 +64,7 @@ data class ToHitPreviewComponent(val toHit: Int) : PreviewComponent {
 
 data class ToHitFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String {
-        return if (adjustment > 0) {
+        return if (adjustment >= 0) {
             "+ $adjustment %"
         } else {
             "- ${-adjustment} %"
@@ -64,7 +79,7 @@ data class ToCritPreviewComponent(val toCrit: Int) : PreviewComponent {
 
 data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String {
-        return if (adjustment > 0) {
+        return if (adjustment >= 0) {
             "+ $adjustment %"
         } else {
             "- ${-adjustment} %"
