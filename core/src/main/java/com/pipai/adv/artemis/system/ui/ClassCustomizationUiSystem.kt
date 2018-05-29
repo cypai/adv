@@ -35,6 +35,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     private val doubleColumnTitle = Label("", game.skin)
     private val leftColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView())
     private val rightColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView())
+    private val descriptionLable = Label("", game.skin, "small")
 
     private var classSelection: ClassTree? = null
     private var skillSelection: UnitSkill? = null
@@ -83,23 +84,33 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
                 .left()
         mainTable.validate()
 
-        val doubleColumnWidth = game.advConfig.resolution.width * 0.8f
+        val doubleColumnWidth = game.advConfig.resolution.width / 2f
 
         doubleColumnTable.x = (game.advConfig.resolution.width - doubleColumnWidth) / 2
         doubleColumnTable.y = (game.advConfig.resolution.height - mainMenuHeight) / 2
         doubleColumnTable.width = doubleColumnWidth
-        doubleColumnTable.height = mainMenuHeight
         doubleColumnTable.background = skin.getDrawable("frameDrawable")
 
-        doubleColumnTable.add(doubleColumnTitle).padTop(32f)
+        doubleColumnTable.add(doubleColumnTitle).padTop(10f)
         doubleColumnTable.row()
 
-        doubleColumnTable.add(leftColumn)
-                .prefWidth(doubleColumnWidth / 4)
-                .minHeight(mainMenuHeight)
-        doubleColumnTable.add(rightColumn)
-                .prefWidth(doubleColumnWidth * 3 / 4)
-                .minHeight(mainMenuHeight)
+        val innerColumnTable = Table()
+        innerColumnTable.add(leftColumn)
+                .prefWidth(doubleColumnWidth / 2)
+                .minHeight(mainMenuHeight * 0.8f)
+        innerColumnTable.add(rightColumn)
+                .prefWidth(doubleColumnWidth / 2)
+                .minHeight(mainMenuHeight * 0.8f)
+        doubleColumnTable.add(innerColumnTable)
+        doubleColumnTable.row()
+
+        doubleColumnTable.add(descriptionLable)
+                .pad(10f)
+                .bottom()
+                .left()
+                .expandX()
+
+        doubleColumnTable.height = doubleColumnTable.prefHeight
 
         rightColumn.disabledFontColor = Color.GRAY
     }
@@ -135,12 +146,13 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         rightColumn.clearItems()
         rightColumn.clearSelection()
         rightColumn.clearConfirmCallbacks()
+        descriptionLable.setText("")
     }
 
     private fun initializeClassList() {
         rightColumn.setItems(ClassTreeInitializer(game.globals.skillIndex).availableClasses()
                 .map {
-                    StringMenuItem("${it.name}: ${it.description}", null, "")
+                    StringMenuItem(it.name, null, "")
                             .withData("class", it)
                 })
 
@@ -150,6 +162,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         rightColumn.clearSelection()
         rightColumn.clearConfirmCallbacks()
         rightColumn.addConfirmCallback { selectClass(it) }
+        descriptionLable.setText("")
     }
 
     private fun selectClass(selection: StringMenuItem) {
@@ -159,6 +172,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
                     {})
         } else {
             classSelection = selection.getData("class") as ClassTree
+            descriptionLable.setText(classSelection!!.description)
         }
     }
 
@@ -207,6 +221,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         rightColumn.clearItems()
         rightColumn.clearSelection()
         rightColumn.clearConfirmCallbacks()
+        descriptionLable.setText("")
     }
 
     private fun initializeSkillAssignmentList() {
@@ -227,6 +242,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         if (game.globals.save!!.sp[selectedNpcId]!! == 0) {
             rightColumn.disableAll()
         }
+        descriptionLable.setText("")
     }
 
     private fun selectSkill(selection: StringMenuItem) {
@@ -242,6 +258,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
             }
         } else {
             skillSelection = selection.getData("skill") as UnitSkill
+            descriptionLable.setText(skillSelection!!.schema.description)
         }
     }
 
