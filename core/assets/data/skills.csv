@@ -4,17 +4,26 @@ TP Up,PASSIVE,10,Increases TP
 Rush,PASSIVE,1,Perform a normal attack when approaching an enemy
 Double Slash,ACTIVE_TARGET,10,Attack with a melee weapon twice
 Spin Attack,ACTIVE,10,Attack all nearby enemies
-Flame Chaser,ACTIVE,10,Follows up with a fire attack if a fire attack is targeted on nearby target
+Attack Doubler,PASSIVE,10,Non-elemental attacks may hit twice
+Flame Chase,ACTIVE,10,Follows up with a fire attack if a fire attack is targeted on nearby target
+Lightning Chase,ACTIVE,10,Follows up with an electric attack if an electric attack is targeted on nearby target
+Ice Chase,ACTIVE,10,Follows up with an ice attack if an ice attack is targeted on nearby target
+Double Chase,PASSIVE,10,Chaser skills may activate twice
+Wide Chase,ACTIVE,10,A buff that causes chasers to become area-of-effect damage
 Guardian,PASSIVE,1,Wielding a shield increases avoid for neighboring party members
 Rapid Fire,ACTIVE_TARGET,10,Attack with a ranged weapon twice
+Fire Arrow,ACTIVE_TARGET,10,Fire elemental attack
 Fireball,ACTIVE_TARGET,10,Fire elemental attack
-Lightning,ACTIVE_TARGET,10,Electric elemental attack
+Thunder,ACTIVE_TARGET,10,Electric elemental attack
 Icicle,ACTIVE_TARGET,10,Ice elemental attack
 Poison,ACTIVE_TARGET,10,Chance to inflict Poison ailment
 Heal,ACTIVE_TARGET_PARTY,10,Heals a single target
 Healing Circle,ACTIVE_AOE,10,Heals an area
+Refresh,ACTIVE_TARGET_PARTY,10,Removes ailments from target
 Smokeblight,ACTIVE_AOE,10,Lowers elemental and ailment resistance
 Ki,ACTIVE_TARGET_PARTY,10,Heals a single target
 Leading Blow,ACTIVE_TARGET,10,"Attack once. If target has ailment or binds, follow up with a second attack scaling with the amount of ailment or binds."
 Throw,ACTIVE_TARGET,10,Throw a target behind you
 Charge,ACTIVE,10,"For this turn, perform a normal attack when approaching an enemy. Target is pushed, destroying weak cover."
+Stretch,ACTIVE_TARGET_PARTY,10,Unbinds party member
+Cross Counter,ACTIVE_TARGET,10,"For the next turn, when the target uses a body part, attack and bind that part"
