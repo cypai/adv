@@ -190,7 +190,6 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         val cSecondaryActionMenu = mActor.create(secondaryActionMenuEntityId)
         cSecondaryActionMenu.actor = secondaryActionMenu
 
-        commandPreviewTitle.setText("Attack")
         commandPreviewList.disabledFontColor = Color.GRAY
         commandPreviewList.setItems(listOf(
                 StringMenuItem("Hit", null, ""),
@@ -495,6 +494,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 val commands = menuItem.factory.generateInvalid(selectedNpcId!!)
                 targetNpcIds.clear()
                 targetNpcIds.addAll(commands.map { Pair(it.targetId, it) })
+                commandPreviewTitle.setText(menuItem.text)
                 stateMachine.changeState(BattleUiState.TARGET_SELECTION)
             }
             is ActionMenuCommandItem -> {

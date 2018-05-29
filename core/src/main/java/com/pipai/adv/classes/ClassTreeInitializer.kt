@@ -54,7 +54,7 @@ class ClassTreeInitializer(private val skillIndex: SkillIndex) {
         tree.addSkill(skillIndex.getSkillSchema("Smokeblight")!!)
         tree.addSkill(skillIndex.getSkillSchema("Poison")!!)
         tree.addSkill(skillIndex.getSkillSchema("Refresh")!!)
-        tree.addSkill(skillIndex.getSkillSchema("Stretch")!!)
+        tree.addSkill(skillIndex.getSkillSchema("Unbind")!!)
         return tree
     }
 

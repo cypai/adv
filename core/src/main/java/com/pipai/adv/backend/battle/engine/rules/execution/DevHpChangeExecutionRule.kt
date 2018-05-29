@@ -14,6 +14,7 @@ class DevHpChangeExecutionRule : CommandExecutionRule {
     }
 
     override fun preview(command: BattleCommand,
+                         previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 

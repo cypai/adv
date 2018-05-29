@@ -7,7 +7,9 @@ import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.ActionCommand
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.*
+import com.pipai.adv.domain.SkillRangeType
 
 class MeleeHitCritExecutionRule : CommandExecutionRule {
 
@@ -19,11 +21,14 @@ class MeleeHitCritExecutionRule : CommandExecutionRule {
     }
 
     override fun preview(command: BattleCommand,
+                         previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as ActionCommand
-        return if (state.getNpcWeapon(cmd.unitId)!!.schema.range == WeaponRange.MELEE) {
+
+        return if ((cmd is TargetSkillCommand && cmd.skill.schema.rangeType == SkillRangeType.MELEE)
+                || (cmd !is TargetSkillCommand && state.getNpcWeapon(cmd.unitId)!!.schema.range == WeaponRange.MELEE)) {
             listOf(
                     ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon"),
                     ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon"))

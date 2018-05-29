@@ -1,5 +1,7 @@
 package com.pipai.adv.backend.battle.engine.domain
 
+import com.pipai.adv.backend.battle.domain.AttackElement
+
 interface PreviewComponent {
     val description: String
     fun rightText(): String
@@ -72,6 +74,11 @@ data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override va
 
 data class SecondaryEffectPreviewComponent(val chance: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String = "$chance %"
+}
+
+data class AttackElementPreviewComponent(val element: AttackElement) : PreviewComponent {
+    override val description: String = "Element"
+    override fun rightText(): String = element.toString()
 }
 
 data class TargetStagePreviewComponent(val unitId: Int,

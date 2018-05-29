@@ -80,11 +80,13 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             WaitExecutionRule(),
             NormalAttackExecutionRule(),
             DoubleSlashExecutionRule(),
+            ElementalSkillExecutionRule(),
             MeleeHitCritExecutionRule(),
             RangedHitCritExecutionRule(),
             AvoidHitCritExecutionRule(),
             DefendHitCritExecutionRule(),
             CoverHitCritExecutionRule(CoverCalculator(battleMap)),
+            ElementalResistanceExecutionRule(),
             AttackCalculationExecutionRule(),
             AmmoChangeExecutionRule(),
             ChangeApExecutionRule(),
@@ -175,7 +177,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         val previews: MutableList<PreviewComponent> = mutableListOf()
         commandExecutionRules.forEach {
             if (it.matches(command, previews)) {
-                previews.addAll(it.preview(command, state, cache))
+                previews.addAll(it.preview(command, previews, state, cache))
             }
         }
         return previews

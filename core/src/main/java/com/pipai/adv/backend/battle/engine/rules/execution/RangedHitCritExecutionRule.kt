@@ -7,7 +7,9 @@ import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.ActionCommand
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetCommand
+import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.*
+import com.pipai.adv.domain.SkillRangeType
 import com.pipai.adv.utils.MathUtils
 
 class RangedHitCritExecutionRule : CommandExecutionRule {
@@ -20,13 +22,15 @@ class RangedHitCritExecutionRule : CommandExecutionRule {
     }
 
     override fun preview(command: BattleCommand,
+                         previews: List<PreviewComponent>,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val actionCommand = command as ActionCommand
         val targetCommand = command as TargetCommand
 
-        if (state.getNpcWeapon(actionCommand.unitId)!!.schema.range == WeaponRange.RANGED) {
+        if ((command is TargetSkillCommand && command.skill.schema.rangeType == SkillRangeType.RANGED)
+                || (command !is TargetSkillCommand && state.getNpcWeapon(actionCommand.unitId)!!.schema.range == WeaponRange.RANGED)) {
             val attackerLocation = cache.npcPositions[actionCommand.unitId]!!
             val targetLocation = cache.npcPositions[targetCommand.targetId]!!
 

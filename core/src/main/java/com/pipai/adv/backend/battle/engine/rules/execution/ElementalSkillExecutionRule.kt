@@ -1,5 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
+import com.pipai.adv.backend.battle.domain.AttackElement
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
@@ -8,14 +9,16 @@ import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.*
 import com.pipai.adv.backend.battle.engine.log.TargetSkillEvent
 
-class DoubleSlashExecutionRule : CommandExecutionRule {
+class ElementalSkillExecutionRule : CommandExecutionRule {
+
+    private val applicableSkills = listOf("Fireball", "Icicle", "Thunder")
 
     companion object {
         const val DAMAGE_RANGE = 2
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill.schema.name == "Double Slash"
+        return command is TargetSkillCommand && command.skill.schema.name in applicableSkills
     }
 
     override fun preview(command: BattleCommand,
@@ -26,18 +29,23 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.intelligence + state.getNpcWeapon(cmd.unitId)!!.schema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
+        previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
         previewComponents.add(ToHitPreviewComponent(65))
         previewComponents.add(ToCritPreviewComponent(25))
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
         previewComponents.add(DamageScaleAdjustmentPreviewComponent((skill.level - 1) * 5, "Skill level ${skill.level}"))
+        val elementPreviewComponent = when (skill.schema.name) {
+            "Fireball" -> AttackElementPreviewComponent(AttackElement.FIRE)
+            "Icicle" -> AttackElementPreviewComponent(AttackElement.ICE)
+            "Thunder" -> AttackElementPreviewComponent(AttackElement.LIGHTNING)
+            else -> throw IllegalStateException("An unexpected skill is being previewed: $skill")
+        }
+        previewComponents.add(elementPreviewComponent)
 
-        return listOf(
-                ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents))
+        return previewComponents
     }
 
     override fun execute(command: BattleCommand,

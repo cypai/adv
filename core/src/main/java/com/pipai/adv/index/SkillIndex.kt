@@ -1,6 +1,7 @@
 package com.pipai.adv.index
 
 import com.badlogic.gdx.files.FileHandle
+import com.pipai.adv.domain.SkillRangeType
 import com.pipai.adv.domain.SkillSchema
 import com.pipai.adv.domain.SkillType
 import org.apache.commons.csv.CSVFormat
@@ -20,6 +21,7 @@ class SkillIndex(skillsFile: FileHandle) {
             val weaponSchema = SkillSchema(
                     name,
                     SkillType.valueOf(record.get("type")),
+                    SkillRangeType.valueOf(record.get("rangeType")),
                     record.get("maxLevel").toInt(),
                     record.get("description"))
             mutIndex[name] = weaponSchema
