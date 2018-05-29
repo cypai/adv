@@ -152,8 +152,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
                 UnitInstance(
                         schemas.getSchema("Human").schema,
                         nameText.text,
-                        weaponSchemaIndex.getWeaponSchema("Toy Sword")!!,
-                        listOf(UnitSkill(1, skillIndex.getSkillSchema("Double Slash")!!))),
+                        weaponSchemaIndex.getWeaponSchema("Toy Sword")!!),
                 PccTilesetMetadata(playerPcc))
         val playerId = save.globalNpcList.addNpc(playerNpc)
         save.addToGuild(guildText.text, playerId)

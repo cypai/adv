@@ -4,6 +4,16 @@ import com.pipai.adv.index.SkillIndex
 
 class ClassTreeInitializer(private val skillIndex: SkillIndex) {
 
+    fun availableClasses(): List<ClassTree> {
+        return listOf(
+                generateFighterTree(),
+                generateArcherTree(),
+                generateElementalistTree(),
+                generateMedicTree(),
+                generateMartialArtistTree()
+        )
+    }
+
     fun generateFighterTree(): ClassTree {
         val tree = ClassTree("Fighter",
                 "An attacker specializing in close range elemental and non-elemental attacks")

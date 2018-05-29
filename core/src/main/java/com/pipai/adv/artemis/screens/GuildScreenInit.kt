@@ -14,6 +14,7 @@ import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.ui.CharacterCustomizationUiSystem
+import com.pipai.adv.artemis.system.ui.ClassCustomizationUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
@@ -43,6 +44,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
     private lateinit var mTileDescriptor: ComponentMapper<TileDescriptorComponent>
 
     private lateinit var sCharacterCustomization: CharacterCustomizationUiSystem
+    private lateinit var sClassCustomization: ClassCustomizationUiSystem
 
     private lateinit var sTags: TagManager
 
@@ -89,6 +91,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
     private fun addInteractionObjects() {
         addTestMapSign()
         addCharacterCustomizationSign()
+        addClassCustomizationSign()
     }
 
     private fun addTestMapSign() {
@@ -105,6 +108,21 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         val cInteraction = mInteraction.create(signId)
         cInteraction.interactionList.add(TextInteraction("Going to test map."))
         cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game) }))
+    }
+
+    private fun addClassCustomizationSign() {
+        val entityId = world.create()
+        val cTileDescriptor = mTileDescriptor.create(entityId)
+        cTileDescriptor.descriptor = TileDescriptor("signs", TilePosition(1, 0))
+        val cSignXy = mXy.create(entityId)
+        cSignXy.x = 32f
+        cSignXy.y = 32f * 8
+        mWall.create(entityId)
+        val tileSize = config.resolution.tileSize.toFloat()
+        val cCollision = mCollision.create(entityId)
+        cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
+        val cInteraction = mInteraction.create(entityId)
+        cInteraction.interactionList.add(Interaction.CallbackInteraction({ sClassCustomization.enable() }))
     }
 
     private fun addCharacterCustomizationSign() {

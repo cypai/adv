@@ -269,6 +269,10 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         }
     }
 
+    fun clearSelection() {
+        selection.clear()
+    }
+
     fun setSelectedIndex(index: Int) {
         if (!lockSelection) {
             if (index < -1 || index >= items.size)
@@ -300,6 +304,14 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         } else {
             disabledItems.removeValue(item, false)
         }
+    }
+
+    fun disableAll() {
+        disabledItems.addAll(items)
+    }
+
+    fun enableAll() {
+        disabledItems.clear()
     }
 
     interface ImageListItemView<in T> {
