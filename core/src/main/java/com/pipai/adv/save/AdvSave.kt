@@ -2,6 +2,7 @@ package com.pipai.adv.save
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.pipai.adv.classes.ClassTree
 import com.pipai.adv.domain.NpcList
 
 class AdvSave() {
@@ -9,8 +10,10 @@ class AdvSave() {
     constructor(data: String) : this() {
         val lines = data.split("\n")
         playerGuild = lines[0].trim()
-        guilds = mapper.readValue<MutableMap<String, MutableList<Int>>>(lines[1])
-        globalNpcList = mapper.readValue<NpcList>(lines[2])
+        guilds = mapper.readValue(lines[1])
+        globalNpcList = mapper.readValue(lines[2])
+        classes = mapper.readValue(lines[3])
+        sp = mapper.readValue(lines[4])
     }
 
     companion object {
@@ -24,6 +27,12 @@ class AdvSave() {
         private set
 
     var guilds: MutableMap<String, MutableList<Int>>
+        private set
+
+    var classes: MutableMap<Int, ClassTree?> = mutableMapOf()
+        private set
+
+    var sp: MutableMap<Int, Int> = mutableMapOf()
         private set
 
     init {
@@ -42,6 +51,10 @@ class AdvSave() {
             throw IllegalArgumentException("$name does not exist as a guild")
         }
         guilds[name]!!.add(npcId)
+        if (npcInPlayerGuild(npcId)) {
+            classes[npcId] = null
+            sp[npcId] = globalNpcList.getNpc(npcId)!!.unitInstance.level
+        }
     }
 
     fun guildExists(name: String): Boolean = guilds.keys.contains(name)
@@ -51,6 +64,8 @@ class AdvSave() {
     fun serialize(): String {
         val guildsLine = mapper.writeValueAsString(guilds)
         val npcListLine = mapper.writeValueAsString(globalNpcList)
-        return "${playerGuild}\n${guildsLine}\n${npcListLine}"
+        val classesLine = mapper.writeValueAsString(classes)
+        val spLine = mapper.writeValueAsString(sp)
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine"
     }
 }

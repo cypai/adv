@@ -91,13 +91,15 @@ class ResultsUiSystem(private val game: AdvGame,
     }
 
     fun giveExp(npcId: Int, expGained: Int): Boolean {
-        val unitInstance = globals.save!!.globalNpcList.getNpc(npcId)!!.unitInstance
+        val save = globals.save!!
+        val unitInstance = save.globalNpcList.getNpc(npcId)!!.unitInstance
         unitInstance.exp += expGained
         val levelExp = levelBackend.expRequired(unitInstance.level)
         val levelledUp = unitInstance.exp > levelBackend.expRequired(unitInstance.level)
         if (levelledUp) {
             unitInstance.level += 1
             unitInstance.exp -= levelExp
+            save.sp[npcId] = save.sp[npcId]!! + 1
         }
         return levelledUp
     }
