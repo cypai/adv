@@ -223,6 +223,10 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         rightColumn.clearSelection()
         rightColumn.clearConfirmCallbacks()
         rightColumn.addConfirmCallback { selectSkill(it) }
+
+        if (game.globals.save!!.sp[selectedNpcId]!! == 0) {
+            rightColumn.disableAll()
+        }
     }
 
     private fun selectSkill(selection: StringMenuItem) {
@@ -246,6 +250,9 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         skill.level += 1
         npc.unitInstance.skills.removeIf { it.schema.name == skill.schema.name }
         npc.unitInstance.skills.add(skill)
+        game.globals.save!!.sp[npcId] = game.globals.save!!.sp[npcId]!! - 1
+        initializeSkillAssignmentNpcs()
+        leftColumn.setSelected(leftColumn.items.find { it.getData("npcId") == npcId }!!)
         initializeSkillAssignmentList()
     }
 
