@@ -58,9 +58,9 @@ class AttackCalculationExecutionRule : CommandExecutionRule {
                     target.unitInstance.hp = 0
                 }
 
-                state.battleLog.addEvent(DamageEvent(cmd.targetId, target, damage, if (crit) DamageOutcome.CRIT else DamageOutcome.HIT))
+                state.battleLog.addEvent(DamageEvent(cmd.targetId, target.deepCopy(), damage, if (crit) DamageOutcome.CRIT else DamageOutcome.HIT))
             } else {
-                state.battleLog.addEvent(DamageEvent(cmd.targetId, target, 0, DamageOutcome.MISS))
+                state.battleLog.addEvent(DamageEvent(cmd.targetId, target.deepCopy(), 0, DamageOutcome.MISS))
             }
         }
     }
