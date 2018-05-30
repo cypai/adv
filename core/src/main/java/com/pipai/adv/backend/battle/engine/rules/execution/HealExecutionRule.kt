@@ -40,18 +40,22 @@ class HealExecutionRule : CommandExecutionRule {
         val target = state.npcList.getNpc(cmd.targetId)!!
 
         val healRange = calculateHealRange(previews)
-        val heal = RNG.nextInt(healRange.second - healRange.first + 1) + healRange.first
 
-        target.unitInstance.hp += heal
-        if (target.unitInstance.hp > target.unitInstance.stats.hpMax) {
-            target.unitInstance.hp = target.unitInstance.stats.hpMax
+        if (healRange != null) {
+            val heal = RNG.nextInt(healRange.second - healRange.first + 1) + healRange.first
+
+            target.unitInstance.hp += heal
+            if (target.unitInstance.hp > target.unitInstance.stats.hpMax) {
+                target.unitInstance.hp = target.unitInstance.stats.hpMax
+            }
+
+            state.battleLog.addEvent(HealEvent(cmd.targetId, target.deepCopy(), heal))
         }
-
-        state.battleLog.addEvent(HealEvent(cmd.targetId, target.deepCopy(), heal))
     }
 
-    fun calculateHealRange(previews: List<PreviewComponent>): Pair<Int, Int> {
+    fun calculateHealRange(previews: List<PreviewComponent>): Pair<Int, Int>? {
         val healComponents = calculateHealComponents(previews)
+                ?: return null
         val baseHeal = healComponents.first
 
         val scaleAdjustment = healComponents.second
@@ -63,10 +67,11 @@ class HealExecutionRule : CommandExecutionRule {
                 baseHeal.maxHeal + (baseHeal.maxHeal * scaleAdjustment).toInt())
     }
 
-    fun calculateHealComponents(previews: List<PreviewComponent>): Pair<HealPreviewComponent, List<PreviewComponent>> {
+    fun calculateHealComponents(previews: List<PreviewComponent>): Pair<HealPreviewComponent, List<PreviewComponent>>? {
         val baseHeal = previews
-                .find { it is HealPreviewComponent }!!
-                .let { (it as HealPreviewComponent) }
+                .find { it is HealPreviewComponent }
+                ?.let { (it as HealPreviewComponent) }
+                ?: return null
 
         val adjustments = previews.filter { it is HealScaleAdjustmentPreviewComponent }
         return Pair(baseHeal, adjustments)
