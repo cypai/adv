@@ -56,6 +56,11 @@ object BattleUtils {
         return enemiesInRange
     }
 
+    fun teammatesInRange(npcId: Int, backend: BattleBackend, range2: Int): List<Int> {
+        val position = backend.getNpcPosition(npcId)!!
+        return teammatesInRange(npcId, position, backend, range2)
+    }
+
     fun teammatesInRange(npcId: Int, position: GridPosition, backend: BattleBackend, maxRange2: Int): List<Int> {
         val teammatesInRange: MutableList<Int> = mutableListOf()
         val potentialTeammateIds = backend.getTeam(backend.getNpcTeam(npcId)!!)
