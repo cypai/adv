@@ -20,6 +20,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
@@ -36,8 +37,8 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
 
         return listOf(
                 ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents, "First Attack"),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents, "Second Attack"))
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "First Attack"),
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "Second Attack"))
     }
 
     override fun execute(command: BattleCommand,

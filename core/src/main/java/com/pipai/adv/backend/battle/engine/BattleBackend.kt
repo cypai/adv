@@ -74,6 +74,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
      * End-of-commands rules (e.g. ReduceAP, KO)
      */
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
+            StageInitializationExecutionRule(),
             DevHpChangeExecutionRule(),
             MoveExecutionRule(),
             DefendExecutionRule(),
@@ -179,7 +180,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
         val previews: MutableList<PreviewComponent> = mutableListOf()
         commandExecutionRules.forEach {
             if (it.matches(command, previews)) {
-                previews.addAll(it.preview(command, previews, state, cache))
+                logger.debug("Previewing rule: ${it::class}")
+                previews.addAll(it.preview(command, previews, this, state, cache))
             }
         }
         return previews

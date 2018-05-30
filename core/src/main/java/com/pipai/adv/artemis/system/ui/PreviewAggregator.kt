@@ -123,8 +123,6 @@ class PreviewAggregator {
                     rightPreviewList.add(previewToStringMenuItem(details.first))
                     rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
                 }
-                println(preview)
-                println(command)
                 if (command is TargetCommand) {
                     preview
                             .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }

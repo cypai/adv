@@ -23,38 +23,55 @@ class RangedHitCritExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val actionCommand = command as ActionCommand
+
+        val weaponRange = state.getNpcWeapon(actionCommand.unitId)!!.schema.range
+
+        if (command is TargetSkillCommand) {
+            if (command.skill.schema.rangeType == SkillRangeType.RANGED
+                    || (command.skill.schema.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.RANGED)) {
+                return generateHitCritBonus(command, cache)
+            } else {
+                return listOf()
+            }
+        } else {
+            if (weaponRange == WeaponRange.RANGED) {
+                return generateHitCritBonus(command, cache)
+            } else {
+                return listOf()
+            }
+        }
+    }
+
+    private fun generateHitCritBonus(command: BattleCommand, cache: BattleBackendCache): List<PreviewComponent> {
+        val actionCommand = command as ActionCommand
         val targetCommand = command as TargetCommand
 
-        if ((command is TargetSkillCommand && command.skill.schema.rangeType == SkillRangeType.RANGED)
-                || (command !is TargetSkillCommand && state.getNpcWeapon(actionCommand.unitId)!!.schema.range == WeaponRange.RANGED)) {
-            val attackerLocation = cache.npcPositions[actionCommand.unitId]!!
-            val targetLocation = cache.npcPositions[targetCommand.targetId]!!
+        val attackerLocation = cache.npcPositions[actionCommand.unitId]!!
+        val targetLocation = cache.npcPositions[targetCommand.targetId]!!
 
-            val distance = MathUtils.distance(attackerLocation.x, attackerLocation.y, targetLocation.x, targetLocation.y)
-            val toHitAdjustment = when {
-                distance <= 3 -> (10 * (4 - distance)).toInt()
-                distance <= 5 -> (5 * (6 - distance)).toInt()
-                else -> 0
-            }
-            val toCritAdjustment = when {
-                distance <= 5 -> (5 * (5 - distance)).toInt()
-                else -> 0
-            }
-            val previewComponents: MutableList<PreviewComponent> = mutableListOf()
-            if (toHitAdjustment != 0) {
-                previewComponents.add(ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Range"))
-            }
-            if (toCritAdjustment != 0) {
-                previewComponents.add(ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Range"))
-            }
-            return previewComponents.toList()
-        } else {
-            return listOf()
+        val distance = MathUtils.distance(attackerLocation.x, attackerLocation.y, targetLocation.x, targetLocation.y)
+        val toHitAdjustment = when {
+            distance <= 3 -> (10 * (4 - distance)).toInt()
+            distance <= 5 -> (5 * (6 - distance)).toInt()
+            else -> 0
         }
+        val toCritAdjustment = when {
+            distance <= 5 -> (5 * (5 - distance)).toInt()
+            else -> 0
+        }
+        val previewComponents: MutableList<PreviewComponent> = mutableListOf()
+        if (toHitAdjustment != 0) {
+            previewComponents.add(ToHitFlatAdjustmentPreviewComponent(toHitAdjustment, "Range"))
+        }
+        if (toCritAdjustment != 0) {
+            previewComponents.add(ToCritFlatAdjustmentPreviewComponent(toCritAdjustment, "Range"))
+        }
+        return previewComponents.toList()
     }
 
     override fun execute(command: BattleCommand,

@@ -20,6 +20,7 @@ class NormalAttackExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 

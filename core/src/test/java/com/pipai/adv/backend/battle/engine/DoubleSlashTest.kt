@@ -3,9 +3,10 @@ package com.pipai.adv.backend.battle.engine
 import com.badlogic.gdx.Gdx
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
+import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
-import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.domain.NpcList
+import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
@@ -35,6 +36,11 @@ class DoubleSlashTest : GdxMockedTest() {
         val backend = BattleBackend(save, npcList, map)
 
         val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
+
+        val preview = backend.preview(cmd)
+        val stages = preview.filter { it is TargetStagePreviewComponent }
+                .map { it as TargetStagePreviewComponent }
+        Assert.assertTrue(stages.all { it.previews.filter { it.description == "Melee weapon" }.size == 2 })
 
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
 

@@ -4,13 +4,16 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
-import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
+import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
-import com.pipai.adv.backend.battle.engine.log.ApChangeEvent
 
-class ChangeApExecutionRule : CommandExecutionRule {
+/**
+ * This execution rule should be before everything else is evaluated to evaluate stages correctly
+ */
+class StageInitializationExecutionRule : CommandExecutionRule {
+
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return previews.any { it is ApUsedPreviewComponent }
+        return command is TargetStageExecuteCommand
     }
 
     override fun preview(command: BattleCommand,
@@ -19,7 +22,7 @@ class ChangeApExecutionRule : CommandExecutionRule {
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
-        return listOf()
+        return (command as TargetStageExecuteCommand).preview.previews
     }
 
     override fun execute(command: BattleCommand,
@@ -27,14 +30,5 @@ class ChangeApExecutionRule : CommandExecutionRule {
                          backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache) {
-
-        previews.forEach {
-            if (it is ApUsedPreviewComponent) {
-                val previousAp = state.apState.getNpcAp(it.npcId)
-                val newAp = previousAp - it.apUsed
-                state.apState.setNpcAp(it.npcId, newAp)
-                state.battleLog.addEvent(ApChangeEvent(it.npcId, newAp))
-            }
-        }
     }
 }

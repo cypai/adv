@@ -94,7 +94,7 @@ data class AttackElementPreviewComponent(val element: AttackElement) : PreviewCo
 
 data class TargetStagePreviewComponent(val unitId: Int,
                                        val targetId: Int,
-                                       val previews: List<PreviewComponent>,
+                                       val previews: MutableList<PreviewComponent>,
                                        override val description: String) : PreviewComponent {
     override fun rightText(): String = ""
 }

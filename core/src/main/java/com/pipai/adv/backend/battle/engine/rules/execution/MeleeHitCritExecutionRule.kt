@@ -22,19 +22,34 @@ class MeleeHitCritExecutionRule : CommandExecutionRule {
 
     override fun preview(command: BattleCommand,
                          previews: List<PreviewComponent>,
+                         backend: BattleBackend,
                          state: BattleState,
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as ActionCommand
 
-        return if ((cmd is TargetSkillCommand && cmd.skill.schema.rangeType == SkillRangeType.MELEE)
-                || (cmd !is TargetSkillCommand && state.getNpcWeapon(cmd.unitId)!!.schema.range == WeaponRange.MELEE)) {
-            listOf(
-                    ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon"),
-                    ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon"))
+        val weaponRange = state.getNpcWeapon(cmd.unitId)!!.schema.range
+
+        if (cmd is TargetSkillCommand) {
+            if (cmd.skill.schema.rangeType == SkillRangeType.MELEE
+                    || (cmd.skill.schema.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.MELEE)) {
+                return generateHitCritBonus()
+            } else {
+                return listOf()
+            }
         } else {
-            listOf()
+            if (weaponRange == WeaponRange.MELEE) {
+                return generateHitCritBonus()
+            } else {
+                return listOf()
+            }
         }
+    }
+
+    private fun generateHitCritBonus(): List<PreviewComponent> {
+        return listOf(
+                ToHitFlatAdjustmentPreviewComponent(30, "Melee weapon"),
+                ToCritFlatAdjustmentPreviewComponent(25, "Melee weapon"))
     }
 
     override fun execute(command: BattleCommand,
