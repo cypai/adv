@@ -87,10 +87,6 @@ data class ToCritFlatAdjustmentPreviewComponent(val adjustment: Int, override va
     }
 }
 
-data class SecondaryEffectPreviewComponent(val chance: Int, override val description: String) : PreviewComponent {
-    override fun rightText(): String = "$chance %"
-}
-
 data class AttackElementPreviewComponent(val element: AttackElement) : PreviewComponent {
     override val description: String = "Element"
     override fun rightText(): String = element.toString()
@@ -98,7 +94,7 @@ data class AttackElementPreviewComponent(val element: AttackElement) : PreviewCo
 
 data class TargetStagePreviewComponent(val unitId: Int,
                                        val targetId: Int,
-                                       val previews: List<PreviewComponent>) : PreviewComponent {
-    override val description: String = ""
+                                       val previews: List<PreviewComponent>,
+                                       override val description: String) : PreviewComponent {
     override fun rightText(): String = ""
 }

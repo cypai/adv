@@ -36,8 +36,6 @@ import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
-import com.pipai.adv.backend.battle.engine.rules.execution.AttackCalculationExecutionRule
-import com.pipai.adv.backend.battle.engine.rules.execution.HealExecutionRule
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
@@ -89,8 +87,10 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     })
     private var secondaryActionMenuEntityId: Int = 0
 
+    private var previewCommand: BattleCommand? = null
     private val commandPreviewTable = Table()
     private val commandPreviewTitle = Label("", game.skin)
+    private val commandPreviewSubtitle = Label("", game.skin, "small")
     private val commandPreviewList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
         override fun getItemImage(item: StringMenuItem): TextureRegion? = null
         override fun getItemText(item: StringMenuItem): String = item.text
@@ -201,11 +201,14 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val backend = getBackend()
                 val previewComponents = backend.preview(targetNpcIds[targetIndex!!].second)
-                updateRightPreviewDetails(previewComponents)
+                updateRightPreviewDetails(previewCommand!!, previewComponents)
             }
         })
         commandPreviewDetailsList.setItems(listOf())
         commandPreviewTable.add(commandPreviewTitle)
+                .expandX()
+        commandPreviewTable.row()
+        commandPreviewTable.add(commandPreviewSubtitle)
                 .expandX()
         commandPreviewTable.row()
 
@@ -496,6 +499,12 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 targetNpcIds.clear()
                 targetNpcIds.addAll(commands.map { Pair(it.targetId, it) })
                 commandPreviewTitle.setText(menuItem.text)
+                val maybeSkill = game.globals.skillIndex.getSkillSchema(menuItem.text)
+                if (maybeSkill == null) {
+                    commandPreviewSubtitle.setText("")
+                } else {
+                    commandPreviewSubtitle.setText(maybeSkill.description)
+                }
                 stateMachine.changeState(BattleUiState.TARGET_SELECTION)
             }
             is ActionMenuCommandItem -> {
@@ -656,6 +665,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 val npcEntityId = sNpcId.getNpcEntityId(npcId)!!
                 val cXy = mXy.get(npcEntityId)
                 sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+                previewCommand = it.second
                 updatePreviewDetails(it.second)
                 return@forEach
             }
@@ -667,83 +677,32 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     private fun updatePreviewDetails(command: BattleCommand) {
         val backend = getBackend()
         val previewComponents = backend.preview(command)
-        val attackCalculator = AttackCalculationExecutionRule()
-        val healCalculator = HealExecutionRule()
-        val toHit = attackCalculator.calculateToHit(previewComponents)
-        val toCrit = attackCalculator.calculateToCrit(previewComponents)
-        val damageRange = attackCalculator.calculateDamageRange(previewComponents)
-        val healRange = healCalculator.calculateHealRange(previewComponents)
-        val leftPreviewList: MutableList<StringMenuItem> = mutableListOf()
-        leftPreviewList.add(StringMenuItem("Hit", null, toHit?.let { "$it %" } ?: ""))
-        leftPreviewList.add(StringMenuItem("Crit", null, toCrit?.let { "$it %" } ?: ""))
-        if (damageRange == null && healRange != null) {
-            leftPreviewList.add(StringMenuItem("Heal", null, "${healRange.first} - ${healRange.second}"))
-        } else {
-            leftPreviewList.add(StringMenuItem("Damage", null, damageRange?.let { "${it.first} - ${it.second}" } ?: ""))
-        }
-        leftPreviewList.add(StringMenuItem("Effects", null, ""))
+        val previewAggregator = PreviewAggregator()
+        val leftPreviewList = previewAggregator.aggregate(command, previewComponents)
         commandPreviewList.clearItems()
         commandPreviewList.setItems(leftPreviewList)
-        if (attackCalculator.toHitComponents(previewComponents) == null) {
-            commandPreviewList.setDisabledIndex(0, true)
+        leftPreviewList.forEach {
+            if (it.getData("disabled") as Boolean) {
+                commandPreviewList.setDisabled(it, true)
+            }
         }
-        if (attackCalculator.toCritComponents(previewComponents) == null) {
-            commandPreviewList.setDisabledIndex(1, true)
-        }
-        if (damageRange == null && healRange == null) {
-            commandPreviewList.setDisabledIndex(2, true)
-        }
-        commandPreviewList.setDisabledIndex(3, true)
-        updateRightPreviewDetails(previewComponents)
+        updateRightPreviewDetails(command, previewComponents)
         if (commandPreviewTable.stage == null) {
             stage.addActor(commandPreviewTable)
         }
     }
 
-    private fun updateRightPreviewDetails(preview: List<PreviewComponent>) {
-        val rightPreviewList: MutableList<StringMenuItem> = mutableListOf()
+    private fun updateRightPreviewDetails(command: BattleCommand, preview: List<PreviewComponent>) {
+        val previewAggregator = PreviewAggregator()
         val selected = commandPreviewList.getSelected()
-        val attackCalculator = AttackCalculationExecutionRule()
-        val healCalculator = HealExecutionRule()
-        when (selected.text) {
-            "Hit" -> {
-                val details = attackCalculator.toHitComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
-            }
-            "Crit" -> {
-                val details = attackCalculator.toCritComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
-            }
-            "Damage" -> {
-                val details = attackCalculator.damageRangeComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
-            }
-            "Heal" -> {
-                val details = healCalculator.calculateHealComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
-            }
-        }
+        val rightPreviewList = previewAggregator.aggregateDetails(command, preview, selected.text)
         if (rightPreviewList.isEmpty()) {
             commandPreviewDetailsList.clearItems()
         } else {
             commandPreviewDetailsList.setItems(rightPreviewList)
         }
-    }
-
-    private fun previewToStringMenuItem(preview: PreviewComponent): StringMenuItem {
-        return StringMenuItem(preview.description, null, preview.rightText())
+        commandPreviewDetailsList.disableAll()
+        commandPreviewDetailsList.clearSelection()
     }
 
     private fun showTargetTileHighlights() {

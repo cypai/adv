@@ -10,9 +10,10 @@ interface MenuItem {
 
 data class StringMenuItem(override val text: String,
                           override val image: TextureRegion?,
-                          override val rightText: String) : MenuItem {
+                          override val rightText: String,
+                          private val dataStore: MutableMap<String, Any>) : MenuItem {
 
-    private val dataStore: MutableMap<String, Any> = mutableMapOf()
+    constructor(text: String, image: TextureRegion?, rightText: String) : this(text, image, rightText, mutableMapOf())
 
     fun withData(key: String, data: Any): StringMenuItem {
         dataStore[key] = data
