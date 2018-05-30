@@ -31,6 +31,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
 
     private lateinit var moveAnimationHandler: MoveAnimationHandler
     private lateinit var damageAnimationHandler: DamageAnimationHandler
+    private lateinit var healAnimationHandler: HealAnimationHandler
     private lateinit var npcKoAnimationHandler: NpcKoAnimationHandler
     private lateinit var delayAnimationHandler: DelayAnimationHandler
     private lateinit var normalAttackAnimationHandler: NormalAttackAnimationHandler
@@ -40,6 +41,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
     override fun initialize() {
         moveAnimationHandler = MoveAnimationHandler(game.advConfig, world)
         damageAnimationHandler = DamageAnimationHandler(game.advConfig, game.smallFont, world)
+        healAnimationHandler = HealAnimationHandler(game.advConfig, game.smallFont, world)
         npcKoAnimationHandler = NpcKoAnimationHandler(game.advConfig, world)
         delayAnimationHandler = DelayAnimationHandler(world)
         normalAttackAnimationHandler = NormalAttackAnimationHandler(world)
@@ -72,6 +74,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
         when (event) {
             is MoveEvent -> moveAnimationHandler.animate(event)
             is DamageEvent -> damageAnimationHandler.animate(event)
+            is HealEvent -> healAnimationHandler.animate(event)
             is NpcKoEvent -> npcKoAnimationHandler.animate(event)
             is NormalAttackEvent -> normalAttackAnimationHandler.animate(event)
             is BattleEndEvent -> sBattleEnd.activateEndSequence(event)

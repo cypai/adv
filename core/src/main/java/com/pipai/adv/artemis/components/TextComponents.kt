@@ -1,9 +1,11 @@
 package com.pipai.adv.artemis.components
 
 import com.artemis.Component
+import com.badlogic.gdx.graphics.Color
 
 class TextComponent : Component() {
     var text = ""
+    var color = Color.WHITE
 }
 
 class PartialTextComponent : Component() {

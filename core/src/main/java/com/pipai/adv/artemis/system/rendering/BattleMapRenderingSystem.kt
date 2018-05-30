@@ -311,10 +311,15 @@ class BattleMapRenderingSystem(game: AdvGame,
 
     private fun renderText() {
         val textEntities = world.fetch(allOf(TextComponent::class, XYComponent::class))
-        batch.font.color = Color.WHITE
+        var previousColor = Color.WHITE
         textEntities.forEach {
             val cText = mText.get(it)
             val cXy = mXy.get(it)
+            if (cText.color != previousColor) {
+                batch.spr.flush()
+                batch.smallFont.color = cText.color
+                previousColor = cText.color
+            }
             batch.smallFont.draw(batch.spr, cText.text, cXy.x, cXy.y)
         }
     }
