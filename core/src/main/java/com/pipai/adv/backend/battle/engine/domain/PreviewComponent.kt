@@ -25,9 +25,9 @@ data class HealPreviewComponent(val minHeal: Int, val maxHeal: Int) : PreviewCom
 data class HealScaleAdjustmentPreviewComponent(val adjustment: Int, override val description: String) : PreviewComponent {
     override fun rightText(): String {
         return if (adjustment >= 0) {
-            "+ $adjustment"
+            "+ $adjustment %"
         } else {
-            "- ${-adjustment}"
+            "- ${-adjustment} %"
         }
     }
 }

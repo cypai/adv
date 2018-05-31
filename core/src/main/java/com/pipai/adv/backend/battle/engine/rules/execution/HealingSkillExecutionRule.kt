@@ -37,7 +37,7 @@ class HealingSkillExecutionRule : CommandExecutionRule {
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
         previewComponents.add(HealPreviewComponent(base - HEAL_RANGE, base + HEAL_RANGE))
-        previewComponents.add(HealScaleAdjustmentPreviewComponent((skill.level - 1) * 5, "Skill level ${skill.level}"))
+        previewComponents.add(HealScaleAdjustmentPreviewComponent(skill.level * 10, "Skill level ${skill.level}"))
 
         return previewComponents
     }
