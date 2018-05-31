@@ -18,7 +18,7 @@ import com.pipai.adv.backend.battle.engine.rules.ending.EndingRule
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
-import com.pipai.adv.backend.battle.engine.rules.verification.ApRequirementRule
+import com.pipai.adv.backend.battle.engine.rules.verification.ApVerificationRule
 import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
 import com.pipai.adv.domain.NpcList
 import com.pipai.adv.save.AdvSave
@@ -61,7 +61,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
      * Rules that verify that the battle state shown by the preview is OK
      */
     private val verificationRules: List<VerificationRule> = listOf(
-            ApRequirementRule())
+            ApVerificationRule())
 
     /**
      * Order matters for CommandExecutionRules. The order in which commands are evaluated will also be returned to the UI

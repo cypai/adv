@@ -5,7 +5,7 @@ import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
-class ApRequirementRule : VerificationRule {
+class ApVerificationRule : VerificationRule {
     override fun verify(preview: List<PreviewComponent>, state: BattleState): ExecutableStatus {
         val badApPreview = preview.filter { it is ApUsedPreviewComponent }
                 .map { it as ApUsedPreviewComponent }
