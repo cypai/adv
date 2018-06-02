@@ -6,7 +6,10 @@ import com.pipai.adv.backend.battle.engine.commands.ActionCommandFactory
 
 class ActionMenuCommandItem(override val text: String,
                             override val image: TextureRegion?,
+                            override val rightText: String,
                             override val factory: ActionCommandFactory<ActionCommand>) : MenuCommandItem<ActionCommand> {
 
-    override fun rightText(): String = ""
+    constructor(text: String, image: TextureRegion?, factory: ActionCommandFactory<ActionCommand>)
+            : this(text, image, "", factory)
+
 }

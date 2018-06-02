@@ -9,7 +9,6 @@ import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
@@ -36,7 +35,9 @@ import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.TpUsedPreviewComponent
 import com.pipai.adv.backend.battle.utils.BattleUtils
+import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
 import com.pipai.adv.utils.*
@@ -73,38 +74,18 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     private val frameBgDrawable = game.skin.getDrawable("bg")
     private val portraitBgDrawable = game.skin.newDrawable("white", Color.DARK_GRAY)
 
-    private val primaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<MenuItem> {
-        override fun getItemImage(item: MenuItem): TextureRegion? = item.image
-        override fun getItemText(item: MenuItem): String = item.text
-        override fun getSpacing(): Float = 10f
-    })
+    private val primaryActionMenu = ImageList(game.skin, "menuList", StandardImageListItemView<MenuItem>())
     private var primaryActionMenuEntityId: Int = 0
 
-    private val secondaryActionMenu = ImageList(game.skin, "menuList", object : ImageList.ImageListItemView<MenuItem> {
-        override fun getItemImage(item: MenuItem): TextureRegion? = item.image
-        override fun getItemText(item: MenuItem): String = item.text
-        override fun getSpacing(): Float = 10f
-    })
+    private val secondaryActionMenu = ImageList(game.skin, "menuList", StandardImageListItemView<MenuItem>())
     private var secondaryActionMenuEntityId: Int = 0
 
     private var previewCommand: BattleCommand? = null
     private val commandPreviewTable = Table()
     private val commandPreviewTitle = Label("", game.skin)
     private val commandPreviewSubtitle = Label("", game.skin, "small")
-    private val commandPreviewList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
-        override fun getItemImage(item: StringMenuItem): TextureRegion? = null
-        override fun getItemText(item: StringMenuItem): String = item.text
-        override fun getSpacing(): Float = 10f
-        override fun getItemRightText(item: StringMenuItem): String = item.rightText
-        override fun getRightSpacing(): Float = 16f
-    })
-    private val commandPreviewDetailsList = ImageList(game.skin, "smallMenuList", object : ImageList.ImageListItemView<StringMenuItem> {
-        override fun getItemImage(item: StringMenuItem): TextureRegion? = null
-        override fun getItemText(item: StringMenuItem): String = item.text
-        override fun getSpacing(): Float = 10f
-        override fun getItemRightText(item: StringMenuItem): String = item.rightText
-        override fun getRightSpacing(): Float = 16f
-    })
+    private val commandPreviewList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<MenuItem>())
+    private val commandPreviewDetailsList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<MenuItem>())
     private val commandPreviewDetailsScrollPane = ScrollPane(commandPreviewDetailsList, game.skin)
     private val commandConfirmButton = TextButton("Execute", game.skin)
 
@@ -473,7 +454,14 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 val npcId = selectedNpcId!!
                 val skills = backend.getNpc(npcId)!!.unitInstance.skills
                 val menuItems: MutableList<MenuItem> =
-                        skills.map { TargetMenuCommandItem(it.schema.name, null, TargetSkillCommandFactory(backend, it)) }.toMutableList()
+                        skills.map {
+                            TargetMenuCommandItem(it.schema.name, null,
+                                    backend.preview(SkillTpCheckCommand(it, npcId))
+                                            .find { it is TpUsedPreviewComponent }
+                                            .let { (it as TpUsedPreviewComponent).tpUsed.toString() }
+                                            .let { if (it == "0") "" else it },
+                                    TargetSkillCommandFactory(backend, it))
+                        }.toMutableList()
                 if (menuItems.size < 6) {
                     repeat(6 - menuItems.size) {
                         menuItems.add(StringMenuItem("", null, ""))

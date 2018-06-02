@@ -30,11 +30,11 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     private val stateMachine = StackStateMachine<ClassCustomizationUiSystem, ClassCustomizationUiState>(this)
 
     private val mainTable = Table()
-    private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView())
+    private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val doubleColumnTable = Table()
     private val doubleColumnTitle = Label("", game.skin)
-    private val leftColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView())
-    private val rightColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView())
+    private val leftColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val rightColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val descriptionLable = Label("", game.skin, "small")
 
     private var classSelection: ClassTree? = null
