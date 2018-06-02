@@ -54,7 +54,7 @@ class DoubleSlashTest : GdxMockedTest() {
         Assert.assertEquals((100 - damageEvents.map { it.damage }.sum()).toLong(), target.unitInstance.hp.toLong())
 
         Assert.assertEquals(0, backend.getNpcAp(attackerId))
-        Assert.assertEquals(2, backend.getNpcTp(attackerId))
+        Assert.assertEquals(5, backend.getNpcTp(attackerId))
     }
 
     @Test

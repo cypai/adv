@@ -24,6 +24,9 @@ data class TargetSkillCommand(val skill: UnitSkill,
                               override val unitId: Int,
                               override val targetId: Int) : ActionCommand, TargetCommand
 
+data class SkillTpCheckCommand(val skill: UnitSkill,
+                               override val unitId: Int) : ActionCommand
+
 data class DefendCommand(override val unitId: Int) : ActionCommand
 
 data class WaitCommand(override val unitId: Int) : ActionCommand

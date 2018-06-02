@@ -76,6 +76,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
             StageInitializationExecutionRule(),
             DevHpChangeExecutionRule(),
+            SkillTpUseExecutionRule(),
             MoveExecutionRule(),
             DefendExecutionRule(),
             WaitExecutionRule(),
