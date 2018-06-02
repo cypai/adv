@@ -12,6 +12,11 @@ data class ApUsedPreviewComponent(val npcId: Int, val apUsed: Int) : PreviewComp
     override fun rightText(): String = apUsed.toString()
 }
 
+data class TpUsedPreviewComponent(val npcId: Int, val tpUsed: Int) : PreviewComponent {
+    override val description: String = "TP used"
+    override fun rightText(): String = tpUsed.toString()
+}
+
 data class AmmoChangePreviewComponent(val npcId: Int, val newAmount: Int) : PreviewComponent {
     override val description: String = "Ammo change"
     override fun rightText(): String = newAmount.toString()

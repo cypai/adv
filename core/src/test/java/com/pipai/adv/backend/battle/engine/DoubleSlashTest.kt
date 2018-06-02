@@ -24,7 +24,7 @@ class DoubleSlashTest : GdxMockedTest() {
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
-        val attacker = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
+        val attacker = npcFromStats(UnitStats(100, 10, 1, 1, 1, 1, 1, 1, 3),
                 sword)
         val attackerId = npcList.addNpc(attacker)
         val target = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
@@ -54,6 +54,7 @@ class DoubleSlashTest : GdxMockedTest() {
         Assert.assertEquals((100 - damageEvents.map { it.damage }.sum()).toLong(), target.unitInstance.hp.toLong())
 
         Assert.assertEquals(0, backend.getNpcAp(attackerId))
+        Assert.assertEquals(2, backend.getNpcTp(attackerId))
     }
 
     @Test

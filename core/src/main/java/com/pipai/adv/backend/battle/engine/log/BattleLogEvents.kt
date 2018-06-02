@@ -3,8 +3,8 @@ package com.pipai.adv.backend.battle.engine.log
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.engine.BattleStats
-import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.domain.Npc
+import com.pipai.adv.domain.UnitSkill
 
 interface BattleLogEvent {
     fun description(): String
@@ -24,6 +24,10 @@ enum class EndingType(val description: String) {
 
 data class ApChangeEvent(val npcId: Int, val newApAmount: Int) : BattleLogEvent {
     override fun description() = "NPC id $npcId AP set to $newApAmount"
+}
+
+data class TpChangeEvent(val npcId: Int, val newTpAmount: Int) : BattleLogEvent {
+    override fun description() = "NPC id $npcId TP set to $newTpAmount"
 }
 
 data class DamageEvent(val npcId: Int,

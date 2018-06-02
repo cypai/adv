@@ -92,7 +92,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             AttackCalculationExecutionRule(),
             HealExecutionRule(),
             AmmoChangeExecutionRule(),
-            ChangeApExecutionRule(),
+            ApChangeExecutionRule(),
+            TpChangeExecutionRule(),
             StagePreviewExecutionRule(),
             KoExecutionRule())
 
@@ -144,6 +145,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     fun getBattleMapUnsafe(): BattleMap = battleMap
     fun getNpc(npcId: Int) = npcList.getNpc(npcId)
     fun getNpcAp(npcId: Int) = state.apState.getNpcAp(npcId)
+    fun getNpcTp(npcId: Int) = npcList.getNpc(npcId)!!.unitInstance.tp
     fun getNpcPositions(): Map<Int, GridPosition> = cache.npcPositions
     fun getNpcPosition(npcId: Int) = cache.npcPositions[npcId]
     fun getNpcTeams(): Map<Int, Team> = cache.npcTeams

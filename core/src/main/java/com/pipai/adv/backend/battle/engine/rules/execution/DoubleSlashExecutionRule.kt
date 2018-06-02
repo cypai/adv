@@ -37,6 +37,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
 
         return listOf(
                 ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)),
+                TpUsedPreviewComponent(cmd.unitId, 8),
                 TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "First Attack"),
                 TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "Second Attack"))
     }
