@@ -78,6 +78,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             DevHpChangeExecutionRule(),
             SkillTpUseExecutionRule(),
             MoveExecutionRule(),
+            RushExecutionRule(),
             DefendExecutionRule(),
             WaitExecutionRule(),
             NormalAttackExecutionRule(),
