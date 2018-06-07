@@ -21,10 +21,14 @@ class BodyPartUseRule : CommandRule {
                     val skill = command.skill
                     val bodyPartRequired = when (skill.schema.name) {
                         "Double Slash" -> BodyPart.ARMS
+                        "Hamstring" -> BodyPart.ARMS
                         "Fireball" -> BodyPart.HEAD
                         "Thunder" -> BodyPart.HEAD
                         "Icicle" -> BodyPart.HEAD
                         "Heal" -> BodyPart.HEAD
+                        "Head Strike" -> BodyPart.ARMS
+                        "Arm Strike" -> BodyPart.ARMS
+                        "Leg Strike" -> BodyPart.ARMS
                         else -> null
                     }
                     when (bodyPartRequired) {

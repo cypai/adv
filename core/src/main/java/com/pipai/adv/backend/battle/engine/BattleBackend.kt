@@ -4,7 +4,7 @@ import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.Team
-import com.pipai.adv.backend.battle.engine.calculators.CoverCalculator
+import com.pipai.adv.backend.battle.engine.calculators.*
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
@@ -45,6 +45,11 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private var state: BattleState = BattleState(Team.PLAYER, npcList, battleMap, BattleLog(),
             ActionPointState(npcList), NpcStatusState(npcList), BattleStats(npcList))
     private lateinit var cache: BattleBackendCache
+
+    private val hitCalculator = HitCalculator()
+    private val critCalculator = CritCalculator()
+    private val damageCalculator = DamageCalculator()
+    private val bindCalculator = BindCalculator()
 
     /**
      * Rules that verify that the commands are OK
@@ -95,8 +100,9 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             ElementalResistanceExecutionRule(),
             ApChangeExecutionRule(),
             TpChangeExecutionRule(),
-            AttackCalculationExecutionRule(),
+            AttackCalculationExecutionRule(hitCalculator, critCalculator, damageCalculator),
             HealExecutionRule(),
+            BindCalculationExecutionRule(hitCalculator, bindCalculator),
             AmmoChangeExecutionRule(),
             StagePreviewExecutionRule(),
             KoExecutionRule())

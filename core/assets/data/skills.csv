@@ -13,6 +13,7 @@ Wide Chase,ACTIVE,NONE,10,A buff that causes chasers to become area-of-effect da
 Guardian,PASSIVE,NONE,1,Wielding a shield increases avoid for neighboring party members
 Rapid Fire,ACTIVE_TARGET,WEAPON,10,Attack with a ranged weapon twice
 Fire Arrow,ACTIVE_TARGET,WEAPON,10,Fire elemental attack
+Hamstring,ACTIVE_TARGET,WEAPON,10,Binds leg
 Fireball,ACTIVE_TARGET,RANGED,10,Fire elemental attack
 Thunder,ACTIVE_TARGET,RANGED,10,Electric elemental attack
 Icicle,ACTIVE_TARGET,RANGED,10,Ice elemental attack
@@ -23,8 +24,10 @@ Refresh,ACTIVE_TARGET_PARTY,RANGED,10,Removes ailments from target
 Unbind,ACTIVE_TARGET_PARTY,RANGED,10,Unbinds party member
 Smokeblight,ACTIVE_AOE,NONE,10,Lowers elemental and ailment resistance
 Ki,ACTIVE_TARGET_PARTY,RANGED,10,Heals a single target
+Head Strike,ACTIVE_TARGET,MELEE,10,Attacks and binds the head
+Arm Strike,ACTIVE_TARGET,MELEE,10,Attacks and binds the arm
+Leg Strike,ACTIVE_TARGET,MELEE,10,Attacks and binds the leg
 Leading Blow,ACTIVE_TARGET,MELEE,10,"Attack once. If target has ailment or binds, follow up with a second attack scaling with the amount of ailment or binds."
-Throw,ACTIVE_TARGET,MELEE,10,Throw a target behind you
 Charge,ACTIVE,NONE,10,"For this turn, perform a normal attack when approaching an enemy. Target is pushed, destroying weak cover."
 Stretch,ACTIVE_TARGET_PARTY,MELEE,10,Unbinds party member
 Cross Counter,ACTIVE_TARGET,MELEE,10,"For the next turn, when the target uses a body part, attack and bind that part"
