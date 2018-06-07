@@ -80,7 +80,7 @@ class HealAnimationHandler(val config: AdvConfig, private val textFont: BitmapFo
                 .firstOrNull { mSideUiBox.get(it).npcId == healEvent.npcId }
                 ?.let {
                     val cSideUiBox = mSideUiBox.get(it)
-                    cSideUiBox.hp = Math.max(0, cSideUiBox.hp + healEvent.healAmount)
+                    cSideUiBox.hp = healEvent.npc.unitInstance.hp
                 }
     }
 
