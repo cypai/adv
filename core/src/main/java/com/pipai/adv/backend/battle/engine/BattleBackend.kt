@@ -91,11 +91,11 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             DefendHitCritExecutionRule(),
             CoverHitCritExecutionRule(CoverCalculator(battleMap)),
             ElementalResistanceExecutionRule(),
+            ApChangeExecutionRule(),
+            TpChangeExecutionRule(),
             AttackCalculationExecutionRule(),
             HealExecutionRule(),
             AmmoChangeExecutionRule(),
-            ApChangeExecutionRule(),
-            TpChangeExecutionRule(),
             StagePreviewExecutionRule(),
             KoExecutionRule())
 
