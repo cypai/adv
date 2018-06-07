@@ -61,6 +61,9 @@ class RushExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         val cmd = command as MoveCommand
-        state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} rushes a nearby enemy!"))
+
+        if (previews.any { it is TargetStagePreviewComponent && it.stageTypeDescription.description == "Rush" }) {
+            state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} rushes a nearby enemy!"))
+        }
     }
 }
