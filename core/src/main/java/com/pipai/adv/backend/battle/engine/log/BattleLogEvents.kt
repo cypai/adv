@@ -3,6 +3,7 @@ package com.pipai.adv.backend.battle.engine.log
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.engine.BattleStats
+import com.pipai.adv.backend.battle.engine.domain.BodyPart
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.domain.UnitSkill
 
@@ -55,6 +56,35 @@ data class HealEvent(val npcId: Int,
 
     override fun description() = "$npc (id $npcId) was healed for $healAmount"
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was healed!"
+}
+
+data class BindEvent(val npcId: Int,
+                     val npc: Npc,
+                     val bodyPart: BodyPart,
+                     val turns: Int) : BattleLogEvent {
+
+    override fun description() = "$npc's (id $npcId) $bodyPart was bound for $turns turns"
+    override fun userFriendlyDescription(): String {
+        return when (bodyPart) {
+            BodyPart.HEAD -> "${npc.unitInstance.nickname}'s head was bound!"
+            BodyPart.ARMS -> "${npc.unitInstance.nickname}'s arms were bound!"
+            BodyPart.LEGS -> "${npc.unitInstance.nickname}'s legs were bound!"
+        }
+    }
+}
+
+data class UnbindEvent(val npcId: Int,
+                       val npc: Npc,
+                       val bodyPart: BodyPart) : BattleLogEvent {
+
+    override fun description() = "$npc's (id $npcId) $bodyPart is now free"
+    override fun userFriendlyDescription(): String {
+        return when (bodyPart) {
+            BodyPart.HEAD -> "${npc.unitInstance.nickname}'s head is now free!"
+            BodyPart.ARMS -> "${npc.unitInstance.nickname}'s arms are now free!"
+            BodyPart.LEGS -> "${npc.unitInstance.nickname}'s legs are now free!"
+        }
+    }
 }
 
 data class AmmoChangeEvent(val npcId: Int, val newAmount: Int) : BattleLogEvent {

@@ -55,7 +55,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             KoCannotBeAttackedRule(),
             MoveCommandSanityRule(),
             NormalAttackCommandSanityRule(),
-            DoubleSlashSanityRule())
+            DoubleSlashSanityRule(),
+            BodyPartUseRule())
 
     /**
      * Rules that verify that the battle state shown by the preview is OK
@@ -76,6 +77,7 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
     private val commandExecutionRules: List<CommandExecutionRule> = listOf(
             StageInitializationExecutionRule(),
             DevHpChangeExecutionRule(),
+            DevBindChangeExecutionRule(),
             SkillTpUseExecutionRule(),
             MoveExecutionRule(),
             RushExecutionRule(),
@@ -273,6 +275,7 @@ data class BattleState(var turn: Team,
     fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)
     fun getNpcWeapon(npcId: Int) = getNpc(npcId)?.unitInstance?.weapon
     fun getNpcAilment(npcId: Int) = npcStatusState.getNpcAilment(npcId)
+    fun getNpcBinds(npcId: Int) = npcStatusState.getNpcBind(npcId)
     fun getNpcStatus(npcId: Int) = npcStatusState.getNpcStatus(npcId)
     fun checkNpcStatus(npcId: Int, status: NpcStatus) = npcStatusState.checkNpcStatus(npcId, status)
 }

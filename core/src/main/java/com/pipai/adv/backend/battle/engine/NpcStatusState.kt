@@ -25,6 +25,9 @@ class NpcStatusState(npcList: NpcList) {
         npcAilments[npcId] = ailment
     }
 
+    fun getNpcBind(npcId: Int): BindStatus = npcBinds[npcId]
+            ?: throw IllegalArgumentException("NPC $npcId does not exist")
+
     fun getNpcBind(npcId: Int, bodyPart: BodyPart): Int {
         val status = npcBinds[npcId] ?: throw IllegalArgumentException("NPC $npcId does not exist")
         return when (bodyPart) {
