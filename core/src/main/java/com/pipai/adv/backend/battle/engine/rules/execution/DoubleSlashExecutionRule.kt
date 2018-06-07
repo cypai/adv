@@ -37,8 +37,10 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
 
         return listOf(
                 ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "First Attack"),
-                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(), "Second Attack"))
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(),
+                        StageTypeDescription(StageType.PRIMARY, "", "")),
+                TargetStagePreviewComponent(cmd.unitId, cmd.targetId, previewComponents.toMutableList(),
+                        StageTypeDescription(StageType.PRIMARY, "", "")))
     }
 
     override fun execute(command: BattleCommand,

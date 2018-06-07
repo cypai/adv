@@ -51,7 +51,8 @@ class RushExecutionRule : CommandExecutionRule {
         previewComponents.add(ToCritFlatAdjustmentPreviewComponent((rushSkill.level - 1) / 2 * 5, "Skill level ${rushSkill.level}"))
         previewComponents.add(DamageScaleAdjustmentPreviewComponent((rushSkill.level - 1) * 5, "Skill level ${rushSkill.level}"))
 
-        return listOf(TargetStagePreviewComponent(cmd.unitId, target, previewComponents, "Rush"))
+        return listOf(TargetStagePreviewComponent(cmd.unitId, target, previewComponents,
+                StageTypeDescription(StageType.PRIMARY, "Rush", "")))
     }
 
     override fun execute(command: BattleCommand,

@@ -53,10 +53,13 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
         }
 
         val bindPreviewComponents: MutableList<PreviewComponent> = mutableListOf()
-        bindPreviewComponents.add(ToHitPreviewComponent(50 + 5 * (skill.level)))
+        val bindChance = 50 + 5 * (skill.level)
+        bindPreviewComponents.add(ToHitPreviewComponent(bindChance))
         bindPreviewComponents.add(BindPreviewComponent(bodyPart, 3, 5))
 
-        previewComponents.add(TargetStagePreviewComponent(cmd.unitId, cmd.targetId, bindPreviewComponents, "Bind Stage"))
+        previewComponents.add(TargetStagePreviewComponent(
+                cmd.unitId, cmd.targetId, bindPreviewComponents,
+                StageTypeDescription(StageType.EFFECT, "Bind ${bodyPart.niceString}", "$bindChance %")))
 
         return previewComponents
     }

@@ -8,6 +8,7 @@ import com.pipai.adv.backend.battle.engine.calculators.HitCalculator
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
+import com.pipai.adv.backend.battle.engine.domain.StageType
 import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
 import com.pipai.adv.backend.battle.engine.rules.execution.HealExecutionRule
 import kotlin.math.roundToInt
@@ -31,7 +32,7 @@ class PreviewAggregator {
             } else {
                 leftPreviewList.add(healPreview)
             }
-            leftPreviewList.add(StringMenuItem("Effects", null, "").withData("disabled", true))
+            leftPreviewList.add(generateEffectPreview(command, preview))
         }
         return leftPreviewList
     }
@@ -119,46 +120,63 @@ class PreviewAggregator {
         }
     }
 
+    private fun generateEffectPreview(command: TargetCommand, preview: List<PreviewComponent>): StringMenuItem {
+        return StringMenuItem("Effects", null, "")
+                .withData("disabled", aggregateDetails(command, preview, "Effects").isEmpty())
+    }
+
     fun aggregateDetails(command: BattleCommand, preview: List<PreviewComponent>, previewType: String): List<StringMenuItem> {
         val rightPreviewList: MutableList<StringMenuItem> = mutableListOf()
 
         when {
             previewType.startsWith("Hit") -> {
-                val details = hitCalculator.toHitComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
                 if (command is TargetCommand) {
-                    preview
-                            .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
-                            .map { it as TargetStagePreviewComponent }
-                            .forEach {
-                                val stageDetails = hitCalculator.toHitComponents(it.previews)
-                                if (stageDetails != null) {
-                                    rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
-                                    rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
+                    val details = hitCalculator.toHitComponents(preview)
+                    if (details == null) {
+                        preview
+                                .filter {
+                                    it is TargetStagePreviewComponent
+                                            && it.unitId == command.unitId
+                                            && it.targetId == command.targetId
+                                            && it.stageTypeDescription.stageType == StageType.PRIMARY
                                 }
-                            }
+                                .map { it as TargetStagePreviewComponent }
+                                .forEach {
+                                    val stageDetails = hitCalculator.toHitComponents(it.previews)
+                                    if (stageDetails != null) {
+                                        rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
+                                        rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
+                                    }
+                                }
+                    } else {
+                        rightPreviewList.add(previewToStringMenuItem(details.first))
+                        rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
+                    }
                 }
             }
             previewType.startsWith("Crit") -> {
-                val details = critCalculator.toCritComponents(preview)
-                if (details != null) {
-                    rightPreviewList.add(previewToStringMenuItem(details.first))
-                    rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
-                }
                 if (command is TargetCommand) {
-                    preview
-                            .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
-                            .map { it as TargetStagePreviewComponent }
-                            .forEach {
-                                val stageDetails = critCalculator.toCritComponents(it.previews)
-                                if (stageDetails != null) {
-                                    rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
-                                    rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
+                    val details = critCalculator.toCritComponents(preview)
+                    if (details == null) {
+                        preview
+                                .filter {
+                                    it is TargetStagePreviewComponent
+                                            && it.unitId == command.unitId
+                                            && it.targetId == command.targetId
+                                            && it.stageTypeDescription.stageType == StageType.PRIMARY
                                 }
-                            }
+                                .map { it as TargetStagePreviewComponent }
+                                .forEach {
+                                    val stageDetails = critCalculator.toCritComponents(it.previews)
+                                    if (stageDetails != null) {
+                                        rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
+                                        rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
+                                    }
+                                }
+                    } else {
+                        rightPreviewList.add(previewToStringMenuItem(details.first))
+                        rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
+                    }
                 }
             }
             previewType.startsWith("Damage") -> {
@@ -169,7 +187,12 @@ class PreviewAggregator {
                 }
                 if (command is TargetCommand) {
                     preview
-                            .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
+                            .filter {
+                                it is TargetStagePreviewComponent
+                                        && it.unitId == command.unitId
+                                        && it.targetId == command.targetId
+                                        && it.stageTypeDescription.stageType == StageType.PRIMARY
+                            }
                             .map { it as TargetStagePreviewComponent }
                             .forEach {
                                 val stageDetails = damageCalculator.damageRangeComponents(it.previews)
@@ -186,6 +209,17 @@ class PreviewAggregator {
                     rightPreviewList.add(previewToStringMenuItem(details.first))
                     rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
                 }
+            }
+            previewType.startsWith("Effects") -> {
+                preview
+                        .filter {
+                            it is TargetStagePreviewComponent
+                                    && it.stageTypeDescription.stageType == StageType.EFFECT
+                        }
+                        .map { it as TargetStagePreviewComponent }
+                        .forEach {
+                            rightPreviewList.add(StringMenuItem(it.stageTypeDescription.description, null, it.stageTypeDescription.rightText))
+                        }
             }
         }
         return rightPreviewList

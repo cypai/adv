@@ -110,6 +110,13 @@ data class BindPreviewComponent(val bodyPart: BodyPart, val minTurns: Int, val m
 data class TargetStagePreviewComponent(val unitId: Int,
                                        val targetId: Int,
                                        val previews: MutableList<PreviewComponent>,
-                                       override val description: String) : PreviewComponent {
-    override fun rightText(): String = ""
+                                       val stageTypeDescription: StageTypeDescription) : PreviewComponent {
+    override val description: String = stageTypeDescription.description
+    override fun rightText(): String = stageTypeDescription.rightText
 }
+
+enum class StageType {
+    PRIMARY, EFFECT
+}
+
+data class StageTypeDescription(val stageType: StageType, val description: String, val rightText: String)
