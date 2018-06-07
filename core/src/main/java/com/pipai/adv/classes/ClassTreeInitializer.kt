@@ -34,6 +34,7 @@ class ClassTreeInitializer(private val skillIndex: SkillIndex) {
                 "An attacker specializing in long ranged attacks")
         tree.addSkill(skillIndex.getSkillSchema("Rapid Fire")!!)
         tree.addSkill(skillIndex.getSkillSchema("Fire Arrow")!!)
+        tree.addSkill(skillIndex.getSkillSchema("Hamstring")!!)
         return tree
     }
 
@@ -62,6 +63,9 @@ class ClassTreeInitializer(private val skillIndex: SkillIndex) {
         val tree = ClassTree("Martial Artist",
                 "A specialist in unarmed combat and binds")
         tree.addSkill(skillIndex.getSkillSchema("Ki")!!)
+        tree.addSkill(skillIndex.getSkillSchema("Head Strike")!!)
+        tree.addSkill(skillIndex.getSkillSchema("Arm Strike")!!)
+        tree.addSkill(skillIndex.getSkillSchema("Leg Strike")!!)
         tree.addSkill(skillIndex.getSkillSchema("Leading Blow")!!)
         tree.addSkill(skillIndex.getSkillSchema("Cross Counter")!!)
         tree.addSkill(skillIndex.getSkillSchema("Stretch")!!)

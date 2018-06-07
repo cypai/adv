@@ -34,10 +34,14 @@ class SkillTpUseExecutionRule : CommandExecutionRule {
         }
         val tpRequired = when (skill.schema.name) {
             "Double Slash" -> 5
+            "Hamstring" -> 8
             "Fireball" -> 5
             "Thunder" -> 5
             "Icicle" -> 5
             "Heal" -> 5
+            "Head Strike" -> 5
+            "Arm Strike" -> 5
+            "Leg Strike" -> 5
             else -> 0
         }
         return listOf(TpUsedPreviewComponent(unitId, tpRequired))

@@ -1,17 +1,23 @@
 package com.pipai.adv.artemis.system.ui
 
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.backend.battle.engine.calculators.BindCalculator
+import com.pipai.adv.backend.battle.engine.calculators.CritCalculator
+import com.pipai.adv.backend.battle.engine.calculators.DamageCalculator
+import com.pipai.adv.backend.battle.engine.calculators.HitCalculator
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetCommand
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
-import com.pipai.adv.backend.battle.engine.rules.execution.AttackCalculationExecutionRule
 import com.pipai.adv.backend.battle.engine.rules.execution.HealExecutionRule
 import kotlin.math.roundToInt
 
 class PreviewAggregator {
 
-    private val attackCalculator = AttackCalculationExecutionRule()
+    private val hitCalculator = HitCalculator()
+    private val critCalculator = CritCalculator()
+    private val damageCalculator = DamageCalculator()
+    private val bindCalculator = BindCalculator()
     private val healCalculator = HealExecutionRule()
 
     fun aggregate(command: BattleCommand, preview: List<PreviewComponent>): List<StringMenuItem> {
@@ -36,10 +42,10 @@ class PreviewAggregator {
                 .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                 .map { it as TargetStagePreviewComponent }
 
-        val primaryToHit = attackCalculator.calculateToHit(preview)
+        val primaryToHit = hitCalculator.calculateToHit(preview)
 
         if (primaryToHit == null) {
-            val stageToHit = stages.map { attackCalculator.calculateToHit(it.previews) }
+            val stageToHit = stages.map { hitCalculator.calculateToHit(it.previews) }
                     .filter { it != null }
                     .map { it!! }
 
@@ -62,10 +68,10 @@ class PreviewAggregator {
                 .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                 .map { it as TargetStagePreviewComponent }
 
-        val primaryToCrit = attackCalculator.calculateToCrit(preview)
+        val primaryToCrit = critCalculator.calculateToCrit(preview)
 
         if (primaryToCrit == null) {
-            val stageToCrit = stages.map { attackCalculator.calculateToCrit(it.previews) }
+            val stageToCrit = stages.map { critCalculator.calculateToCrit(it.previews) }
                     .filter { it != null }
                     .map { it!! }
 
@@ -94,10 +100,10 @@ class PreviewAggregator {
                 .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                 .map { it as TargetStagePreviewComponent }
 
-        val primaryDamageRange = attackCalculator.calculateDamageRange(preview)
+        val primaryDamageRange = damageCalculator.calculateDamageRange(preview)
 
         if (primaryDamageRange == null) {
-            val stageDamage = stages.map { attackCalculator.calculateDamageRange(it.previews) }
+            val stageDamage = stages.map { damageCalculator.calculateDamageRange(it.previews) }
                     .filter { it != null }
                     .map { it!! }
 
@@ -118,7 +124,7 @@ class PreviewAggregator {
 
         when {
             previewType.startsWith("Hit") -> {
-                val details = attackCalculator.toHitComponents(preview)
+                val details = hitCalculator.toHitComponents(preview)
                 if (details != null) {
                     rightPreviewList.add(previewToStringMenuItem(details.first))
                     rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
@@ -128,7 +134,7 @@ class PreviewAggregator {
                             .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                             .map { it as TargetStagePreviewComponent }
                             .forEach {
-                                val stageDetails = attackCalculator.toHitComponents(it.previews)
+                                val stageDetails = hitCalculator.toHitComponents(it.previews)
                                 if (stageDetails != null) {
                                     rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
                                     rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
@@ -137,7 +143,7 @@ class PreviewAggregator {
                 }
             }
             previewType.startsWith("Crit") -> {
-                val details = attackCalculator.toCritComponents(preview)
+                val details = critCalculator.toCritComponents(preview)
                 if (details != null) {
                     rightPreviewList.add(previewToStringMenuItem(details.first))
                     rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
@@ -147,7 +153,7 @@ class PreviewAggregator {
                             .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                             .map { it as TargetStagePreviewComponent }
                             .forEach {
-                                val stageDetails = attackCalculator.toCritComponents(it.previews)
+                                val stageDetails = critCalculator.toCritComponents(it.previews)
                                 if (stageDetails != null) {
                                     rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
                                     rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })
@@ -156,7 +162,7 @@ class PreviewAggregator {
                 }
             }
             previewType.startsWith("Damage") -> {
-                val details = attackCalculator.damageRangeComponents(preview)
+                val details = damageCalculator.damageRangeComponents(preview)
                 if (details != null) {
                     rightPreviewList.add(previewToStringMenuItem(details.first))
                     rightPreviewList.addAll(details.second.map { previewToStringMenuItem(it) })
@@ -166,7 +172,7 @@ class PreviewAggregator {
                             .filter { it is TargetStagePreviewComponent && it.unitId == command.unitId && it.targetId == command.targetId }
                             .map { it as TargetStagePreviewComponent }
                             .forEach {
-                                val stageDetails = attackCalculator.damageRangeComponents(it.previews)
+                                val stageDetails = damageCalculator.damageRangeComponents(it.previews)
                                 if (stageDetails != null) {
                                     rightPreviewList.add(previewToStringMenuItem(stageDetails.first))
                                     rightPreviewList.addAll(stageDetails.second.map { previewToStringMenuItem(it) })

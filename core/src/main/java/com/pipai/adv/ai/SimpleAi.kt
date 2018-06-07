@@ -7,11 +7,13 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.WeaponRange
 import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.backend.battle.engine.calculators.CritCalculator
+import com.pipai.adv.backend.battle.engine.calculators.DamageCalculator
+import com.pipai.adv.backend.battle.engine.calculators.HitCalculator
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.MoveCommandFactory
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
 import com.pipai.adv.backend.battle.engine.commands.WaitCommand
-import com.pipai.adv.backend.battle.engine.rules.execution.AttackCalculationExecutionRule
 import com.pipai.adv.backend.battle.utils.BattleUtils
 import com.pipai.adv.utils.GridUtils
 import com.pipai.adv.utils.RNG
@@ -27,7 +29,9 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
     private val moveCommandFactory = MoveCommandFactory(backend)
     private val attackCommandFactory = NormalAttackCommandFactory(backend)
 
-    private val attackCalculator = AttackCalculationExecutionRule()
+    private val hitCalculator = HitCalculator()
+    private val critCalculator = CritCalculator()
+    private val damageCalculator = DamageCalculator()
 
     init {
         stateMachine.changeState(SimpleAiState.WANDERING)
@@ -97,8 +101,8 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
         val commands = attackCommandFactory.generateForPosition(npcId, position)
         return commands.map {
             val preview = backend.preview(it)
-            val toHit = attackCalculator.calculateToHit(preview)!!
-            val damageRange = attackCalculator.calculateDamageRange(preview)!!
+            val toHit = hitCalculator.calculateToHit(preview)!!
+            val damageRange = damageCalculator.calculateDamageRange(preview)!!
             val targetHp = backend.getNpc(it.targetId)!!.unitInstance.hp
             val koScoreBoost = if (targetHp < damageRange.second) 100 else 0
             val apBoost = if (backend.getNpcAp(npcId) == 1) 50 else 0

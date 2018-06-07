@@ -97,6 +97,16 @@ data class AttackElementPreviewComponent(val element: AttackElement) : PreviewCo
     override fun rightText(): String = element.toString()
 }
 
+data class BindPreviewComponent(val bodyPart: BodyPart, val minTurns: Int, val maxTurns: Int) : PreviewComponent {
+    override val description: String = when (bodyPart) {
+        BodyPart.HEAD -> "Head Bind"
+        BodyPart.ARMS -> "Arm Bind"
+        BodyPart.LEGS -> "Leg Bind"
+    }
+
+    override fun rightText(): String = "$minTurns - $maxTurns"
+}
+
 data class TargetStagePreviewComponent(val unitId: Int,
                                        val targetId: Int,
                                        val previews: MutableList<PreviewComponent>,
