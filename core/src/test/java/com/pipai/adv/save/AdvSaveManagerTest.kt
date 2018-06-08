@@ -50,7 +50,7 @@ class AdvSaveManagerTest : GdxMockedTest() {
         Assert.assertEquals("body_2.png", filename)
 
         Assert.assertEquals("Amber", npc0.unitInstance.nickname)
-        Assert.assertEquals("Human", npc0.unitInstance.schema.name)
+        Assert.assertEquals("Human", npc0.unitInstance.schema)
 
         Assert.assertEquals(1, loadedSave.guilds["Test Guild"]!!.size.toLong())
         Assert.assertEquals(0, loadedSave.guilds["Test Guild"]!![0].toLong())
