@@ -3,18 +3,18 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
-class NormalAttackCommandFactoryTest {
+class NormalAttackCommandFactoryTest : GdxMockedTest() {
 
     @Test
     fun testSwordNormalAttackCommandFactory() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -33,7 +33,7 @@ class NormalAttackCommandFactoryTest {
         val outOfRangeEnemyId = npcList.addNpc(player)
         map.getCell(3, 0).fullEnvObject = FullEnvObject.NpcEnvObject(outOfRangeEnemyId, Team.AI, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val factory = NormalAttackCommandFactory(backend)
         val playerCommands = factory.generate(playerId)
@@ -54,7 +54,6 @@ class NormalAttackCommandFactoryTest {
 
     @Test
     fun testBowNormalAttackCommandFactory() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val bow = bowFixture()
@@ -73,7 +72,7 @@ class NormalAttackCommandFactoryTest {
         val enemy2Id = npcList.addNpc(player)
         map.getCell(3, 0).fullEnvObject = FullEnvObject.NpcEnvObject(enemy2Id, Team.AI, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val factory = NormalAttackCommandFactory(backend)
         val playerCommands = factory.generate(playerId)

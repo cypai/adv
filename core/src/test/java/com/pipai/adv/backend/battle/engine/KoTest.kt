@@ -6,16 +6,16 @@ import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NpcKoEvent
 import com.pipai.adv.backend.battle.engine.log.PlayerKoEvent
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
-import com.pipai.test.fixtures.*
+import com.pipai.test.fixtures.npcFromStats
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
-class KoTest {
+class KoTest : GdxMockedTest() {
 
     @Test
     fun testPlayerKo() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val player = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
@@ -25,7 +25,7 @@ class KoTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = DevHpChangeCommand(playerId, 0)
 
@@ -48,7 +48,6 @@ class KoTest {
 
     @Test
     fun testEnemyKo() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val player = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
@@ -58,7 +57,7 @@ class KoTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = DevHpChangeCommand(enemyId, 0)
 

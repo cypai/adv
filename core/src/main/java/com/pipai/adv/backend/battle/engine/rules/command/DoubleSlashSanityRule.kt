@@ -8,22 +8,24 @@ import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.utils.MathUtils
 
-class DoubleSlashSanityRule : CommandRule {
+class DoubleSlashSanityRule(private val weaponSchemaIndex: WeaponSchemaIndex) : CommandRule {
 
     private val usableWeaponTypes = listOf(WeaponType.SWORD, WeaponType.DAGGER)
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
-        if (command is TargetSkillCommand && command.skill.schema.name == "Double Slash") {
+        if (command is TargetSkillCommand && command.skill.name == "Double Slash") {
             val weapon = state.getNpcWeapon(command.unitId)
             weapon ?: return ExecutableStatus(false, "Attacker is not wielding a weapon")
 
-            if (!usableWeaponTypes.contains(weapon.schema.type)) {
+            val weaponSchema = weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+            if (!usableWeaponTypes.contains(weaponSchema.type)) {
                 return ExecutableStatus(false, "Attacker is not wielding a weapon suitable for this skill")
             }
 
-            val range = weapon.schema.range
+            val range = weaponSchema.range
             val attackerPosition = cache.npcPositions[command.unitId]!!
             val targetPosition = cache.npcPositions[command.targetId]!!
 

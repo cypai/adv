@@ -132,7 +132,7 @@ class SchemaList : Iterable<SchemaMetadata> {
         if (schemas.contains(name)) {
             return schemas.get(name)!!
         } else {
-            throw IllegalArgumentException("$name does not exist in schema list")
+            throw IllegalArgumentException("$name does not exist in name list")
         }
     }
 }

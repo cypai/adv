@@ -14,8 +14,8 @@ data class SkillSchema(val name: String, val type: SkillType, val rangeType: Ski
     }
 
     fun new(level: Int): UnitSkill {
-        return UnitSkill(level, this)
+        return UnitSkill(level, name)
     }
 }
 
-data class UnitSkill(var level: Int, val schema: SkillSchema)
+data class UnitSkill(var level: Int, val name: String)

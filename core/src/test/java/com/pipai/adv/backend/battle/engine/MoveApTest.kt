@@ -4,24 +4,24 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
 import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
 
-class MoveApTest {
+class MoveApTest : GdxMockedTest() {
 
     @Test
     fun testBlueMoves() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 4), null)
         val id = npcList.addNpc(npc)
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val blueMove = MoveCommand(id, Arrays.asList(GridPosition(0, 0), GridPosition(0, 1)))
         Assert.assertTrue(backend.canBeExecuted(blueMove).executable)
@@ -71,14 +71,13 @@ class MoveApTest {
 
     @Test
     fun testYellowMoves() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 4), null)
         val id = npcList.addNpc(npc)
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         Assert.assertEquals(2, backend.getNpcAp(id))
 

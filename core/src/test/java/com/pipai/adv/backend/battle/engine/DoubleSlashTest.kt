@@ -1,17 +1,15 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.badlogic.gdx.Gdx
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.TargetStagePreviewComponent
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.index.SkillIndex
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
 import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
@@ -19,8 +17,6 @@ class DoubleSlashTest : GdxMockedTest() {
 
     @Test
     fun testDoubleSlash() {
-        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -33,9 +29,9 @@ class DoubleSlashTest : GdxMockedTest() {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
-        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
+        val cmd = TargetSkillCommand(backend.skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         val preview = backend.preview(cmd)
         val stages = preview.filter { it is TargetStagePreviewComponent }
@@ -59,8 +55,6 @@ class DoubleSlashTest : GdxMockedTest() {
 
     @Test
     fun testDoubleSlashOutOfRange() {
-        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -72,9 +66,9 @@ class DoubleSlashTest : GdxMockedTest() {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(2, 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
-        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
+        val cmd = TargetSkillCommand(backend.skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
@@ -83,8 +77,6 @@ class DoubleSlashTest : GdxMockedTest() {
 
     @Test
     fun testDoubleSlashBow() {
-        val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val bow = bowFixture()
@@ -96,9 +88,9 @@ class DoubleSlashTest : GdxMockedTest() {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(2, 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
-        val cmd = TargetSkillCommand(skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
+        val cmd = TargetSkillCommand(backend.skillIndex.getSkillSchema("Double Slash")!!.new(), attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)

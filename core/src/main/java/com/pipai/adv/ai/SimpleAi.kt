@@ -3,6 +3,7 @@ package com.pipai.adv.ai
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
+import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.WeaponRange
 import com.pipai.adv.backend.battle.engine.ActionPointState
@@ -20,7 +21,7 @@ import com.pipai.adv.utils.RNG
 import com.pipai.adv.utils.getLogger
 import kotlin.math.roundToInt
 
-class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
+class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleBackend, private val npcId: Int) {
 
     private val logger = getLogger()
 
@@ -82,7 +83,8 @@ class SimpleAi(private val backend: BattleBackend, private val npcId: Int) {
                             .min()?.roundToInt() ?: 100
                     val decay = -10
                     val teammateBoost = nearbyTeammates.size * 1
-                    val enemyDistanceBoost = if (backend.getNpc(npcId)!!.unitInstance.weapon!!.schema.range == WeaponRange.MELEE) {
+                    val weaponSchema = globals.weaponSchemaIndex.getWeaponSchema(backend.getNpc(npcId)!!.unitInstance.weapon!!.name)!!
+                    val enemyDistanceBoost = if (weaponSchema.range == WeaponRange.MELEE) {
                         -1 * minEnemyDistance
                     } else {
                         0

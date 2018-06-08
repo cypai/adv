@@ -5,18 +5,18 @@ import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.ToCritFlatAdjustmentPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.ToHitFlatAdjustmentPreviewComponent
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
-class CoverNormalAttackTest {
+class CoverNormalAttackTest : GdxMockedTest() {
 
     @Test
     fun testNormalAttackCover() {
-        val save = AdvSave()
         val npcList = NpcList()
 
         /*
@@ -50,7 +50,7 @@ class CoverNormalAttackTest {
         map.getCell(3, 3).fullEnvObject = FullEnvObject.NpcEnvObject(halfTargetId, Team.AI, EnvObjTilesetMetadata.NONE)
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(openTargetId, Team.AI, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         var cmd = NormalAttackCommand(attackerId, fullTargetId)
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)

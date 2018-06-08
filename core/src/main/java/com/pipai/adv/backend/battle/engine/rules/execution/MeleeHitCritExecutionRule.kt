@@ -28,11 +28,14 @@ class MeleeHitCritExecutionRule : CommandExecutionRule {
 
         val cmd = command as ActionCommand
 
-        val weaponRange = state.getNpcWeapon(cmd.unitId)!!.schema.range
+        val weapon = state.getNpcWeapon(cmd.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+        val weaponRange = weaponSchema.range
 
         if (cmd is TargetSkillCommand) {
-            if (cmd.skill.schema.rangeType == SkillRangeType.MELEE
-                    || (cmd.skill.schema.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.MELEE)) {
+            val skill = backend.skillIndex.getSkillSchema(cmd.skill.name)!!
+            if (skill.rangeType == SkillRangeType.MELEE
+                    || (skill.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.MELEE)) {
                 return generateHitCritBonus()
             } else {
                 return listOf()

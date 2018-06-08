@@ -20,6 +20,12 @@ data class ClassTree(val name: String, val description: String, private val skil
         skillMap[skillName]!!.skillRequirements.add(requirement)
     }
 
+    fun setSkillLevel(skillName: String, level: Int) {
+        if (skillMap.containsKey(skillName)) {
+            skillMap[skillName]!!.skill.level = level
+        }
+    }
+
 }
 
 data class SkillNode(val skill: UnitSkill, val skillRequirements: MutableList<SkillRequirement>)

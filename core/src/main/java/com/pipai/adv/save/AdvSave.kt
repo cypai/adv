@@ -2,7 +2,6 @@ package com.pipai.adv.save
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.pipai.adv.classes.ClassTree
 import com.pipai.adv.domain.NpcList
 
 class AdvSave() {
@@ -29,7 +28,7 @@ class AdvSave() {
     var guilds: MutableMap<String, MutableList<Int>>
         private set
 
-    var classes: MutableMap<Int, ClassTree?> = mutableMapOf()
+    var classes: MutableMap<Int, String?> = mutableMapOf()
         private set
 
     var sp: MutableMap<Int, Int> = mutableMapOf()

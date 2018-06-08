@@ -17,7 +17,7 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill.schema.name in applicableSkills
+        return command is TargetSkillCommand && command.skill.name in applicableSkills
     }
 
     override fun preview(command: BattleCommand,
@@ -28,12 +28,14 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
 
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
+        val weapon = state.getNpcWeapon(cmd.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
 
-        val base = when (skill.schema.name) {
-            "Hamstring" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.dexterity + state.getNpcWeapon(cmd.unitId)!!.schema.patk
-            "Head Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
-            "Arm Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
-            "Leg Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = when (skill.name) {
+            "Hamstring" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.dexterity + weaponSchema.patk
+            "Head Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+            "Arm Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+            "Leg Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
             else -> throw IllegalStateException("An unexpected skill is being previewed: $skill")
         }
 
@@ -44,7 +46,7 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
         previewComponents.add(DamageScaleAdjustmentPreviewComponent((skill.level - 1) * 5, "Skill level ${skill.level}"))
 
-        val bodyPart = when (skill.schema.name) {
+        val bodyPart = when (skill.name) {
             "Hamstring" -> BodyPart.LEGS
             "Head Strike" -> BodyPart.HEAD
             "Arm Strike" -> BodyPart.ARMS

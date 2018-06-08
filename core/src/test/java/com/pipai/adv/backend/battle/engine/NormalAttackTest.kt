@@ -5,18 +5,18 @@ import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NormalAttackEvent
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
-class NormalAttackTest {
+class NormalAttackTest : GdxMockedTest() {
 
     @Test
     fun testMeleeNormalAttack() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -29,7 +29,7 @@ class NormalAttackTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = NormalAttackCommand(attackerId, targetId)
 
@@ -46,7 +46,6 @@ class NormalAttackTest {
 
     @Test
     fun testMeleeNormalAttackOutOfRange() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -58,7 +57,7 @@ class NormalAttackTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(2, 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = NormalAttackCommand(attackerId, targetId)
 
@@ -69,7 +68,6 @@ class NormalAttackTest {
 
     @Test
     fun testBowRangedNormalAttack() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val bow = bowFixture()
@@ -81,7 +79,7 @@ class NormalAttackTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(2, 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = NormalAttackCommand(attackerId, targetId)
 
@@ -104,7 +102,6 @@ class NormalAttackTest {
 
     @Test
     fun testBowRangedNormalAttackOutOfRange() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(BattleBackend.RANGED_WEAPON_DISTANCE.toInt() + 1, 1)
         val sword = swordFixture()
@@ -116,36 +113,12 @@ class NormalAttackTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(BattleBackend.RANGED_WEAPON_DISTANCE.toInt(), 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = NormalAttackCommand(attackerId, targetId)
 
         val (executable, reason) = backend.canBeExecuted(cmd)
         Assert.assertFalse(executable)
         Assert.assertEquals("Attacking distance is too great", reason)
-    }
-
-    @Test
-    fun testBowOutOfAmmoNormalAttack() {
-        val save = AdvSave()
-        val npcList = NpcList()
-        val map = BattleMap.createBattleMap(4, 4)
-        val bow = bowFixture()
-        bow.ammo = 0
-        val attacker = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
-                bow)
-        val attackerId = npcList.addNpc(attacker)
-        val target = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val targetId = npcList.addNpc(target)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(2, 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-
-        val backend = BattleBackend(save, npcList, map)
-
-        val cmd = NormalAttackCommand(attackerId, targetId)
-
-        val (executable, reason) = backend.canBeExecuted(cmd)
-        Assert.assertFalse(executable)
-        Assert.assertEquals("This weapon needs to be reloaded", reason)
     }
 }

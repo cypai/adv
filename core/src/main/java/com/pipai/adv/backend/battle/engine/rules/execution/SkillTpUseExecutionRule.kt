@@ -32,7 +32,7 @@ class SkillTpUseExecutionRule : CommandExecutionRule {
             }
             else -> throw IllegalStateException("Unexpected command $command received")
         }
-        val tpRequired = when (skill.schema.name) {
+        val tpRequired = when (skill.name) {
             "Double Slash" -> 5
             "Hamstring" -> 8
             "Fireball" -> 5

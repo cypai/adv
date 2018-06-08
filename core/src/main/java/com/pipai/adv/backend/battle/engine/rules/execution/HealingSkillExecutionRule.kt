@@ -20,7 +20,7 @@ class HealingSkillExecutionRule : CommandExecutionRule {
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill.schema.name in applicableSkills
+        return command is TargetSkillCommand && command.skill.name in applicableSkills
     }
 
     override fun preview(command: BattleCommand,

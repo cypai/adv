@@ -65,7 +65,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
                         CameraFollowSystem(game.advConfig),
                         NpcIdSystem(),
                         BattleAnimationSystem(game),
-                        BattleAiSystem())
+                        BattleAiSystem(game.globals))
                 .withPassive(-2,
                         BattleMapRenderingSystem(game, mapTileset, true))
                 .withPassive(-5,
@@ -88,7 +88,7 @@ class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
         inputProcessor.addProcessor(stage)
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, game.globals.save!!, npcList, partyList, map)
+        BattleMapScreenInit(world, game.advConfig, game.globals, npcList, partyList, map)
                 .initialize()
     }
 

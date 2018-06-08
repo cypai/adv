@@ -2,6 +2,7 @@ package com.pipai.adv.backend.battle.utils
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.utils.GridUtils
 
 object BattleUtils {
@@ -17,7 +18,7 @@ object BattleUtils {
         val weapon = attacker.unitInstance.weapon
 
         if (weapon != null) {
-            val range2 = weaponRangeDistance2(weapon)
+            val range2 = weaponRangeDistance2(backend.weaponSchemaIndex, weapon)
             attackableEnemies.addAll(enemiesInRange(npcId, backend, range2))
         }
         return attackableEnemies
@@ -30,7 +31,7 @@ object BattleUtils {
         val weapon = attacker.unitInstance.weapon
 
         if (weapon != null) {
-            val range2 = weaponRangeDistance2(weapon)
+            val range2 = weaponRangeDistance2(backend.weaponSchemaIndex, weapon)
             attackableEnemies.addAll(enemiesInRange(npcId, position, backend, range2))
         }
         return attackableEnemies
@@ -75,22 +76,24 @@ object BattleUtils {
         return teammatesInRange
     }
 
-    fun weaponRangeDistance2(weapon: InventoryItem.WeaponInstance): Int {
-        return when (weapon.schema.range) {
+    fun weaponRangeDistance2(weaponSchemaIndex: WeaponSchemaIndex, weapon: InventoryItem.WeaponInstance): Int {
+        val schema = weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+        return when (schema.range) {
             WeaponRange.RANGED -> BattleBackend.RANGED_WEAPON_DISTANCE2
             WeaponRange.MELEE -> BattleBackend.MELEE_WEAPON_DISTANCE2
         }
     }
 
-    fun weaponCanAttack(weapon: InventoryItem.WeaponInstance, ammoRequired: Int): Boolean {
-        return when (weaponRequiresAmmo(weapon)) {
+    fun weaponCanAttack(weaponSchemaIndex: WeaponSchemaIndex, weapon: InventoryItem.WeaponInstance, ammoRequired: Int): Boolean {
+        return when (weaponRequiresAmmo(weaponSchemaIndex, weapon)) {
             true -> weapon.ammo >= ammoRequired
             false -> true
         }
     }
 
-    fun weaponRequiresAmmo(weapon: InventoryItem.WeaponInstance): Boolean {
-        return weapon.schema.attributes.contains(WeaponAttribute.CAN_FAST_RELOAD)
-                || weapon.schema.attributes.contains(WeaponAttribute.CAN_RELOAD)
+    fun weaponRequiresAmmo(weaponSchemaIndex: WeaponSchemaIndex, weapon: InventoryItem.WeaponInstance): Boolean {
+        val schema = weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+        return schema.attributes.contains(WeaponAttribute.CAN_FAST_RELOAD)
+                || schema.attributes.contains(WeaponAttribute.CAN_RELOAD)
     }
 }

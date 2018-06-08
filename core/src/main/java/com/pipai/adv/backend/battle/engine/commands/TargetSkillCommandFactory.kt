@@ -12,19 +12,20 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
         val npc = backend.getNpc(npcId)!!
         val commands: MutableList<TargetSkillCommand> = mutableListOf()
 
-        when (skill.schema.rangeType) {
+        val skillSchema = backend.skillIndex.getSkillSchema(skill.name)!!
+        when (skillSchema.rangeType) {
             SkillRangeType.WEAPON -> {
                 val weapon = npc.unitInstance.weapon
                 if (BattleUtils.canTakeAction(npcId, 1, backend)
                         && weapon != null
-                        && BattleUtils.weaponCanAttack(weapon, 1)) {
+                        && BattleUtils.weaponCanAttack(backend.weaponSchemaIndex, weapon, 1)) {
 
                     val targets = BattleUtils.enemiesInWeaponRange(npcId, backend)
                     commands.addAll(targets.map { TargetSkillCommand(skill, npcId, it) })
                 }
             }
             SkillRangeType.MELEE -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, backend, BattleBackend.MELEE_WEAPON_DISTANCE2)
                     }
@@ -36,7 +37,7 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
                 commands.addAll(targets.map { TargetSkillCommand(skill, npcId, it) })
             }
             SkillRangeType.RANGED -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, backend, BattleBackend.RANGED_WEAPON_DISTANCE2)
                     }
@@ -57,7 +58,9 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
         val npc = backend.getNpc(npcId)!!
         val commands: MutableList<TargetSkillCommand> = mutableListOf()
 
-        when (skill.schema.rangeType) {
+        val skillSchema = backend.skillIndex.getSkillSchema(skill.name)!!
+
+        when (skillSchema.rangeType) {
             SkillRangeType.WEAPON -> {
                 val weapon = npc.unitInstance.weapon
                 if (BattleUtils.canTakeAction(npcId, 1, backend)
@@ -68,7 +71,7 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
                 }
             }
             SkillRangeType.MELEE -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, backend, BattleBackend.MELEE_WEAPON_DISTANCE2)
                     }
@@ -80,7 +83,7 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
                 commands.addAll(targets.map { TargetSkillCommand(skill, npcId, it) })
             }
             SkillRangeType.RANGED -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, backend, BattleBackend.RANGED_WEAPON_DISTANCE2)
                     }
@@ -101,19 +104,21 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
         val npc = backend.getNpc(npcId)!!
         val commands: MutableList<TargetSkillCommand> = mutableListOf()
 
-        when (skill.schema.rangeType) {
+        val skillSchema = backend.skillIndex.getSkillSchema(skill.name)!!
+
+        when (skillSchema.rangeType) {
             SkillRangeType.WEAPON -> {
                 val weapon = npc.unitInstance.weapon
                 if (BattleUtils.canTakeAction(npcId, 1, backend)
                         && weapon != null
-                        && BattleUtils.weaponCanAttack(weapon, 1)) {
+                        && BattleUtils.weaponCanAttack(backend.weaponSchemaIndex, weapon, 1)) {
 
                     val targets = BattleUtils.enemiesInWeaponRange(npcId, position, backend)
                     commands.addAll(targets.map { TargetSkillCommand(skill, npcId, it) })
                 }
             }
             SkillRangeType.MELEE -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, position, backend, BattleBackend.MELEE_WEAPON_DISTANCE2)
                     }
@@ -125,7 +130,7 @@ class TargetSkillCommandFactory(backend: BattleBackend, private val skill: UnitS
                 commands.addAll(targets.map { TargetSkillCommand(skill, npcId, it) })
             }
             SkillRangeType.RANGED -> {
-                val targets = when (skill.schema.type) {
+                val targets = when (skillSchema.type) {
                     SkillType.ACTIVE_TARGET -> {
                         BattleUtils.enemiesInRange(npcId, position, backend, BattleBackend.RANGED_WEAPON_DISTANCE2)
                     }

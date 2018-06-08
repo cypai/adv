@@ -15,7 +15,7 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill.schema.name == "Double Slash"
+        return command is TargetSkillCommand && command.skill.name == "Double Slash"
     }
 
     override fun preview(command: BattleCommand,
@@ -26,8 +26,10 @@ class DoubleSlashExecutionRule : CommandExecutionRule {
 
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
+        val weapon = state.getNpcWeapon(cmd.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))

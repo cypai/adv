@@ -24,7 +24,7 @@ class RushExecutionRule : CommandExecutionRule {
 
         val cmd = command as MoveCommand
 
-        val rushSkill = state.getNpc(cmd.unitId)!!.unitInstance.skills.find { it.schema.name == "Rush" }
+        val rushSkill = state.getNpc(cmd.unitId)!!.unitInstance.skills.find { it.name == "Rush" }
                 ?: return listOf()
 
         val startPosition = cmd.path.first()
@@ -42,7 +42,10 @@ class RushExecutionRule : CommandExecutionRule {
             }
         } ?: return listOf()
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val weapon = state.getNpcWeapon(cmd.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))

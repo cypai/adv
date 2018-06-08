@@ -1,6 +1,7 @@
 package com.pipai.adv.classes
 
 import com.pipai.adv.index.SkillIndex
+import com.pipai.adv.save.AdvSave
 
 class ClassTreeInitializer(private val skillIndex: SkillIndex) {
 
@@ -12,6 +13,26 @@ class ClassTreeInitializer(private val skillIndex: SkillIndex) {
                 generateMedicTree(),
                 generateMartialArtistTree()
         )
+    }
+
+    fun generateTree(npcId: Int, save: AdvSave): ClassTree {
+        val name = save.classes[npcId]!!
+
+        val tree = when (name) {
+            "Fighter" -> generateFighterTree()
+            "Archer" -> generateArcherTree()
+            "Elementalist" -> generateElementalistTree()
+            "Medic" -> generateMedicTree()
+            "Martial Artist" -> generateMartialArtistTree()
+            "Rookie" -> ClassTree("Rookie", "Doesn't have anything special.")
+            else -> throw IllegalArgumentException("Class $name does not exist")
+        }
+
+        save.globalNpcList.getNpc(npcId)!!.unitInstance.skills.forEach {
+            tree.setSkillLevel(it.name, it.level)
+        }
+
+        return tree
     }
 
     fun generateFighterTree(): ClassTree {

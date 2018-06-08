@@ -21,7 +21,8 @@ import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApVerificationRule
 import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
+import com.pipai.adv.index.SkillIndex
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.utils.getLogger
 
 /**
@@ -38,7 +39,9 @@ import com.pipai.adv.utils.getLogger
  *
  * currentTurnKos is a list of player characters that were already KOed at the start of the commands.
  */
-class BattleBackend(private val save: AdvSave, private val npcList: NpcList, private val battleMap: BattleMap) {
+class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
+                    val skillIndex: SkillIndex,
+                    private val npcList: NpcList, private val battleMap: BattleMap) {
 
     private val logger = getLogger()
 
@@ -59,8 +62,8 @@ class BattleBackend(private val save: AdvSave, private val npcList: NpcList, pri
             KoCannotTakeActionRule(),
             KoCannotBeAttackedRule(),
             MoveCommandSanityRule(),
-            NormalAttackCommandSanityRule(),
-            DoubleSlashSanityRule(),
+            NormalAttackCommandSanityRule(weaponSchemaIndex),
+            DoubleSlashSanityRule(weaponSchemaIndex),
             BodyPartUseRule())
 
     /**

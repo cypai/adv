@@ -116,11 +116,11 @@ data class UnitInstance(
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
             : this(schema.name, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema, 1), mutableListOf())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema.name, 1), mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema, skills: List<UnitSkill>)
             : this(schema.name, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema, 1), skills.toMutableList())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(), InventoryItem.WeaponInstance(weaponSchema.name, 1), skills.toMutableList())
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
 }

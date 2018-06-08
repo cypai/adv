@@ -425,7 +425,8 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
             primaryActionMenu.setDisabledIndex(0, true)
         }
         val weapon = backend.getNpc(npcId)!!.unitInstance.weapon
-        if (weapon == null || !BattleUtils.weaponRequiresAmmo(weapon) || weapon.ammo < weapon.schema.magazineSize) {
+        val weaponSchema = if (weapon == null) null else game.globals.weaponSchemaIndex.getWeaponSchema(weapon.name)
+        if (weapon == null || !BattleUtils.weaponRequiresAmmo(backend.weaponSchemaIndex, weapon) || weapon.ammo < weaponSchema!!.magazineSize) {
             primaryActionMenu.setDisabledIndex(2, true)
         }
         val position = backend.getNpcPosition(npcId)!!
@@ -455,7 +456,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 val skills = backend.getNpc(npcId)!!.unitInstance.skills
                 val menuItems: MutableList<MenuItem> =
                         skills.map {
-                            TargetMenuCommandItem(it.schema.name, null,
+                            TargetMenuCommandItem(it.name, null,
                                     backend.preview(SkillTpCheckCommand(it, npcId))
                                             .find { it is TpUsedPreviewComponent }
                                             .let { (it as TpUsedPreviewComponent).tpUsed.toString() }

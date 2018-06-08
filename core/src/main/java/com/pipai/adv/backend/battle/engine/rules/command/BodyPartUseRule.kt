@@ -19,7 +19,7 @@ class BodyPartUseRule : CommandRule {
                 is NormalAttackCommand -> return ExecutableStatus(binds.arms == 0, "Arm Binds")
                 is TargetSkillCommand -> {
                     val skill = command.skill
-                    val bodyPartRequired = when (skill.schema.name) {
+                    val bodyPartRequired = when (skill.name) {
                         "Double Slash" -> BodyPart.ARMS
                         "Hamstring" -> BodyPart.ARMS
                         "Fireball" -> BodyPart.HEAD

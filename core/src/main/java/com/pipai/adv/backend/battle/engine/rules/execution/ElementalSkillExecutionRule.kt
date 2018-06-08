@@ -18,7 +18,7 @@ class ElementalSkillExecutionRule : CommandExecutionRule {
     }
 
     override fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean {
-        return command is TargetSkillCommand && command.skill.schema.name in applicableSkills
+        return command is TargetSkillCommand && command.skill.name in applicableSkills
     }
 
     override fun preview(command: BattleCommand,
@@ -29,8 +29,10 @@ class ElementalSkillExecutionRule : CommandExecutionRule {
 
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
+        val weapon = state.getNpcWeapon(cmd.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.intelligence + state.getNpcWeapon(cmd.unitId)!!.schema.patk
+        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.intelligence + weaponSchema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
@@ -38,7 +40,7 @@ class ElementalSkillExecutionRule : CommandExecutionRule {
         previewComponents.add(ToCritPreviewComponent(25))
         previewComponents.add(DamagePreviewComponent(base - DAMAGE_RANGE, base + DAMAGE_RANGE))
         previewComponents.add(DamageScaleAdjustmentPreviewComponent((skill.level - 1) * 5, "Skill level ${skill.level}"))
-        val elementPreviewComponent = when (skill.schema.name) {
+        val elementPreviewComponent = when (skill.name) {
             "Fireball" -> AttackElementPreviewComponent(AttackElement.FIRE)
             "Icicle" -> AttackElementPreviewComponent(AttackElement.ICE)
             "Thunder" -> AttackElementPreviewComponent(AttackElement.LIGHTNING)

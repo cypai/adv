@@ -12,13 +12,11 @@ fun npcFromStats(stats: UnitStats, weapon: InventoryItem.WeaponInstance?): Npc {
 }
 
 fun swordFixture(): InventoryItem.WeaponInstance {
-    val schema = WeaponSchema("Sword", WeaponType.SWORD, WeaponRange.MELEE, 1, 1, listOf(), 1, "")
-    return InventoryItem.WeaponInstance(schema, 1)
+    return InventoryItem.WeaponInstance("Toy Sword", 1)
 }
 
 fun bowFixture(): InventoryItem.WeaponInstance {
-    val schema = WeaponSchema("Bow", WeaponType.BOW, WeaponRange.RANGED, 1, 1, listOf(WeaponAttribute.CAN_FAST_RELOAD), 3, "")
-    return InventoryItem.WeaponInstance(schema, 3)
+    return InventoryItem.WeaponInstance("Toy Bow", 3)
 }
 
 fun getSchemaList(): SchemaList {

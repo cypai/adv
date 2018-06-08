@@ -125,8 +125,8 @@ data class TargetSkillEvent(val npcId: Int,
                             val target: Npc,
                             val skill: UnitSkill) : BattleLogEvent {
 
-    override fun description() = "$npc (id $npcId) used ${skill.schema.name} on $target (id $targetId)"
-    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} used ${skill.schema.name}!"
+    override fun description() = "$npc (id $npcId) used ${skill.name} on $target (id $targetId)"
+    override fun userFriendlyDescription() = "${npc.unitInstance.nickname} used ${skill.name}!"
 }
 
 data class TextEvent(val text: String) : BattleLogEvent {

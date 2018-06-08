@@ -136,7 +136,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
                     StringMenuItem(
                             save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
                             null,
-                            save.classes[it]?.name ?: "Rookie")
+                            save.classes[it] ?: "Rookie")
                             .withData("npcId", it)
                 })
 
@@ -177,7 +177,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     }
 
     private fun assignClass(npcId: Int, classTree: ClassTree) {
-        game.globals.save!!.classes[npcId] = classTree
+        game.globals.save!!.classes[npcId] = classTree.name
         initializeClassAssignmentNpcs()
     }
 
@@ -211,7 +211,7 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
                     StringMenuItem(
                             save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
                             null,
-                            "${save.classes[it]?.name ?: "Rookie"}/SP: ${save.sp[it]!!}")
+                            "${save.classes[it] ?: "Rookie"}/SP: ${save.sp[it]!!}")
                             .withData("npcId", it)
                 })
 
@@ -228,11 +228,12 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         val save = game.globals.save!!
         val selectedNpcId = leftColumn.getSelected().getData("npcId") as Int
 
-        val availableSkills = save.classes[selectedNpcId]?.getSkillMap() ?: mapOf()
+        val theClass = ClassTreeInitializer(game.globals.skillIndex).generateTree(selectedNpcId, save)
+        val availableSkills = theClass.getSkillMap()
 
         rightColumn.setItems(availableSkills
                 .map {
-                    StringMenuItem(it.value.skill.schema.name, null, "${it.value.skill.level}")
+                    StringMenuItem(it.value.skill.name, null, "${it.value.skill.level}")
                             .withData("skill", it.value.skill)
                 })
         rightColumn.clearSelection()
@@ -248,24 +249,25 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     private fun selectSkill(selection: StringMenuItem) {
         if (skillSelection == selection.getData("skill")) {
             if (skillSelection!!.level == 0) {
-                showDialog("Learn ${skillSelection!!.schema.name}?",
+                showDialog("Learn ${skillSelection!!.name}?",
                         { increaseSkill(leftColumn.getSelected().getData("npcId") as Int, skillSelection!!) },
                         {})
             } else {
-                showDialog("Improve ${skillSelection!!.schema.name}?",
+                showDialog("Improve ${skillSelection!!.name}?",
                         { increaseSkill(leftColumn.getSelected().getData("npcId") as Int, skillSelection!!) },
                         {})
             }
         } else {
             skillSelection = selection.getData("skill") as UnitSkill
-            descriptionLable.setText(skillSelection!!.schema.description)
+            val description = game.globals.skillIndex.getSkillSchema(skillSelection!!.name)!!.description
+            descriptionLable.setText(description)
         }
     }
 
     private fun increaseSkill(npcId: Int, skill: UnitSkill) {
         val npc = game.globals.save!!.globalNpcList.getNpc(npcId)!!
         skill.level += 1
-        npc.unitInstance.skills.removeIf { it.schema.name == skill.schema.name }
+        npc.unitInstance.skills.removeIf { it.name == skill.name }
         npc.unitInstance.skills.add(skill)
         game.globals.save!!.sp[npcId] = game.globals.save!!.sp[npcId]!! - 1
         initializeSkillAssignmentNpcs()

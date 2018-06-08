@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
-import com.pipai.adv.artemis.system.init.GuildScreenInit
 import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.input.InteractionInputSystem

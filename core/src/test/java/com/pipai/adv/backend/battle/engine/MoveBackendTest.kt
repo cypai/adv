@@ -3,24 +3,24 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
 
-class MoveBackendTest {
+class MoveBackendTest : GdxMockedTest() {
 
     @Test
     fun testMove() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
         val id = npcList.addNpc(npc)
         map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
 
@@ -42,7 +42,6 @@ class MoveBackendTest {
 
     @Test
     fun testCantMoveToFullSpace() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         map.getCell(3, 1).fullEnvObject = FullEnvObject.FULL_WALL
@@ -50,7 +49,7 @@ class MoveBackendTest {
         val id = npcList.addNpc(npc)
         map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
 
@@ -79,14 +78,13 @@ class MoveBackendTest {
 
     @Test
     fun testCantMoveMoreThanApAllow() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
         val id = npcList.addNpc(npc)
         map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         var cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
@@ -104,14 +102,13 @@ class MoveBackendTest {
 
     @Test
     fun testCantMoveNonexistentNpc() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
         val id = npcList.addNpc(npc)
         map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val badId = id + 1
         val cmd = MoveCommand(badId, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
@@ -122,7 +119,6 @@ class MoveBackendTest {
 
     @Test
     fun testCantMoveToOutOfMap() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(1, 1)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
@@ -130,7 +126,7 @@ class MoveBackendTest {
         val startLocation = GridPosition(0, 0)
         map.getCell(startLocation).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         val badLocations: List<GridPosition> = listOf(
                 GridPosition(0, 1),

@@ -29,11 +29,14 @@ class RangedHitCritExecutionRule : CommandExecutionRule {
 
         val actionCommand = command as ActionCommand
 
-        val weaponRange = state.getNpcWeapon(actionCommand.unitId)!!.schema.range
+        val weapon = state.getNpcWeapon(actionCommand.unitId)!!
+        val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
+        val weaponRange = weaponSchema.range
 
         if (command is TargetSkillCommand) {
-            if (command.skill.schema.rangeType == SkillRangeType.RANGED
-                    || (command.skill.schema.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.RANGED)) {
+            val skill = backend.skillIndex.getSkillSchema(command.skill.name)!!
+            if (skill.rangeType == SkillRangeType.RANGED
+                    || (skill.rangeType == SkillRangeType.WEAPON && weaponRange == WeaponRange.RANGED)) {
                 return generateHitCritBonus(command, cache)
             } else {
                 return listOf()

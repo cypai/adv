@@ -5,17 +5,17 @@ import com.pipai.adv.backend.battle.engine.commands.DevBindChangeCommand
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.BodyPart
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
+import com.pipai.test.libgdx.GdxMockedTest
+import com.pipai.test.libgdx.generateBackend
 import org.junit.Assert
 import org.junit.Test
 
-class BindTest {
+class BindTest : GdxMockedTest() {
 
     @Test
     fun testBoundNormalAttack() {
-        val save = AdvSave()
         val npcList = NpcList()
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
@@ -28,7 +28,7 @@ class BindTest {
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
         map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
-        val backend = BattleBackend(save, npcList, map)
+        val backend = generateBackend(npcList, map)
 
         backend.execute(DevBindChangeCommand(attackerId, BodyPart.ARMS, 1))
 

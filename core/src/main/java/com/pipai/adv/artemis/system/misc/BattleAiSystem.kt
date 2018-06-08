@@ -1,6 +1,7 @@
 package com.pipai.adv.artemis.system.misc
 
 import com.artemis.managers.TagManager
+import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.ai.SimpleAi
 import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.events.CommandAnimationEndEvent
@@ -15,7 +16,7 @@ import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleAiSystem : NoProcessingSystem() {
+class BattleAiSystem(private val globals: AdvGameGlobals) : NoProcessingSystem() {
 
     private val mBackend by mapper<BattleBackendComponent>()
 
@@ -31,7 +32,7 @@ class BattleAiSystem : NoProcessingSystem() {
     fun initializeAi() {
         val backend = getBackend()
         backend.getTeam(Team.AI).forEach {
-            unitAi[it] = SimpleAi(backend, it)
+            unitAi[it] = SimpleAi(globals, backend, it)
         }
     }
 
