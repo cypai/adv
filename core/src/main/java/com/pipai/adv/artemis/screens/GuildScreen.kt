@@ -5,6 +5,7 @@ import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
@@ -16,6 +17,7 @@ import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.input.InteractionInputSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.CameraFollowSystem
+import com.pipai.adv.artemis.system.misc.ExitToVillageSystem
 import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
@@ -23,11 +25,10 @@ import com.pipai.adv.artemis.system.ui.GuildManagementUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.map.GuildMapGenerator
-import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
+class GuildScreen(game: AdvGame) : Screen {
 
     private val logger = getLogger()
 
@@ -55,14 +56,13 @@ class GuildScreen(game: AdvGame) : SwitchableScreen(game) {
                         EventSystem(),
 
                         AnimationFrameIncrementSystem(),
-
                         InputProcessingSystem(),
                         CharacterMovementInputSystem(game.advConfig),
                         ZoomInputSystem(),
                         InteractionInputSystem(game, this, game.advConfig),
                         PartialTextUpdateSystem(),
-
-                        NpcCollisionSystem())
+                        NpcCollisionSystem(),
+                        ExitToVillageSystem(game))
                 .withPassive(-1,
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,

@@ -5,6 +5,7 @@ import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
@@ -12,11 +13,10 @@ import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
 import com.pipai.adv.artemis.system.ui.NewGameUiSystem
-import com.pipai.adv.screen.SwitchableScreen
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class NewGameScreen(game: AdvGame) : SwitchableScreen(game) {
+class NewGameScreen(game: AdvGame) : Screen {
 
     private val logger = getLogger()
 

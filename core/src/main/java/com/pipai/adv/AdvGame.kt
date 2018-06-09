@@ -2,6 +2,7 @@ package com.pipai.adv
 
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Pixmap.Format
@@ -175,5 +176,13 @@ class AdvGame(val advConfig: AdvConfig) : Game() {
         spriteBatch.dispose()
         shapeRenderer.dispose()
         font.dispose()
+    }
+
+    override fun setScreen(screen: Screen) {
+        if (this.screen != null) {
+            this.screen.dispose()
+        }
+        logger.debug("Switching Gui to " + screen.javaClass)
+        super.setScreen(screen)
     }
 }

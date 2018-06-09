@@ -12,22 +12,19 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.ui.ResultsUiSystem
-import com.pipai.adv.domain.ResultsData
-import com.pipai.adv.utils.getLogger
+import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
+import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
+import com.pipai.adv.artemis.system.ui.PauseUiSystem
+import com.pipai.adv.artemis.system.ui.VillageUiSystem
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class ResultsScreen(game: AdvGame, resultsData: ResultsData) : Screen {
-
-    private val logger = getLogger()
+class VillageScreen(game: AdvGame) : Screen {
 
     private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
     private val world: World
 
     init {
-        logger.debug("Starting ResultsScreen")
-
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
@@ -35,21 +32,29 @@ class ResultsScreen(game: AdvGame, resultsData: ResultsData) : Screen {
                         GroupManager(),
                         EventSystem(),
 
-                        ResultsUiSystem(game, stage, resultsData),
-                        InputProcessingSystem(),
-                        AnimationFrameIncrementSystem())
+                        AnimationFrameIncrementSystem(),
+
+                        InputProcessingSystem())
+                .withPassive(-1,
+                        VillageUiSystem(game, stage),
+                        FpsRenderingSystem(game.batchHelper),
+                        MainTextboxUiSystem(game),
+                        PauseUiSystem(game, stage, true))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(ResultsUiSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(stage)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
         inputProcessor.activateInput()
+
+        VillageScreenInit(world, game, game.advConfig)
+                .initialize()
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClearColor(0f, 1f, 0.1f, 1f)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
@@ -75,5 +80,6 @@ class ResultsScreen(game: AdvGame, resultsData: ResultsData) : Screen {
 
     override fun dispose() {
         world.dispose()
+        stage.dispose()
     }
 }

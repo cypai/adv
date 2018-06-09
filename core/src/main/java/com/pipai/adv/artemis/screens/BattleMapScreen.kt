@@ -5,6 +5,7 @@ import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.GroupManager
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
@@ -22,10 +23,9 @@ import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.artemis.system.ui.DevUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.map.TestMapGenerator
-import com.pipai.adv.screen.SwitchableScreen
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class BattleMapScreen(game: AdvGame) : SwitchableScreen(game) {
+class BattleMapScreen(game: AdvGame) : Screen {
 
     private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
