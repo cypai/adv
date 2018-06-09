@@ -13,6 +13,7 @@ class AdvSave() {
         globalNpcList = mapper.readValue(lines[2])
         classes = mapper.readValue(lines[3])
         sp = mapper.readValue(lines[4])
+        gold = lines[5].toInt()
     }
 
     companion object {
@@ -33,6 +34,8 @@ class AdvSave() {
 
     var sp: MutableMap<Int, Int> = mutableMapOf()
         private set
+
+    var gold: Int = 0
 
     init {
         guilds = mutableMapOf()
@@ -65,6 +68,6 @@ class AdvSave() {
         val npcListLine = mapper.writeValueAsString(globalNpcList)
         val classesLine = mapper.writeValueAsString(classes)
         val spLine = mapper.writeValueAsString(sp)
-        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine"
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold"
     }
 }
