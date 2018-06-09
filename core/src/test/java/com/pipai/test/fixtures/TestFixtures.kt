@@ -7,7 +7,7 @@ import com.pipai.adv.domain.Npc
 fun npcFromStats(stats: UnitStats, weapon: InventoryItem.WeaponInstance?): Npc {
     val schema = UnitSchema("Test Unit", stats, Resistances(), 0)
     val unitInstance = UnitInstance("Test Unit", "Test Unit Nickname", 1, 0, 0, schema.baseStats.copy(),
-            schema.baseStats.hpMax, schema.baseStats.tpMax, Resistances(), weapon, mutableListOf())
+            schema.baseStats.hpMax, schema.baseStats.tpMax, Resistances(), weapon, mutableListOf(), mutableListOf())
     return Npc(unitInstance, EnvObjTilesetMetadata.NONE)
 }
 

@@ -7,7 +7,11 @@ sealed class InventoryItem : DeepCopyable<InventoryItem> {
         override fun deepCopy() = copy()
     }
 
-    sealed class ConsumableItem {
-        class Potion
+    data class EquipableItem(val name: String) : InventoryItem() {
+        override fun deepCopy() = copy()
+    }
+
+    data class ConsumableItem(val name: String) : InventoryItem() {
+        override fun deepCopy() = copy()
     }
 }
