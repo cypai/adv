@@ -172,4 +172,5 @@ data class WeaponSchema(
         val matk: Int,
         val attributes: List<WeaponAttribute>,
         val magazineSize: Int,
+        val value: Int,
         val description: String)

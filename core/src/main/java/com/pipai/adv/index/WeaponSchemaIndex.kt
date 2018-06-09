@@ -30,6 +30,7 @@ class WeaponSchemaIndex(weaponsFile: FileHandle) {
                             .filter { it.isNotBlank() }
                             .map { WeaponAttribute.valueOf(it) },
                     record.get("magazineSize").toInt(),
+                    record.get("value").toInt(),
                     record.get("description"))
             mutIndex[name] = weaponSchema
         }
