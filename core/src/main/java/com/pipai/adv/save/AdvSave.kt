@@ -2,6 +2,7 @@ package com.pipai.adv.save
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.domain.NpcList
 
 class AdvSave() {
@@ -14,6 +15,7 @@ class AdvSave() {
         classes = mapper.readValue(lines[3])
         sp = mapper.readValue(lines[4])
         gold = lines[5].toInt()
+        inventory = mapper.readValue(lines[6])
     }
 
     companion object {
@@ -36,6 +38,9 @@ class AdvSave() {
         private set
 
     var gold: Int = 0
+
+    var inventory: MutableList<InventoryItem> = mutableListOf()
+        private set
 
     init {
         guilds = mutableMapOf()
@@ -68,6 +73,7 @@ class AdvSave() {
         val npcListLine = mapper.writeValueAsString(globalNpcList)
         val classesLine = mapper.writeValueAsString(classes)
         val spLine = mapper.writeValueAsString(sp)
-        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold"
+        val inventoryLine = mapper.writeValueAsString(inventory)
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine"
     }
 }
