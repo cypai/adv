@@ -1,33 +1,49 @@
 package com.pipai.adv.artemis.system.ui
 
+import com.artemis.BaseSystem
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.fsm.StackStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog
-import com.badlogic.gdx.scenes.scene2d.ui.ImageList
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.components.EnvObjTileComponent
+import com.pipai.adv.artemis.components.NpcIdComponent
 import com.pipai.adv.artemis.events.PauseEvent
-import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.backend.battle.domain.Direction
+import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.classes.ClassTree
 import com.pipai.adv.classes.ClassTreeInitializer
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.domain.UnitSkill
+import com.pipai.adv.gui.PccCustomizer
+import com.pipai.adv.gui.PccPreview
 import com.pipai.adv.gui.StandardImageListItemView
+import com.pipai.adv.tiles.PccManager
+import com.pipai.adv.tiles.PccMetadata
+import com.pipai.adv.utils.allOf
+import com.pipai.adv.utils.fetch
+import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class ClassCustomizationUiSystem(private val game: AdvGame,
-                                 private val stage: Stage) : NoProcessingSystem(), InputProcessor {
+class GuildManagementUiSystem(private val game: AdvGame,
+                              private val stage: Stage) : BaseSystem(), InputProcessor {
+
+    private val mEnvObjTile by mapper<EnvObjTileComponent>()
+    private val mNpcId by mapper<NpcIdComponent>()
 
     private val sEvent by system<EventSystem>()
 
-    private val stateMachine = StackStateMachine<ClassCustomizationUiSystem, ClassCustomizationUiState>(this)
+    private val stateMachine = StackStateMachine<GuildManagementUiSystem, ClassCustomizationUiState>(this)
+
+    private val skin = game.skin
 
     private val mainTable = Table()
     private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
@@ -37,8 +53,20 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     private val rightColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val descriptionLable = Label("", game.skin, "small")
 
+    private val appearanceCustomTable = Table()
+    private val appearanceCustomTitle = Label("", game.skin)
+    private val appearanceLeftColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val appearanceNameField = TextField("", game.skin)
+    private val confirmButton = TextButton("  Confirm  ", game.skin)
+    private val pccCustomizer = PccCustomizer(listOf(), game.globals.pccManager, game.skin)
+
     private var classSelection: ClassTree? = null
     private var skillSelection: UnitSkill? = null
+
+    private var selectedNpcId = 0
+    private val pccPreviews: MutableList<PccPreview> = mutableListOf()
+    private var pccPreviewFrameTimer = 0
+    private val pccPreviewFrameTimerMax = 30
 
     init {
         stateMachine.setInitialState(ClassCustomizationUiState.DISABLED)
@@ -55,8 +83,6 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
     }
 
     private fun createForms() {
-        val skin = game.skin
-
         val mainMenuWidth = game.advConfig.resolution.width / 3f
         val mainMenuHeight = game.advConfig.resolution.height / 2f
 
@@ -67,10 +93,11 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         mainTable.background = skin.getDrawable("frameDrawable")
 
         mainTable.top().pad(10f)
-        mainTable.add(Label("Class Customization", skin))
+        mainTable.add(Label("Guild Management", skin))
         mainTable.row()
 
         val menuItems = mutableListOf(
+                StringMenuItem("Change Member Appearance", null, ""),
                 StringMenuItem("Assign Class", null, ""),
                 StringMenuItem("Assign Skill Points", null, ""),
                 StringMenuItem("Cancel", null, ""))
@@ -84,10 +111,11 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
                 .left()
         mainTable.validate()
 
+        val doubleTableHeight = game.advConfig.resolution.height / 2f
         val doubleColumnWidth = game.advConfig.resolution.width / 2f
 
         doubleColumnTable.x = (game.advConfig.resolution.width - doubleColumnWidth) / 2
-        doubleColumnTable.y = (game.advConfig.resolution.height - mainMenuHeight) / 2
+        doubleColumnTable.y = (game.advConfig.resolution.height - doubleTableHeight) / 2
         doubleColumnTable.width = doubleColumnWidth
         doubleColumnTable.background = skin.getDrawable("frameDrawable")
 
@@ -97,10 +125,10 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         val innerColumnTable = Table()
         innerColumnTable.add(leftColumn)
                 .prefWidth(doubleColumnWidth / 2)
-                .minHeight(mainMenuHeight * 0.8f)
+                .minHeight(doubleTableHeight * 0.8f)
         innerColumnTable.add(rightColumn)
                 .prefWidth(doubleColumnWidth / 2)
-                .minHeight(mainMenuHeight * 0.8f)
+                .minHeight(doubleTableHeight * 0.8f)
         doubleColumnTable.add(innerColumnTable)
         doubleColumnTable.row()
 
@@ -113,10 +141,68 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         doubleColumnTable.height = doubleColumnTable.prefHeight
 
         rightColumn.disabledFontColor = Color.GRAY
+
+        val appearanceTableWidth = game.advConfig.resolution.width * 2f / 3f
+        val appearanceTableHeight = game.advConfig.resolution.height * 3f / 4f
+        appearanceCustomTable.x = (game.advConfig.resolution.width - appearanceTableWidth) / 2
+        appearanceCustomTable.y = (game.advConfig.resolution.height - appearanceTableHeight) / 2
+        appearanceCustomTable.width = appearanceTableWidth
+        appearanceCustomTable.background = skin.getDrawable("frameDrawable")
+
+        appearanceCustomTable.add(appearanceCustomTitle).padTop(10f)
+        appearanceCustomTable.row()
+
+        val appearanceRightTable = Table().top().left()
+        val nameTable = Table()
+
+        nameTable.add(Label("Name: ", skin)).padLeft(10f).padTop(10f)
+        nameTable.add(appearanceNameField)
+        nameTable.row()
+
+        appearanceRightTable.add(nameTable).left()
+        appearanceRightTable.row()
+
+        pccCustomizer.addChangeListener { pccPreviews.forEach { it.setPcc(pccCustomizer.getPcc()) } }
+        val imageTable = Table()
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.S, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.E, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.W, game.globals.pccManager, skin))
+        pccPreviews.add(PccPreview(pccCustomizer.getPcc(), Direction.N, game.globals.pccManager, skin))
+        pccPreviews.forEach {
+            imageTable.add(it)
+                    .width(PccManager.PCC_WIDTH.toFloat() + 2f)
+                    .height(PccManager.PCC_HEIGHT.toFloat() + 2f)
+                    .pad(8f)
+        }
+        appearanceRightTable.add(imageTable).left()
+        appearanceRightTable.row()
+        appearanceRightTable.add(pccCustomizer).pad(10f)
+        appearanceRightTable.row()
+        appearanceRightTable.add(confirmButton).pad(10f)
+        confirmButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                confirmAppearanceChange()
+            }
+        })
+        appearanceRightTable.validate()
+        val appearanceRightScrollPane = ScrollPane(appearanceRightTable)
+        appearanceCustomTable.add(appearanceLeftColumn)
+                .prefWidth(appearanceTableWidth / 2)
+                .minHeight(appearanceTableHeight * 0.8f)
+        appearanceCustomTable.add(appearanceRightScrollPane)
+                .top()
+                .prefWidth(doubleColumnWidth)
+                .minHeight(appearanceTableHeight * 0.8f)
+        appearanceCustomTable.row()
+
+        appearanceCustomTable.height = appearanceCustomTable.prefHeight
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
+            "Change Member Appearance" -> {
+                stateMachine.changeState(ClassCustomizationUiState.SHOWING_APPEARANCE_CUSTOMIZATION)
+            }
             "Assign Class" -> {
                 stateMachine.changeState(ClassCustomizationUiState.SHOWING_CLASS_ASSIGNMENT)
             }
@@ -126,6 +212,47 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
             "Cancel" -> {
                 stateMachine.revertToPreviousState()
             }
+        }
+    }
+
+    private fun initializeAppearanceNpcs() {
+        val save = game.globals.save!!
+        appearanceLeftColumn.setItems(save.guilds[save.playerGuild]!!
+                .map {
+                    StringMenuItem(
+                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            null,
+                            "")
+                            .withData("npcId", it)
+                })
+
+        appearanceLeftColumn.clearConfirmCallbacks()
+        appearanceLeftColumn.addConfirmCallback { initializeAppearanceCustomization(it) }
+        appearanceLeftColumn.clearSelection()
+    }
+
+    private fun getNpc(): Npc = game.globals.save!!.globalNpcList.getNpc(selectedNpcId)!!
+
+    private fun initializeAppearanceCustomization(selection: StringMenuItem) {
+        this.selectedNpcId = selection.getData("npcId") as Int
+        val pcc = (getNpc().tilesetMetadata as EnvObjTilesetMetadata.PccTilesetMetadata).pccMetadata
+        appearanceNameField.text = getNpc().unitInstance.nickname
+        pccCustomizer.setPcc(pcc)
+        pccPreviews.forEach { it.setPcc(pcc) }
+    }
+
+    private fun confirmAppearanceChange() {
+        val npc = getNpc()
+        val pcc: List<PccMetadata> = pccCustomizer.getPcc()
+        val newNpc = npc.copy(
+                unitInstance = npc.unitInstance.copy(nickname = appearanceNameField.text),
+                tilesetMetadata = EnvObjTilesetMetadata.PccTilesetMetadata(pcc))
+        game.globals.save!!.globalNpcList.setNpc(newNpc, selectedNpcId)
+        val targetEntityId = world.fetch(allOf(NpcIdComponent::class, EnvObjTileComponent::class))
+                .firstOrNull { mNpcId.get(it).npcId == selectedNpcId }
+        targetEntityId?.let {
+            val cEnvObjTile = mEnvObjTile.get(it)
+            cEnvObjTile.tilesetMetadata = EnvObjTilesetMetadata.PccTilesetMetadata(pcc)
         }
     }
 
@@ -275,6 +402,18 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
         initializeSkillAssignmentList()
     }
 
+    override fun processSystem() {
+        if (isEnabled) {
+            pccPreviewFrameTimer++
+            if (pccPreviewFrameTimer >= pccPreviewFrameTimerMax) {
+                pccPreviewFrameTimer = 0
+                pccPreviews.forEach {
+                    it.incrementFrame()
+                }
+            }
+        }
+    }
+
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
@@ -301,55 +440,66 @@ class ClassCustomizationUiSystem(private val game: AdvGame,
 
     override fun scrolled(amount: Int): Boolean = false
 
-    enum class ClassCustomizationUiState : State<ClassCustomizationUiSystem> {
+    enum class ClassCustomizationUiState : State<GuildManagementUiSystem> {
         DISABLED() {
-            override fun enter(uiSystem: ClassCustomizationUiSystem) {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.mainTable.remove()
                 uiSystem.sEvent.dispatch(PauseEvent(false))
                 uiSystem.isEnabled = false
             }
         },
         SHOWING_MAIN_MENU() {
-            override fun enter(uiSystem: ClassCustomizationUiSystem) {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.stage.addActor(uiSystem.mainTable)
                 uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
                 uiSystem.sEvent.dispatch(PauseEvent(true))
             }
         },
+        SHOWING_APPEARANCE_CUSTOMIZATION() {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
+                uiSystem.stage.addActor(uiSystem.appearanceCustomTable)
+                uiSystem.appearanceCustomTitle.setText("Change Appearance")
+                uiSystem.initializeAppearanceNpcs()
+            }
+
+            override fun exit(uiSystem: GuildManagementUiSystem) {
+                uiSystem.appearanceCustomTable.remove()
+            }
+        },
         SHOWING_CLASS_ASSIGNMENT() {
-            override fun enter(uiSystem: ClassCustomizationUiSystem) {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.stage.addActor(uiSystem.doubleColumnTable)
                 uiSystem.doubleColumnTitle.setText("Assign Class")
                 uiSystem.initializeClassAssignmentNpcs()
             }
 
-            override fun exit(uiSystem: ClassCustomizationUiSystem) {
+            override fun exit(uiSystem: GuildManagementUiSystem) {
                 uiSystem.doubleColumnTable.remove()
             }
         },
         SHOWING_SP_ASSIGNMENT() {
-            override fun enter(uiSystem: ClassCustomizationUiSystem) {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.stage.addActor(uiSystem.doubleColumnTable)
                 uiSystem.doubleColumnTitle.setText("Assign SP")
                 uiSystem.initializeSkillAssignmentNpcs()
             }
 
-            override fun exit(uiSystem: ClassCustomizationUiSystem) {
+            override fun exit(uiSystem: GuildManagementUiSystem) {
                 uiSystem.doubleColumnTable.remove()
             }
         };
 
-        override fun enter(uiSystem: ClassCustomizationUiSystem) {
+        override fun enter(uiSystem: GuildManagementUiSystem) {
         }
 
-        override fun exit(uiSystem: ClassCustomizationUiSystem) {
+        override fun exit(uiSystem: GuildManagementUiSystem) {
         }
 
-        override fun onMessage(uiSystem: ClassCustomizationUiSystem, telegram: Telegram): Boolean {
+        override fun onMessage(uiSystem: GuildManagementUiSystem, telegram: Telegram): Boolean {
             return false
         }
 
-        override fun update(uiSystem: ClassCustomizationUiSystem) {
+        override fun update(uiSystem: GuildManagementUiSystem) {
         }
     }
 
