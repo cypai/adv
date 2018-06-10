@@ -10,19 +10,21 @@ import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.tiles.UnitAnimationFrame
 
 class PccPreview(pcc: List<PccMetadata>,
-                 private val direction: Direction,
+                 var direction: Direction,
                  private val pccManager: PccManager,
                  skin: Skin) : Image() {
 
     private val pccParts: MutableList<PccMetadata> = pcc.toMutableList()
 
     private val bg = skin.newDrawable("white", Color.DARK_GRAY)
-    private var frame = 0
+    var frame = 0
 
     init {
         width = PccManager.PCC_WIDTH + 2f
         height = PccManager.PCC_HEIGHT + 2f
     }
+
+    fun getPcc() = pccParts.toList()
 
     fun setPcc(pcc: List<PccMetadata>) {
         pccParts.clear()

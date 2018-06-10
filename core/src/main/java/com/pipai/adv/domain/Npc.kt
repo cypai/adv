@@ -1,19 +1,12 @@
 package com.pipai.adv.domain
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.utils.DeepCopyable
 import com.pipai.adv.utils.ShallowCopyable
 
-class NpcList() : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
+class NpcList : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
 
-    constructor(@JsonProperty npcs: Map<Int, Npc>) : this() {
-        this.npcs.putAll(npcs)
-        nextId = npcs.keys.max() ?: 0
-    }
-
-    private var nextId = 0
     private val npcs: MutableMap<Int, Npc> = mutableMapOf()
 
     fun getNpcs(): Map<Int, Npc> {
@@ -27,17 +20,13 @@ class NpcList() : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
     }
 
     fun addNpc(npc: Npc): Int {
-        val id = nextId
+        val id = (npcs.keys.max() ?: -1) + 1
         npcs.put(id, npc)
-        nextId += 1
         return id
     }
 
     fun setNpc(npc: Npc, id: Int) {
         npcs.put(id, npc)
-        if (id >= nextId) {
-            nextId = id + 1
-        }
     }
 
     fun removeNpc(id: Int) {
@@ -47,7 +36,6 @@ class NpcList() : Iterable<Map.Entry<Int, Npc>>, ShallowCopyable<NpcList> {
     }
 
     fun clear() {
-        nextId = 0
         npcs.clear()
     }
 

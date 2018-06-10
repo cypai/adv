@@ -5,6 +5,26 @@ import com.pipai.adv.backend.battle.domain.GridPosition
 
 object DirectionUtils {
 
+    fun cwRotation(direction: Direction): Direction {
+        return when (direction) {
+            Direction.N -> Direction.E
+            Direction.S -> Direction.W
+            Direction.E -> Direction.S
+            Direction.W -> Direction.N
+            else -> throw IllegalArgumentException("Must be cardinal direction")
+        }
+    }
+
+    fun ccwRotation(direction: Direction): Direction {
+        return when (direction) {
+            Direction.N -> Direction.W
+            Direction.S -> Direction.E
+            Direction.E -> Direction.N
+            Direction.W -> Direction.S
+            else -> throw IllegalArgumentException("Must be cardinal direction")
+        }
+    }
+
     fun directionFor(from: GridPosition, to: GridPosition): Direction {
         return directionFor(from.x.toFloat(), from.y.toFloat(), to.x.toFloat(), to.y.toFloat())
     }

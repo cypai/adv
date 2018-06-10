@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.screens.GuildScreen
+import com.pipai.adv.artemis.screens.OrphanageScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
 
 class VillageUiSystem(private val game: AdvGame,
@@ -52,6 +53,11 @@ class VillageUiSystem(private val game: AdvGame,
         val orphanageButton = TextButton("  Orphanage  ", skin)
         orphanageButton.x = config.resolution.width * 0.8f
         orphanageButton.y = config.resolution.height * 0.4f
+        orphanageButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                game.screen = OrphanageScreen(game)
+            }
+        })
         stage.addActor(orphanageButton)
 
         val guildButton = TextButton("  ${game.globals.save!!.playerGuild}  ", skin)

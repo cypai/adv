@@ -28,4 +28,8 @@ object MathUtils {
     fun square(x: Int): Int {
         return x * x
     }
+
+    fun <T> randomSelect(list: List<T>): T {
+        return list[RNG.nextInt(list.size)]
+    }
 }
