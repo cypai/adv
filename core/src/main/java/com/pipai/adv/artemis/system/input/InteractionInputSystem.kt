@@ -6,24 +6,12 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.components.EnvObjTileComponent
-import com.pipai.adv.artemis.components.Interaction
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.components.Interaction.*
-import com.pipai.adv.artemis.components.InteractionComponent
-import com.pipai.adv.artemis.components.MultipleTextComponent
-import com.pipai.adv.artemis.components.PartialTextComponent
-import com.pipai.adv.artemis.components.XYComponent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
-import com.pipai.adv.utils.DirectionUtils
-import com.pipai.adv.utils.MathUtils
-import com.pipai.adv.utils.allOf
-import com.pipai.adv.utils.fetch
-import com.pipai.adv.utils.getSystemSafe
-import com.pipai.adv.utils.mapper
-import com.pipai.adv.utils.system
-import com.pipai.adv.utils.getLogger
+import com.pipai.adv.utils.*
 
 class InteractionInputSystem(private val game: AdvGame,
                              private val currentScreen: Screen,
@@ -107,10 +95,9 @@ class InteractionInputSystem(private val game: AdvGame,
             }
             is ScreenChangeInteraction -> {
                 game.screen = interaction.screenGenerator()
-                currentScreen.dispose()
             }
             is CallbackInteraction -> {
-               interaction.callback.invoke()
+                interaction.callback.invoke()
             }
         }
     }
