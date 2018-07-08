@@ -7,6 +7,8 @@ import com.badlogic.gdx.ai.fsm.StackStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
@@ -22,6 +24,7 @@ import com.pipai.adv.classes.ClassTree
 import com.pipai.adv.classes.ClassTreeInitializer
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.domain.UnitSkill
+import com.pipai.adv.gui.NpcDisplay
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
 import com.pipai.adv.gui.StandardImageListItemView
@@ -41,7 +44,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
 
     private val sEvent by system<EventSystem>()
 
-    private val stateMachine = StackStateMachine<GuildManagementUiSystem, ClassCustomizationUiState>(this)
+    private val stateMachine = StackStateMachine<GuildManagementUiSystem, GuildManagementUiState>(this)
 
     private val skin = game.skin
 
@@ -52,6 +55,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
     private val leftColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val rightColumn = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val descriptionLable = Label("", game.skin, "small")
+    private var leftColumnEventListener: EventListener? = null
 
     private val appearanceCustomTable = Table()
     private val appearanceCustomTitle = Label("", game.skin)
@@ -60,16 +64,27 @@ class GuildManagementUiSystem(private val game: AdvGame,
     private val confirmButton = TextButton("  Confirm  ", game.skin)
     private val pccCustomizer = PccCustomizer(listOf(), game.globals.pccManager, game.skin)
 
+    private val squadEditTable = Table()
+    private val squadNameField = TextField("", game.skin)
+    private val squadLeftList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val squadRightList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val squadAddButton = TextButton("  Add  ", game.skin)
+    private val squadRemoveButton = TextButton("  Remove  ", game.skin)
+    private val squadConfirmButton = TextButton("  Confirm  ", game.skin)
+    private val leftNpcDisplay = NpcDisplay(game, game.globals.save!!.globalNpcList, null)
+    private val rightNpcDisplay = NpcDisplay(game, game.globals.save!!.globalNpcList, null)
+
     private var classSelection: ClassTree? = null
     private var skillSelection: UnitSkill? = null
 
     private var selectedNpcId = 0
+    private var selectedSquad = ""
     private val pccPreviews: MutableList<PccPreview> = mutableListOf()
     private var pccPreviewFrameTimer = 0
     private val pccPreviewFrameTimerMax = 30
 
     init {
-        stateMachine.setInitialState(ClassCustomizationUiState.DISABLED)
+        stateMachine.setInitialState(GuildManagementUiState.DISABLED)
         createForms()
     }
 
@@ -79,7 +94,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
 
     fun enable() {
         isEnabled = true
-        stateMachine.changeState(ClassCustomizationUiState.SHOWING_MAIN_MENU)
+        stateMachine.changeState(GuildManagementUiState.SHOWING_MAIN_MENU)
     }
 
     private fun createForms() {
@@ -97,6 +112,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         mainTable.row()
 
         val menuItems = mutableListOf(
+                StringMenuItem("Manage Squads", null, ""),
                 StringMenuItem("Change Member Appearance", null, ""),
                 StringMenuItem("Assign Class", null, ""),
                 StringMenuItem("Assign Skill Points", null, ""),
@@ -196,18 +212,76 @@ class GuildManagementUiSystem(private val game: AdvGame,
         appearanceCustomTable.row()
 
         appearanceCustomTable.height = appearanceCustomTable.prefHeight
+
+        val squadTableWidth = game.advConfig.resolution.width * 3f / 4f
+        val squadTableHeight = game.advConfig.resolution.height * 3f / 4f
+        squadEditTable.x = (game.advConfig.resolution.width - squadTableWidth) / 2
+        squadEditTable.y = (game.advConfig.resolution.height - squadTableHeight) / 2
+        squadEditTable.width = squadTableWidth
+        squadEditTable.height = squadTableHeight
+        squadEditTable.background = skin.getDrawable("frameDrawable")
+
+        val squadNameTable = Table()
+        squadNameTable.add(Label("Squad Name: ", skin))
+        squadNameTable.add(squadNameField)
+        squadEditTable.add(squadNameTable)
+        squadEditTable.row()
+        squadEditTable.add(ScrollPane(squadLeftList))
+                .width(squadTableWidth / 3)
+                .height(squadTableHeight / 3)
+        squadEditTable.add(ScrollPane(squadRightList))
+                .width(squadTableWidth / 3)
+                .height(squadTableHeight / 3)
+        squadEditTable.row()
+        squadEditTable.add(squadAddButton)
+        squadEditTable.add(squadRemoveButton)
+        squadEditTable.row()
+        squadEditTable.add(leftNpcDisplay)
+        squadEditTable.add(rightNpcDisplay)
+        squadEditTable.row()
+        squadEditTable.add(squadConfirmButton)
+
+        squadAddButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val squadRightItems = squadRightList.items.toMutableList()
+                val selection = squadLeftList.getSelected()!!
+                if (selection !in squadRightItems) {
+                    squadRightItems.add(selection)
+                }
+                squadRightList.setItems(squadRightItems)
+            }
+        })
+        squadRemoveButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val squadRightItems = squadRightList.items.toMutableList()
+                val selection = squadRightList.getSelected()
+                if (selection != null) {
+                    squadRightItems.remove(selection)
+                }
+                squadRightList.setItems(squadRightItems)
+            }
+        })
+        squadConfirmButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                game.globals.save!!.changeSquad(selectedSquad, squadNameField.text, squadRightList.items.map { it.getData("npcId") as Int }.toList())
+                stateMachine.revertToPreviousState()
+            }
+        })
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
+            "Manage Squads" -> {
+                stateMachine.changeState(GuildManagementUiState.SHOWING_SQUADS)
+            }
             "Change Member Appearance" -> {
-                stateMachine.changeState(ClassCustomizationUiState.SHOWING_APPEARANCE_CUSTOMIZATION)
+                stateMachine.changeState(GuildManagementUiState.SHOWING_APPEARANCE_CUSTOMIZATION)
             }
             "Assign Class" -> {
-                stateMachine.changeState(ClassCustomizationUiState.SHOWING_CLASS_ASSIGNMENT)
+                stateMachine.changeState(GuildManagementUiState.SHOWING_CLASS_ASSIGNMENT)
             }
             "Assign Skill Points" -> {
-                stateMachine.changeState(ClassCustomizationUiState.SHOWING_SP_ASSIGNMENT)
+                stateMachine.changeState(GuildManagementUiState.SHOWING_SP_ASSIGNMENT)
             }
             "Cancel" -> {
                 stateMachine.revertToPreviousState()
@@ -256,6 +330,91 @@ class GuildManagementUiSystem(private val game: AdvGame,
         }
     }
 
+    private fun initializeSquadList() {
+        val save = game.globals.save!!
+        leftColumn.setItems(save.squads
+                .map { StringMenuItem(it.key, null, "") }
+                .toMutableList()
+                .also { it.add(StringMenuItem("Create New Squad", null, "").withData("create", true)) })
+
+        leftColumn.keySelection = true
+        leftColumn.hoverSelect = true
+        leftColumn.clearSelection()
+        leftColumn.clearConfirmCallbacks()
+        leftColumn.setSelectedIndex(0)
+        leftColumn.addConfirmCallback { handleSquadConfirm() }
+        leftColumnEventListener = object : EventListener {
+            override fun handle(event: Event?): Boolean {
+                handleSquadHighlightChange()
+                return true
+            }
+        }
+        leftColumn.addListener(leftColumnEventListener)
+        rightColumn.clearItems()
+        rightColumn.clearSelection()
+        rightColumn.clearConfirmCallbacks()
+        descriptionLable.setText("")
+    }
+
+    private fun handleSquadHighlightChange() {
+        val save = game.globals.save!!
+        val selectedItem = leftColumn.getSelected()
+        if (selectedItem == null) {
+            rightColumn.clearItems()
+        } else {
+            val selectedItemData = selectedItem.getData("create")
+            if (selectedItemData != null && selectedItemData as Boolean) {
+                rightColumn.clearItems()
+            } else {
+                rightColumn.setItems(save.squads[selectedItem.text]!!
+                        .map {
+                            StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                        })
+            }
+        }
+    }
+
+    private fun handleSquadConfirm() {
+        val save = game.globals.save!!
+        val selectedItem = leftColumn.getSelected()!!
+        val selectedItemData = selectedItem.getData("create")
+        if (selectedItemData != null && selectedItemData as Boolean) {
+            var squadName = "New Squad"
+            var i = 0
+            while (squadName in save.squads.keys) {
+                squadName = "New Squad $i"
+                i++
+            }
+            save.setSquad(squadName, mutableListOf())
+            selectedSquad = squadName
+            initializeSquadCustomization(squadName)
+        } else {
+            selectedSquad = selectedItem.text
+            initializeSquadCustomization(selectedItem.text)
+        }
+        stateMachine.changeState(GuildManagementUiState.SHOWING_SQUAD_EDIT)
+    }
+
+    private fun initializeSquadCustomization(squad: String) {
+        val save = game.globals.save!!
+        squadLeftList.setItems(save.guilds[save.playerGuild]!!
+                .map {
+                    StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                            .withData("npcId", it)
+                })
+        squadLeftList.clearSelection()
+        squadRightList.setItems(save.squads[squad]!!
+                .map {
+                    StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                            .withData("npcId", it)
+                })
+        squadRightList.clearSelection()
+        leftNpcDisplay.setNpcId(null)
+        rightNpcDisplay.setNpcId(null)
+        squadLeftList.addConfirmCallback { leftNpcDisplay.setNpcId(it.getData("npcId") as Int) }
+        squadRightList.addConfirmCallback { rightNpcDisplay.setNpcId(it.getData("npcId") as Int) }
+    }
+
     private fun initializeClassAssignmentNpcs() {
         val save = game.globals.save!!
         leftColumn.setItems(save.guilds[save.playerGuild]!!
@@ -283,7 +442,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
                             .withData("class", it)
                 })
 
-        if (leftColumn.getSelected().rightText != "Rookie") {
+        if (leftColumn.getSelected()!!.rightText != "Rookie") {
             rightColumn.disableAll()
         }
         rightColumn.clearSelection()
@@ -295,7 +454,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
     private fun selectClass(selection: StringMenuItem) {
         if (classSelection == selection.getData("class")) {
             showDialog("Are you sure you want to pick ${classSelection!!.name}?",
-                    { assignClass(leftColumn.getSelected().getData("npcId") as Int, classSelection!!) },
+                    { assignClass(leftColumn.getSelected()!!.getData("npcId") as Int, classSelection!!) },
                     {})
         } else {
             classSelection = selection.getData("class") as ClassTree
@@ -353,7 +512,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
 
     private fun initializeSkillAssignmentList() {
         val save = game.globals.save!!
-        val selectedNpcId = leftColumn.getSelected().getData("npcId") as Int
+        val selectedNpcId = leftColumn.getSelected()!!.getData("npcId") as Int
 
         val theClass = ClassTreeInitializer(game.globals.skillIndex).generateTree(selectedNpcId, save)
         val availableSkills = theClass.getSkillMap()
@@ -377,11 +536,11 @@ class GuildManagementUiSystem(private val game: AdvGame,
         if (skillSelection == selection.getData("skill")) {
             if (skillSelection!!.level == 0) {
                 showDialog("Learn ${skillSelection!!.name}?",
-                        { increaseSkill(leftColumn.getSelected().getData("npcId") as Int, skillSelection!!) },
+                        { increaseSkill(leftColumn.getSelected()!!.getData("npcId") as Int, skillSelection!!) },
                         {})
             } else {
                 showDialog("Improve ${skillSelection!!.name}?",
-                        { increaseSkill(leftColumn.getSelected().getData("npcId") as Int, skillSelection!!) },
+                        { increaseSkill(leftColumn.getSelected()!!.getData("npcId") as Int, skillSelection!!) },
                         {})
             }
         } else {
@@ -417,7 +576,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
-                if (!stateMachine.isInState(ClassCustomizationUiState.DISABLED)) {
+                if (!stateMachine.isInState(GuildManagementUiState.DISABLED)) {
                     stateMachine.revertToPreviousState()
                     return true
                 }
@@ -440,7 +599,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
 
     override fun scrolled(amount: Int): Boolean = false
 
-    enum class ClassCustomizationUiState : State<GuildManagementUiSystem> {
+    enum class GuildManagementUiState : State<GuildManagementUiSystem> {
         DISABLED() {
             override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.mainTable.remove()
@@ -453,6 +612,30 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 uiSystem.stage.addActor(uiSystem.mainTable)
                 uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
                 uiSystem.sEvent.dispatch(PauseEvent(true))
+            }
+        },
+        SHOWING_SQUADS() {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
+                uiSystem.stage.addActor(uiSystem.doubleColumnTable)
+                uiSystem.doubleColumnTitle.setText("Squads")
+                uiSystem.stage.keyboardFocus = uiSystem.leftColumn
+                uiSystem.initializeSquadList()
+            }
+
+            override fun exit(uiSystem: GuildManagementUiSystem) {
+                uiSystem.doubleColumnTable.remove()
+                uiSystem.leftColumn.removeListener(uiSystem.leftColumnEventListener)
+            }
+        },
+        SHOWING_SQUAD_EDIT() {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
+                uiSystem.stage.addActor(uiSystem.squadEditTable)
+            }
+
+            override fun exit(uiSystem: GuildManagementUiSystem) {
+                uiSystem.squadEditTable.remove()
+                uiSystem.leftColumn.keySelection = false
+                uiSystem.leftColumn.hoverSelect = false
             }
         },
         SHOWING_APPEARANCE_CUSTOMIZATION() {

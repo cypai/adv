@@ -24,6 +24,14 @@ class PccPreview(pcc: List<PccMetadata>,
         height = PccManager.PCC_HEIGHT + 2f
     }
 
+    override fun getPrefHeight(): Float {
+        return PccManager.PCC_HEIGHT + 2f
+    }
+
+    override fun getPrefWidth(): Float {
+        return PccManager.PCC_WIDTH + 2f
+    }
+
     fun getPcc() = pccParts.toList()
 
     fun setPcc(pcc: List<PccMetadata>) {

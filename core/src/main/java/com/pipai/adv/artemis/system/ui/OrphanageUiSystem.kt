@@ -168,7 +168,7 @@ class OrphanageUiSystem(private val game: AdvGame,
 
     private fun initializeRecruitDetails() {
         @Suppress("UNCHECKED_CAST")
-        val selectedRecruit = leftColumn.getSelected().getData("pcc") as List<PccMetadata>
+        val selectedRecruit = leftColumn.getSelected()!!.getData("pcc") as List<PccMetadata>
         pccPreview.setPcc(selectedRecruit)
         rightColumnTitle.setText("Orphan")
     }

@@ -80,7 +80,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                             selection.set(items[nextIndex])
                         }
                         Input.Keys.ENTER -> {
-                            confirmCallbacks.forEach { it.invoke(getSelected()) }
+                            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
                         }
                     }
                 }
@@ -127,7 +127,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         if (!disabledItems.contains(item)) {
             selection.choose(item)
             if (isConfirm) {
-                confirmCallbacks.forEach { it.invoke(getSelected()) }
+                confirmCallbacks.forEach { it.invoke(getSelected()!!) }
             }
         }
     }
@@ -254,7 +254,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         invalidateHierarchy()
     }
 
-    fun getSelected(): T {
+    fun getSelected(): T? {
         return selection.first()
     }
 
@@ -288,7 +288,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     fun setConfirmIndex(index: Int) {
         if (!lockSelection) {
             setSelectedIndex(index)
-            confirmCallbacks.forEach { it.invoke(getSelected()) }
+            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
         }
     }
 

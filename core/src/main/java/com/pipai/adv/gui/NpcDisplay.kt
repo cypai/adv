@@ -11,7 +11,7 @@ import com.pipai.adv.domain.NpcList
 
 class NpcDisplay(private val game: AdvGame,
                  private val npcList: NpcList,
-                 private var npcId: Int) : ScrollPane(Table(), game.skin) {
+                 private var npcId: Int?) : ScrollPane(Table(), game.skin) {
 
     private val table = this.actor as Table
     private val levelBackend = LevelBackend()
@@ -23,11 +23,14 @@ class NpcDisplay(private val game: AdvGame,
         initializeTableForNpc()
     }
 
-    fun setNpcId(npcId: Int) {
+    fun setNpcId(npcId: Int?) {
         this.npcId = npcId
+        initializeTableForNpc()
     }
 
     private fun initializeTableForNpc() {
+        table.clear()
+        val npcId = this.npcId ?: return
         val npc = npcList.getNpc(npcId)!!
         val tilesetMetadata = npc.tilesetMetadata
         val pcc = if (tilesetMetadata is EnvObjTilesetMetadata.PccTilesetMetadata) {
@@ -36,7 +39,7 @@ class NpcDisplay(private val game: AdvGame,
             listOf()
         }
 
-        table.clear()
+        table.pad(16f)
         table.add(Label(npc.unitInstance.nickname, game.skin))
         table.add(pccPreview)
         pccPreview.setPcc(pcc)

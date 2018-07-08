@@ -144,7 +144,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         primaryActionMenu.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (!primaryActionMenu.lockSelection) {
-                    handleMenuSelect(primaryActionMenu.getSelected())
+                    handleMenuSelect(primaryActionMenu.getSelected()!!)
                 }
             }
         })
@@ -163,7 +163,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         secondaryActionMenu.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (!secondaryActionMenu.lockSelection) {
-                    handleMenuSelect(secondaryActionMenu.getSelected())
+                    handleMenuSelect(secondaryActionMenu.getSelected()!!)
                 }
             }
         })
@@ -683,7 +683,7 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
 
     private fun updateRightPreviewDetails(command: BattleCommand, preview: List<PreviewComponent>) {
         val previewAggregator = PreviewAggregator()
-        val selected = commandPreviewList.getSelected()
+        val selected = commandPreviewList.getSelected()!!
         val rightPreviewList = previewAggregator.aggregateDetails(command, preview, selected.text)
         if (rightPreviewList.isEmpty()) {
             commandPreviewDetailsList.clearItems()

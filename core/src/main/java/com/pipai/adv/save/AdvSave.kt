@@ -16,6 +16,7 @@ class AdvSave() {
         sp = mapper.readValue(lines[4])
         gold = lines[5].toInt()
         inventory = mapper.readValue(lines[6])
+        squads = mapper.readValue(lines[7])
     }
 
     companion object {
@@ -40,6 +41,9 @@ class AdvSave() {
     var gold: Int = 0
 
     var inventory: MutableList<InventoryItem> = mutableListOf()
+        private set
+
+    var squads: MutableMap<String, MutableList<Int>> = mutableMapOf()
         private set
 
     init {
@@ -68,12 +72,26 @@ class AdvSave() {
 
     fun npcInPlayerGuild(npcId: Int): Boolean = guilds[playerGuild]?.contains(npcId) ?: false
 
+    fun setSquad(name: String, npcIds: List<Int>) {
+        squads[name] = npcIds.toMutableList()
+    }
+
+    fun changeSquad(name: String, newName: String, npcIds: List<Int>) {
+        squads.remove(name)
+        squads[newName] = npcIds.toMutableList()
+    }
+
+    fun removeSquad(name: String) {
+        squads.remove(name)
+    }
+
     fun serialize(): String {
         val guildsLine = mapper.writeValueAsString(guilds)
         val npcListLine = mapper.writeValueAsString(globalNpcList)
         val classesLine = mapper.writeValueAsString(classes)
         val spLine = mapper.writeValueAsString(sp)
         val inventoryLine = mapper.writeValueAsString(inventory)
-        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine"
+        val squadLine = mapper.writeValueAsString(squads)
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine"
     }
 }
