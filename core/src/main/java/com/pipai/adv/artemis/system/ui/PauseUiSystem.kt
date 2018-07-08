@@ -95,9 +95,7 @@ class PauseUiSystem(private val game: AdvGame,
             "Quit to Main Menu" -> {
                 showDialog("Are you sure you want to quit?",
                         {
-                            val currentScreen = game.screen
                             game.screen = MainMenuScreen(game)
-                            currentScreen.dispose()
                         },
                         {})
             }
