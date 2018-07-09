@@ -46,7 +46,7 @@ class GuildScreen(game: AdvGame) : Screen {
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = GuildMapGenerator()
-                .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, listOf(), 30, 20, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

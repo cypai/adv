@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.index.SkillIndex
+import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
@@ -12,7 +13,7 @@ import com.pipai.adv.tiles.*
 
 data class AdvGameGlobals(var save: AdvSave?,
                           val saveManager: SaveManager,
-                          val schemaList: SchemaList,
+                          val unitSchemaIndex: UnitSchemaIndex,
                           val weaponSchemaIndex: WeaponSchemaIndex,
                           val skillIndex: SkillIndex,
                           val mapTilesetList: MapTilesetList,
@@ -55,7 +56,7 @@ data class AdvGameGlobals(var save: AdvSave?,
                 .filter { it is PccTilesetMetadata }
                 .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
 
-        schemaList.map { it.tilesetMetadata }
+        unitSchemaIndex.map { it.tilesetMetadata }
                 .filter { it is PccTilesetMetadata }
                 .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
 
@@ -80,8 +81,8 @@ class AdvGameInitializer() {
                 tilesetList, textureManager, pccManager, animatedTilesetManager)
     }
 
-    private fun initializeSchemaList(): SchemaList {
-        val schemaList = SchemaList()
+    private fun initializeSchemaList(): UnitSchemaIndex {
+        val schemaList = UnitSchemaIndex()
         // Stats:
         // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
         schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
@@ -114,26 +115,6 @@ class AdvGameInitializer() {
                 GrassyTileset(Gdx.files.internal("assets/binassets/graphics/tilesets/outside_tileset.png")))
 
         return tilesetList
-    }
-}
-
-class SchemaList : Iterable<SchemaMetadata> {
-    private val schemas: MutableMap<String, SchemaMetadata> = mutableMapOf()
-
-    override operator fun iterator(): Iterator<SchemaMetadata> {
-        return schemas.values.iterator()
-    }
-
-    fun addSchema(name: String, stats: UnitStats, resistances: Resistances, expGiven: Int, tilesetMetadata: EnvObjTilesetMetadata) {
-        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, resistances, expGiven), tilesetMetadata))
-    }
-
-    fun getSchema(name: String): SchemaMetadata {
-        if (schemas.contains(name)) {
-            return schemas.get(name)!!
-        } else {
-            throw IllegalArgumentException("$name does not exist in name list")
-        }
     }
 }
 

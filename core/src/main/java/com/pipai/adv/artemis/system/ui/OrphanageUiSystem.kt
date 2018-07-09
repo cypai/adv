@@ -139,7 +139,7 @@ class OrphanageUiSystem(private val game: AdvGame,
 
     private fun recruitMember(pcc: List<PccMetadata>) {
         val npc = Npc(
-                UnitInstance(game.globals.schemaList.getSchema("Human").schema, "Orphan"),
+                UnitInstance(game.globals.unitSchemaIndex.getSchema("Human").schema, "Orphan"),
                 EnvObjTilesetMetadata.PccTilesetMetadata(pcc))
         val npcId = game.globals.save!!.globalNpcList.addNpc(npc)
         val save = game.globals.save!!

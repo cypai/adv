@@ -39,7 +39,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>) : Screen {
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = TestMapGenerator()
-                .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

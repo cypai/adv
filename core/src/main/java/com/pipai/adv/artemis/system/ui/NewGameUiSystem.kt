@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.SchemaList
+import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
@@ -129,7 +129,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Keys.ENTER) {
-            val save = generateSave(game.globals.schemaList, game.globals.weaponSchemaIndex)
+            val save = generateSave(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex)
             game.globals.loadSave(save)
             game.globals.autoSave()
             game.screen = GuildScreen(game)
@@ -140,7 +140,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         return false
     }
 
-    private fun generateSave(schemas: SchemaList, weaponSchemaIndex: WeaponSchemaIndex): AdvSave {
+    private fun generateSave(schemas: UnitSchemaIndex, weaponSchemaIndex: WeaponSchemaIndex): AdvSave {
         val save = AdvSave()
 
         save.changePlayerGuildName(guildText.text)

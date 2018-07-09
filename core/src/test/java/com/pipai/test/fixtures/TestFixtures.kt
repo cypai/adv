@@ -1,6 +1,6 @@
 package com.pipai.test.fixtures
 
-import com.pipai.adv.SchemaList
+import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.domain.Npc
 
@@ -19,8 +19,8 @@ fun bowFixture(): InventoryItem.WeaponInstance {
     return InventoryItem.WeaponInstance("Toy Bow", 3)
 }
 
-fun getSchemaList(): SchemaList {
-    val schemaList = SchemaList()
+fun getSchemaList(): UnitSchemaIndex {
+    val schemaList = UnitSchemaIndex()
     // Stats:
     // HP, MP, STR, DEX, CON, INT, RES, AVD, MOV
     schemaList.addSchema("Human", UnitStats(20, 10, 10, 10, 10, 10, 10, 0, 5), Resistances(), 0,

@@ -1,6 +1,6 @@
 package com.pipai.adv.map
 
-import com.pipai.adv.SchemaList
+import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
@@ -13,12 +13,12 @@ import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class GuildMapGenerator : MapGenerator {
 
-    override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
@@ -36,7 +36,7 @@ class GuildMapGenerator : MapGenerator {
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
         val generator = OpenBattleMapGenerator()
         val map = generator.generate(width, height)
         generateGround(map)
@@ -97,7 +97,7 @@ private fun generateWallBoundary(map: BattleMap) {
     }
 }
 
-private fun generatePod(position: GridPosition, map: BattleMap, schemas: SchemaList, weapons: WeaponSchemaIndex, npcList: NpcList) {
+private fun generatePod(position: GridPosition, map: BattleMap, schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList) {
 
     val defaultMelee = weapons.getWeaponSchema("Monster Melee")!!
     val defaultRanged = weapons.getWeaponSchema("Monster Ranged")!!
@@ -121,7 +121,7 @@ private fun generatePod(position: GridPosition, map: BattleMap, schemas: SchemaL
     }
 }
 
-private fun generatePodSchemas(schemas: SchemaList): List<SchemaMetadata> {
+private fun generatePodSchemas(schemas: UnitSchemaIndex): List<SchemaMetadata> {
     val potentialPods: MutableList<List<SchemaMetadata>> = mutableListOf(
             listOf(schemas.getSchema("Slime"),
                     schemas.getSchema("Slime"),
