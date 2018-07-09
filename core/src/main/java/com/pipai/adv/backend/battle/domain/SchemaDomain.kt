@@ -190,3 +190,13 @@ data class ArmorSchema(
         val mdef: Int,
         val value: Int,
         val description: String)
+
+enum class ItemType {
+    CONSUMABLE, MISC
+}
+
+data class ItemSchema(
+        val name: String,
+        val type: ItemType,
+        val value: Int,
+        val description: String)

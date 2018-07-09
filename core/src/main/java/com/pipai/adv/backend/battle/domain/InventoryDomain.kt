@@ -11,7 +11,7 @@ sealed class InventoryItem : DeepCopyable<InventoryItem> {
         override fun deepCopy() = copy()
     }
 
-    data class ConsumableItem(val name: String) : InventoryItem() {
+    data class MiscItem(val name: String) : InventoryItem() {
         override fun deepCopy() = copy()
     }
 }
