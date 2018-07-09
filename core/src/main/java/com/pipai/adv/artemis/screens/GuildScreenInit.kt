@@ -101,7 +101,8 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
         val cInteraction = mInteraction.create(signId)
         cInteraction.interactionList.add(TextInteraction("Going to test map."))
-        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game) }))
+        val squad = game.globals.save!!.squads.values.first()
+        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game, squad) }))
     }
 
     private fun addGuildManagementSign() {

@@ -204,6 +204,8 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val medicId = save.globalNpcList.addNpc(medicNpc)
         save.addToGuild(guildText.text, medicId)
 
+        save.setSquad("Squad 1", listOf(playerId, friendId, rivalId, knightId, medicId))
+
         return save
     }
 

@@ -43,8 +43,8 @@ class TestMapGenerator : MapGenerator {
         generateGroundDeco(map, 4, tileset)
 
         var currentY = 1
-        for (index in party) {
-            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], Team.PLAYER, npcList.getNpc(party[index])!!.tilesetMetadata)
+        for (npcId in party) {
+            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(npcId, Team.PLAYER, npcList.getNpc(npcId)!!.tilesetMetadata)
             currentY++
         }
 

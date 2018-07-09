@@ -25,7 +25,7 @@ import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.map.TestMapGenerator
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class BattleMapScreen(game: AdvGame) : Screen {
+class BattleMapScreen(game: AdvGame, partyList: List<Int>) : Screen {
 
     private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
@@ -37,8 +37,6 @@ class BattleMapScreen(game: AdvGame) : Screen {
 
         // Local battle copy of the npcList to store temp NPCs (such as enemies), which are not needed after the battle
         val npcList = globals.save!!.globalNpcList.shallowCopy()
-
-        val partyList = (0 until npcList.size()).toList()
 
         val map = TestMapGenerator()
                 .generate(game.globals.schemaList, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
