@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
-import com.pipai.adv.index.SkillIndex
-import com.pipai.adv.index.UnitSchemaIndex
-import com.pipai.adv.index.WeaponSchemaIndex
+import com.pipai.adv.index.*
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
@@ -15,6 +13,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val saveManager: SaveManager,
                           val unitSchemaIndex: UnitSchemaIndex,
                           val weaponSchemaIndex: WeaponSchemaIndex,
+                          val armorSchemaIndex: ArmorSchemaIndex,
+                          val itemSchemaIndex: ItemSchemaIndex,
                           val skillIndex: SkillIndex,
                           val mapTilesetList: MapTilesetList,
                           val textureManager: TextureManager,
@@ -64,10 +64,12 @@ data class AdvGameGlobals(var save: AdvSave?,
     }
 }
 
-class AdvGameInitializer() {
+class AdvGameInitializer {
     fun initializeGlobals(): AdvGameGlobals {
         val schemaList = initializeSchemaList()
         val weaponSchemaIndex = WeaponSchemaIndex(Gdx.files.internal("assets/data/weapons.csv"))
+        val armorSchemaIndex = ArmorSchemaIndex(Gdx.files.internal("assets/data/armor.csv"))
+        val itemSchemaIndex = ItemSchemaIndex(Gdx.files.internal("assets/data/items.csv"))
         val skillIndex = SkillIndex(Gdx.files.internal("assets/data/skills.csv"))
         val tilesetList = initializeMapTilesetList()
         val textureManager = TextureManager()
@@ -77,7 +79,8 @@ class AdvGameInitializer() {
         val animatedUnitTilesets = schemaList.filter { it.tilesetMetadata is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata }
                 .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
         animatedTilesetManager.loadTextures(animatedUnitTilesets)
-        return AdvGameGlobals(null, SaveManager(), schemaList, weaponSchemaIndex, skillIndex,
+        return AdvGameGlobals(null, SaveManager(), schemaList,
+                weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
                 tilesetList, textureManager, pccManager, animatedTilesetManager)
     }
 
