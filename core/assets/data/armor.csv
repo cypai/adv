@@ -1,0 +1,4 @@
+name,type,pdef,mdef,value,description
+Tweed,LIGHT_ARMOR,2,2,100,Weaved cloth. Not that good.
+Metal Armor,HEAVY_ARMOR,4,2,140,Heavy armor made of metal.
+Wooden Buckler,SHIELD,3,2,110,A small shield used to parry attacks.

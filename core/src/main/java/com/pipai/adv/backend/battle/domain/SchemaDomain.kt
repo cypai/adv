@@ -178,3 +178,15 @@ data class WeaponSchema(
         val magazineSize: Int,
         val value: Int,
         val description: String)
+
+enum class ArmorType {
+    LIGHT_ARMOR, HEAVY_ARMOR, SHIELD
+}
+
+data class ArmorSchema(
+        val name: String,
+        val type: ArmorType,
+        val pdef: Int,
+        val mdef: Int,
+        val value: Int,
+        val description: String)
