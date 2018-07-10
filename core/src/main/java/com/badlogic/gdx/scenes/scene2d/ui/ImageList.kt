@@ -313,6 +313,12 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         }
     }
 
+    fun setDisabledPredicate(predicate: (T) -> Boolean) {
+        items.forEach {
+            setDisabled(it, predicate(it))
+        }
+    }
+
     fun disableAll() {
         disabledItems.addAll(items)
     }

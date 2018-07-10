@@ -49,7 +49,7 @@ class VillageScreen(game: AdvGame) : Screen {
         inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
         inputProcessor.activateInput()
 
-        VillageScreenInit(world, game, game.advConfig)
+        StandardScreenInit(world, game, game.advConfig)
                 .initialize()
     }
 

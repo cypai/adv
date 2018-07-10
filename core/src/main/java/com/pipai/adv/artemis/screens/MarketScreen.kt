@@ -14,10 +14,10 @@ import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
-import com.pipai.adv.artemis.system.ui.OrphanageUiSystem
+import com.pipai.adv.artemis.system.ui.MarketUiSystem
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class OrphanageScreen(game: AdvGame) : Screen {
+class MarketScreen(game: AdvGame) : Screen {
 
     private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
@@ -35,7 +35,7 @@ class OrphanageScreen(game: AdvGame) : Screen {
 
                         InputProcessingSystem())
                 .withPassive(-1,
-                        OrphanageUiSystem(game, stage),
+                        MarketUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game))
                 .build()
@@ -44,7 +44,7 @@ class OrphanageScreen(game: AdvGame) : Screen {
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(stage)
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(OrphanageUiSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(MarketUiSystem::class.java))
         inputProcessor.activateInput()
 
         StandardScreenInit(world, game, game.advConfig)

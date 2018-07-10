@@ -38,7 +38,7 @@ class AdvSave() {
     var sp: MutableMap<Int, Int> = mutableMapOf()
         private set
 
-    var gold: Int = 0
+    var gold: Int = 500
 
     var inventory: MutableList<InventoryItem> = mutableListOf()
         private set

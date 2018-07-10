@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.screens.GuildScreen
+import com.pipai.adv.artemis.screens.MarketScreen
 import com.pipai.adv.artemis.screens.OrphanageScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
 
@@ -37,6 +38,11 @@ class VillageUiSystem(private val game: AdvGame,
         val marketButton = TextButton("  Market  ", skin)
         marketButton.x = config.resolution.width * 0.8f
         marketButton.y = config.resolution.height * 0.7f
+        marketButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                game.screen = MarketScreen(game)
+            }
+        })
         stage.addActor(marketButton)
 
         val hospitalButton = TextButton("  Hospital  ", skin)

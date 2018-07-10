@@ -9,7 +9,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
 
 @Wire
-class VillageScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig) {
+class StandardScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig) {
 
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
 
@@ -20,6 +20,10 @@ class VillageScreenInit(private val world: World, private val game: AdvGame, pri
     }
 
     fun initialize() {
+        val cameraId = world.create()
+        mCamera.create(cameraId)
+        sTags.register(Tags.CAMERA.toString(), cameraId)
+
         val uiCameraId = world.create()
         mCamera.create(uiCameraId)
         sTags.register(Tags.UI_CAMERA.toString(), uiCameraId)

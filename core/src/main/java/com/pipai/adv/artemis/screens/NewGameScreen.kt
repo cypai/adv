@@ -49,7 +49,7 @@ class NewGameScreen(game: AdvGame) : Screen {
         inputProcessor.addAlwaysOnProcessor(uiSystem.stage)
         inputProcessor.activateInput()
 
-        NewGameScreenInit(world, game, game.advConfig, uiSystem.pccCustomizer).initialize()
+        StandardScreenInit(world, game, game.advConfig).initialize()
     }
 
     override fun render(delta: Float) {
