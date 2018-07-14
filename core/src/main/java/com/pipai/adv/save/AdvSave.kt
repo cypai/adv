@@ -1,5 +1,6 @@
 package com.pipai.adv.save
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
@@ -90,7 +91,9 @@ class AdvSave() {
         val npcListLine = mapper.writeValueAsString(globalNpcList)
         val classesLine = mapper.writeValueAsString(classes)
         val spLine = mapper.writeValueAsString(sp)
-        val inventoryLine = mapper.writeValueAsString(inventory)
+        val inventoryLine = mapper
+                .writerFor(object : TypeReference<List<InventoryItem>>() {})
+                .writeValueAsString(inventory)
         val squadLine = mapper.writeValueAsString(squads)
         return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine"
     }
