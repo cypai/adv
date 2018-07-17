@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.screens.VillageScreen
@@ -28,6 +29,8 @@ class MarketUiSystem(private val game: AdvGame,
     private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
 
     private val saleTable = Table()
+    private val saleTitle = Label("", game.skin)
+    private val saleGoldLabel = Label("", game.skin, "small")
     private val saleList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
 
     init {
@@ -71,6 +74,10 @@ class MarketUiSystem(private val game: AdvGame,
         saleList.keySelection = true
         saleList.disabledFontColor = Color.GRAY
         saleList.addConfirmCallback { handleSaleMenuConfirm(it) }
+        saleTable.add(saleTitle)
+        saleTable.row()
+        saleTable.add(saleGoldLabel)
+        saleTable.row()
         saleTable.add(saleList)
                 .width(mainMenuWidth - 20f)
                 .left()
@@ -92,6 +99,8 @@ class MarketUiSystem(private val game: AdvGame,
     }
 
     private fun populateBuyList() {
+        saleTitle.setText("Buy Items")
+        saleGoldLabel.setText("Gold: ${game.globals.save!!.gold}")
         val weaponIndex = game.globals.weaponSchemaIndex
         val weapons = weaponIndex.index.keys
         saleList.setItems(weapons.map {
@@ -109,6 +118,7 @@ class MarketUiSystem(private val game: AdvGame,
                             val save = game.globals.save!!
                             save.gold -= menuItem.rightText.toInt()
                             save.inventory.add((menuItem.getData("item") as InventoryItem).deepCopy())
+                            populateBuyList()
                         },
                         {})
             }
