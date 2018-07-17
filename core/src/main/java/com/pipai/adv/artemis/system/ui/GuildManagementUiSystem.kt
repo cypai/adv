@@ -74,6 +74,14 @@ class GuildManagementUiSystem(private val game: AdvGame,
     private val leftNpcDisplay = NpcDisplay(game, game.globals.save!!.globalNpcList, null)
     private val rightNpcDisplay = NpcDisplay(game, game.globals.save!!.globalNpcList, null)
 
+    private val loadoutTable = Table()
+    private val loadoutLeftList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val loadoutRightList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val loadoutNpcDisplay = NpcDisplay(game, game.globals.save!!.globalNpcList, null)
+
+    private val loadoutInventoryTable = Table()
+    private val loadoutInventoryList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+
     private var classSelection: ClassTree? = null
     private var skillSelection: UnitSkill? = null
 
@@ -112,6 +120,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         mainTable.row()
 
         val menuItems = mutableListOf(
+                StringMenuItem("Change Loadout", null, ""),
                 StringMenuItem("Manage Squads", null, ""),
                 StringMenuItem("Change Member Appearance", null, ""),
                 StringMenuItem("Assign Class", null, ""),
@@ -267,10 +276,34 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 stateMachine.revertToPreviousState()
             }
         })
+
+        loadoutTable.x = (game.advConfig.resolution.width - squadTableWidth) / 2
+        loadoutTable.y = (game.advConfig.resolution.height - squadTableHeight) / 2
+        loadoutTable.width = squadTableWidth
+        loadoutTable.height = squadTableHeight
+        loadoutTable.background = skin.getDrawable("frameDrawable")
+
+        loadoutTable.add(Label("Change Loadout", game.skin))
+        loadoutTable.row()
+        loadoutTable.add(loadoutLeftList)
+        val loadoutRightTable = Table()
+        loadoutRightTable.add(loadoutRightList)
+        loadoutRightTable.row()
+        loadoutRightTable.add(loadoutNpcDisplay)
+        loadoutTable.add(loadoutRightTable)
+
+        loadoutLeftList.hoverSelect = true
+        loadoutLeftList.keySelection = true
+
+        loadoutRightList.hoverSelect = true
+        loadoutRightList.keySelection = true
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
+            "Change Loadout" -> {
+                stateMachine.changeState(GuildManagementUiState.SHOWING_LOADOUT_MANAGEMENT)
+            }
             "Manage Squads" -> {
                 stateMachine.changeState(GuildManagementUiState.SHOWING_SQUADS)
             }
@@ -287,6 +320,35 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 stateMachine.revertToPreviousState()
             }
         }
+    }
+
+    private fun initializeLoadoutNpcs() {
+        val save = game.globals.save!!
+        loadoutLeftList.setItems(save.guilds[save.playerGuild]!!
+                .map {
+                    StringMenuItem(
+                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            null,
+                            "")
+                            .withData("npcId", it)
+                })
+
+        loadoutLeftList.clearConfirmCallbacks()
+        loadoutLeftList.addConfirmCallback { initializeLoadoutRightSection(it) }
+        loadoutLeftList.clearSelection()
+    }
+
+    private fun initializeLoadoutRightSection(selection: StringMenuItem) {
+        val npcId = selection.getData("npcId") as Int
+        val unitInstance = getNpc(npcId).unitInstance
+        val loadout: MutableList<StringMenuItem> = mutableListOf()
+        loadout.add(StringMenuItem(unitInstance.weapon?.name ?: "None", null, ""))
+        loadout.addAll(unitInstance.inventory.map { StringMenuItem(it.name, null, "") })
+        if (loadout.size < 4) {
+            repeat(4 - loadout.size, { loadout.add(StringMenuItem("None", null, "")) })
+        }
+        loadoutRightList.setItems(loadout)
+        loadoutNpcDisplay.setNpcId(npcId)
     }
 
     private fun initializeAppearanceNpcs() {
@@ -306,6 +368,8 @@ class GuildManagementUiSystem(private val game: AdvGame,
     }
 
     private fun getNpc(): Npc = game.globals.save!!.globalNpcList.getNpc(selectedNpcId)!!
+
+    private fun getNpc(npcId: Int): Npc = game.globals.save!!.globalNpcList.getNpc(npcId)!!
 
     private fun initializeAppearanceCustomization(selection: StringMenuItem) {
         this.selectedNpcId = selection.getData("npcId") as Int
@@ -612,6 +676,25 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 uiSystem.stage.addActor(uiSystem.mainTable)
                 uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
                 uiSystem.sEvent.dispatch(PauseEvent(true))
+            }
+        },
+        SHOWING_LOADOUT_MANAGEMENT() {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
+                uiSystem.stage.addActor(uiSystem.loadoutTable)
+                uiSystem.initializeLoadoutNpcs()
+            }
+
+            override fun exit(uiSystem: GuildManagementUiSystem) {
+                uiSystem.loadoutTable.remove()
+            }
+        },
+        SHOWING_LOADOUT_INVENTORY() {
+            override fun enter(uiSystem: GuildManagementUiSystem) {
+                uiSystem.stage.addActor(uiSystem.loadoutInventoryTable)
+            }
+
+            override fun exit(uiSystem: GuildManagementUiSystem) {
+                uiSystem.loadoutInventoryTable.remove()
             }
         },
         SHOWING_SQUADS() {

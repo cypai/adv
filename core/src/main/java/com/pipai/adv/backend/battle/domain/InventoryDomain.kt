@@ -5,15 +5,17 @@ import com.pipai.adv.utils.DeepCopyable
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 sealed class InventoryItem : DeepCopyable<InventoryItem> {
-    data class WeaponInstance(val name: String, var ammo: Int) : InventoryItem() {
+    abstract val name: String
+
+    data class WeaponInstance(override val name: String, var ammo: Int) : InventoryItem() {
         override fun deepCopy() = copy()
     }
 
-    data class EquipableItem(val name: String) : InventoryItem() {
+    data class EquipableItem(override val name: String) : InventoryItem() {
         override fun deepCopy() = copy()
     }
 
-    data class MiscItem(val name: String) : InventoryItem() {
+    data class MiscItem(override val name: String) : InventoryItem() {
         override fun deepCopy() = copy()
     }
 }
