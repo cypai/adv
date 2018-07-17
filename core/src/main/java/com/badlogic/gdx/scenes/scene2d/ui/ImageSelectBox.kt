@@ -286,7 +286,7 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
 
             addListener(object : InputListener() {
                 override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-                    if (toActor == null || !isAscendantOf(toActor)) list.selection.set(selectBox.selected)
+                    if (toActor == null || !isAscendantOf(toActor)) list.setSelected(selectBox.selected)
                 }
             })
 
@@ -294,7 +294,7 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
                 override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                     val target = event!!.target
                     if (isAscendantOf(target)) return false
-                    list.selection.set(selectBox.selected)
+                    list.setSelected(selectBox.selected)
                     hide()
                     return false
                 }
@@ -354,7 +354,7 @@ class ImageSelectBox<T>(private var style: SelectBox.SelectBoxStyle, private val
             if (actor != null && !actor.isDescendantOf(this)) previousScrollFocus = actor
             stage.scrollFocus = this
 
-            list.selection.set(selectBox.selected)
+            list.setSelected(selectBox.selected)
             list.touchable = Touchable.enabled
             clearActions()
             selectBox.onShow(this)

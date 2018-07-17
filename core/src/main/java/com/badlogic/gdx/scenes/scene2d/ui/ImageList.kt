@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
-import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection
 import com.badlogic.gdx.scenes.scene2d.utils.Cullable
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils
 import com.badlogic.gdx.utils.Array
@@ -27,18 +26,20 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     var lockSelection = false
     var keySelection = false
     var disabledFontColor = style.fontColorSelected
+    var confirmSelectionDrawable = style.selection
 
     private var confirmCallbacks: MutableList<(T) -> Unit> = mutableListOf()
 
-    internal val items = com.badlogic.gdx.utils.Array<T>()
+    internal val items: MutableList<T> = mutableListOf()
     internal var itemHeight: Float = 0f
     internal var textOffsetX: Float = 0f
     internal var textOffsetY: Float = 0f
     internal var prefWidth: Float = 0f
     internal var prefHeight: Float = 0f
 
-    internal val selection: ArraySelection<T> = ArraySelection(items)
-    internal val disabledItems = com.badlogic.gdx.utils.Array<T>()
+    internal var confirmedSelection: Int? = null
+    internal val selection: MutableList<Int> = mutableListOf()
+    internal val disabledItems: MutableList<Int> = mutableListOf()
     internal var culling: Rectangle? = null
 
     override fun setCullingArea(cullingArea: Rectangle?) {
@@ -56,31 +57,39 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     init {
-        selection.setActor(this)
-        selection.required = true
-
         setSize(getPrefWidth(), getPrefHeight())
 
         addListener(object : InputListener() {
             override fun keyDown(event: InputEvent?, keycode: Int): Boolean {
-                if (keycode == Input.Keys.A && UIUtils.ctrl() && selection.getMultiple()) {
+                if (keycode == Input.Keys.A && UIUtils.ctrl()) {
                     selection.clear()
-                    selection.addAll(items)
+                    selection.addAll(0 until items.size)
                     return true
                 }
                 if (keySelection) {
-                    val index = items.indexOf(selection.first())
+                    val index = selection.firstOrNull()
                     when (keycode) {
                         Input.Keys.UP -> {
-                            val prevIndex = if (index == 0) items.size - 1 else index - 1
-                            selection.set(items[prevIndex])
+                            if (index == null) {
+                                selection.add(items.size - 1)
+                            } else {
+                                selection.clear()
+                                selection.add(if (index == 0) items.size - 1 else index - 1)
+                            }
                         }
                         Input.Keys.DOWN -> {
-                            val nextIndex = if (index == items.size - 1) 0 else index + 1
-                            selection.set(items[nextIndex])
+                            if (index == null) {
+                                selection.add(0)
+                            } else {
+                                selection.clear()
+                                selection.add(if (index == items.size - 1) 0 else index + 1)
+                            }
                         }
                         Input.Keys.ENTER -> {
-                            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
+                            confirmedSelection = index
+                            if (index != null) {
+                                confirmCallbacks.forEach { it.invoke(getSelected()!!) }
+                            }
                         }
                     }
                 }
@@ -89,8 +98,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
 
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 if (pointer == 0 && button != 0) return false
-                if (selection.isDisabled) return false
-                if (selection.multiple) stage.keyboardFocus = this@ImageList
                 this@ImageList.touchDown(y, true)
                 return true
             }
@@ -102,6 +109,15 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 return false
             }
         })
+    }
+
+    fun lockMenu() {
+        lockSelection = true
+        selection.clear()
+    }
+
+    fun unlockMenu() {
+        lockSelection = false
     }
 
     fun addConfirmCallback(callback: (T) -> Unit) {
@@ -123,10 +139,11 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         }
         val index = ((height - selectY) / itemHeight).toInt()
         if (index < 0 || index >= items.size) return
-        val item = items[index]
-        if (!disabledItems.contains(item)) {
-            selection.choose(item)
+        if (!disabledItems.contains(index)) {
+            selection.clear()
+            selection.add(index)
             if (isConfirm) {
+                confirmedSelection = index
                 confirmCallbacks.forEach { it.invoke(getSelected()!!) }
             }
         }
@@ -196,13 +213,17 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
         for (i in 0 until items.size) {
             val item = items.get(i)
-            val selected = selection.contains(item)
-            font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
-            if (selected) {
+
+            if (confirmedSelection == i) {
+                confirmSelectionDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
+                font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
+            } else if (selection.contains(i)) {
                 selectedDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
                 font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
+            } else {
+                font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
             }
-            val disabled = disabledItems.contains(item, false)
+            val disabled = disabledItems.contains(i)
             if (disabled) {
                 font.setColor(disabledFontColor.r, disabledFontColor.g, disabledFontColor.b, disabledFontColor.a * parentAlpha)
             }
@@ -235,7 +256,8 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
 
         items.clear()
         items.addAll(newItems)
-        selection.validate()
+        confirmedSelection = null
+        selection.clear()
         disabledItems.clear()
         lockSelection = false
 
@@ -255,17 +277,15 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     fun getSelected(): T? {
-        return selection.first()
+        return confirmedSelection?.let { items[it] } ?: return null
     }
 
     fun setSelected(item: T) {
         if (!lockSelection) {
-            if (items.contains(item, false))
-                selection.set(item)
-            else if (selection.required && items.size > 0)
-                selection.set(items.first())
-            else
-                selection.clear()
+            selection.clear()
+            if (items.contains(item)) {
+                selection.add(items.indexOf(item))
+            }
         }
     }
 
@@ -280,7 +300,8 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             if (index == -1) {
                 selection.clear()
             } else {
-                selection.set(items.get(index))
+                selection.clear()
+                selection.add(index)
             }
         }
     }
@@ -293,11 +314,11 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     fun setDisabled(item: T, disabled: Boolean) {
-        if (items.contains(item, false)) {
+        if (items.contains(item)) {
             if (disabled) {
-                disabledItems.add(item)
+                disabledItems.add(items.indexOf(item))
             } else {
-                disabledItems.removeValue(item, false)
+                disabledItems.remove(items.indexOf(item))
             }
         }
     }
@@ -305,11 +326,10 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     fun setDisabledIndex(index: Int, disabled: Boolean) {
         if (index < -1 || index >= items.size)
             throw IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
-        val item = items[index]
         if (disabled) {
-            disabledItems.add(item)
+            disabledItems.add(index)
         } else {
-            disabledItems.removeValue(item, false)
+            disabledItems.remove(index)
         }
     }
 
@@ -320,7 +340,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     fun disableAll() {
-        disabledItems.addAll(items)
+        disabledItems.addAll(0 until items.size)
     }
 
     fun enableAll() {
