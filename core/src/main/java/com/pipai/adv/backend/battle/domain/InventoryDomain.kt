@@ -19,3 +19,5 @@ sealed class InventoryItem : DeepCopyable<InventoryItem> {
         override fun deepCopy() = copy()
     }
 }
+
+data class InventorySlot(var item: InventoryItem?)

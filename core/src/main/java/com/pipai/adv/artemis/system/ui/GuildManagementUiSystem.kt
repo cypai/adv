@@ -20,6 +20,8 @@ import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
+import com.pipai.adv.backend.battle.domain.InventoryItem
+import com.pipai.adv.backend.battle.domain.InventorySlot
 import com.pipai.adv.classes.ClassTree
 import com.pipai.adv.classes.ClassTreeInitializer
 import com.pipai.adv.domain.Npc
@@ -297,6 +299,19 @@ class GuildManagementUiSystem(private val game: AdvGame,
 
         loadoutRightList.hoverSelect = true
         loadoutRightList.keySelection = true
+
+        loadoutInventoryTable.x = 16f
+        loadoutInventoryTable.y = 16f
+        loadoutInventoryTable.width = game.advConfig.resolution.width / 4f
+        loadoutInventoryTable.height = game.advConfig.resolution.height - 32f
+        loadoutInventoryTable.background = skin.getDrawable("frameDrawable")
+
+        loadoutInventoryTable.add(loadoutInventoryList)
+                .top()
+                .left()
+                .expand()
+        loadoutInventoryList.hoverSelect = true
+        loadoutInventoryList.keySelection = true
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
@@ -334,21 +349,70 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 })
 
         loadoutLeftList.clearConfirmCallbacks()
-        loadoutLeftList.addConfirmCallback { initializeLoadoutRightSection(it) }
+        loadoutLeftList.addConfirmCallback { initializeLoadoutRightSection(it.getData("npcId") as Int) }
         loadoutLeftList.clearSelection()
     }
 
-    private fun initializeLoadoutRightSection(selection: StringMenuItem) {
-        val npcId = selection.getData("npcId") as Int
+    private fun initializeLoadoutRightSection(npcId: Int) {
         val unitInstance = getNpc(npcId).unitInstance
         val loadout: MutableList<StringMenuItem> = mutableListOf()
-        loadout.add(StringMenuItem(unitInstance.weapon?.name ?: "None", null, ""))
-        loadout.addAll(unitInstance.inventory.map { StringMenuItem(it.name, null, "") })
-        if (loadout.size < 4) {
-            repeat(4 - loadout.size, { loadout.add(StringMenuItem("None", null, "")) })
-        }
+        loadout.add(StringMenuItem(unitInstance.weapon?.name ?: "None", null, "")
+                .withData("weapon", true))
+        loadout.addAll(unitInstance.inventory.map {
+            StringMenuItem(it.item?.name ?: "None", null, "")
+                    .withData("weapon", false)
+                    .withData("slot", it)
+        })
         loadoutRightList.setItems(loadout)
         loadoutNpcDisplay.setNpcId(npcId)
+
+        loadoutRightList.clearConfirmCallbacks()
+        loadoutRightList.addConfirmCallback {
+            stateMachine.changeState(GuildManagementUiState.SHOWING_LOADOUT_INVENTORY)
+            initializeLoadoutInventory(it, npcId)
+        }
+        loadoutRightList.clearSelection()
+    }
+
+    private fun initializeLoadoutInventory(selection: StringMenuItem, npcId: Int) {
+        val inventoryItems: MutableList<StringMenuItem> = mutableListOf()
+        inventoryItems.add(StringMenuItem("Remove", null, ""))
+        inventoryItems.addAll(game.globals.save!!.inventory.map {
+            StringMenuItem(it.name, null, "")
+                    .withData("item", it)
+        })
+        loadoutInventoryList.setItems(inventoryItems)
+        loadoutInventoryList.clearConfirmCallbacks()
+        loadoutInventoryList.addConfirmCallback {
+            val npc = getNpc(npcId)
+            val isWeapon = selection.getData("weapon") as Boolean
+            if (isWeapon) {
+                val originalWeapon = npc.unitInstance.weapon
+                if (originalWeapon != null) {
+                    game.globals.save!!.inventory.add(originalWeapon)
+                }
+                if (it.text == "Remove") {
+                    npc.unitInstance.weapon = null
+                } else {
+                    npc.unitInstance.weapon = InventoryItem.WeaponInstance(it.text, 1)
+                    game.globals.save!!.inventory.remove(it.getData("item") as InventoryItem)
+                }
+            } else {
+                val slot = selection.getData("slot") as InventorySlot
+                val originalItem = slot.item
+                if (originalItem != null) {
+                    game.globals.save!!.inventory.add(originalItem)
+                }
+                if (it.text == "Remove") {
+                    slot.item = null
+                } else {
+                    slot.item = it.getData("item") as InventoryItem
+                    game.globals.save!!.inventory.remove(it.getData("item") as InventoryItem)
+                }
+            }
+            initializeLoadoutRightSection(npcId)
+            stateMachine.revertToPreviousState()
+        }
     }
 
     private fun initializeAppearanceNpcs() {
@@ -676,25 +740,29 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 uiSystem.stage.addActor(uiSystem.mainTable)
                 uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
                 uiSystem.sEvent.dispatch(PauseEvent(true))
+                uiSystem.loadoutTable.remove()
             }
         },
         SHOWING_LOADOUT_MANAGEMENT() {
             override fun enter(uiSystem: GuildManagementUiSystem) {
-                uiSystem.stage.addActor(uiSystem.loadoutTable)
-                uiSystem.initializeLoadoutNpcs()
-            }
-
-            override fun exit(uiSystem: GuildManagementUiSystem) {
-                uiSystem.loadoutTable.remove()
+                if (uiSystem.loadoutTable.stage == null) {
+                    uiSystem.stage.addActor(uiSystem.loadoutTable)
+                    uiSystem.initializeLoadoutNpcs()
+                    uiSystem.stage.keyboardFocus = uiSystem.loadoutLeftList
+                }
             }
         },
         SHOWING_LOADOUT_INVENTORY() {
             override fun enter(uiSystem: GuildManagementUiSystem) {
                 uiSystem.stage.addActor(uiSystem.loadoutInventoryTable)
+                uiSystem.loadoutLeftList.lockMenu()
+                uiSystem.loadoutRightList.lockMenu()
             }
 
             override fun exit(uiSystem: GuildManagementUiSystem) {
                 uiSystem.loadoutInventoryTable.remove()
+                uiSystem.loadoutLeftList.unlockMenu()
+                uiSystem.loadoutRightList.unlockMenu()
             }
         },
         SHOWING_SQUADS() {

@@ -109,24 +109,34 @@ data class UnitInstance(
         var tp: Int,
         val resistances: Resistances,
         var weapon: InventoryItem.WeaponInstance?,
-        val inventory: MutableList<InventoryItem>,
+        val inventory: MutableList<InventorySlot>,
         val skills: MutableList<UnitSkill>) : DeepCopyable<UnitInstance> {
+
+    companion object {
+        const val DEFAULT_INVENTORY_SLOTS = 4
+    }
 
     constructor(schema: UnitSchema, nickname: String) : this(schema.name, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(),
-            null, mutableListOf(), mutableListOf())
+            null, generateInventorySlots(DEFAULT_INVENTORY_SLOTS), mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema)
             : this(schema.name, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(),
-            InventoryItem.WeaponInstance(weaponSchema.name, 1), mutableListOf(), mutableListOf())
+            InventoryItem.WeaponInstance(weaponSchema.name, 1), generateInventorySlots(DEFAULT_INVENTORY_SLOTS), mutableListOf())
 
     constructor(schema: UnitSchema, nickname: String, weaponSchema: WeaponSchema, skills: List<UnitSkill>)
             : this(schema.name, nickname, 1, 0, schema.expGiven, schema.baseStats.copy(),
             schema.baseStats.hpMax, schema.baseStats.tpMax, schema.resistances.copy(),
-            InventoryItem.WeaponInstance(weaponSchema.name, 1), mutableListOf(), skills.toMutableList())
+            InventoryItem.WeaponInstance(weaponSchema.name, 1), generateInventorySlots(DEFAULT_INVENTORY_SLOTS), skills.toMutableList())
 
     override fun deepCopy() = copy(weapon = weapon?.copy())
+}
+
+private fun generateInventorySlots(slots: Int): MutableList<InventorySlot> {
+    val inventory: MutableList<InventorySlot> = mutableListOf()
+    repeat(slots, { inventory.add(InventorySlot(null)) })
+    return inventory
 }
 
 data class Resistances(var fire: Resistance,
