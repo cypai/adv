@@ -23,6 +23,8 @@ class DrawableComponent : Component() {
     lateinit var drawable: Drawable
     var width: Float = 0f
     var height: Float = 0f
+    var depth: Int = 0
+    var centered = false
 }
 
 class ActorComponent : Component() {

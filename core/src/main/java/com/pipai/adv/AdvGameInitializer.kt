@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.index.*
+import com.pipai.adv.map.WorldMap
+import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
@@ -19,7 +21,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val mapTilesetList: MapTilesetList,
                           val textureManager: TextureManager,
                           val pccManager: PccManager,
-                          val animatedTilesetManager: AnimatedTilesetManager) {
+                          val animatedTilesetManager: AnimatedTilesetManager,
+                          val worldMap: WorldMap) {
 
     val shaderProgram: ShaderProgram
 
@@ -79,9 +82,17 @@ class AdvGameInitializer {
         val animatedUnitTilesets = schemaList.filter { it.tilesetMetadata is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata }
                 .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
         animatedTilesetManager.loadTextures(animatedUnitTilesets)
+        val worldMap = initializeWorldMap()
         return AdvGameGlobals(null, SaveManager(), schemaList,
                 weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
-                tilesetList, textureManager, pccManager, animatedTilesetManager)
+                tilesetList, textureManager, pccManager, animatedTilesetManager, worldMap)
+    }
+
+    private fun initializeWorldMap(): WorldMap {
+        val worldMap = WorldMap(mutableMapOf())
+        worldMap.villageLocations["Lagos Village"] = WorldMapLocation(200, 100)
+        worldMap.villageLocations["Lagos Forest"] = WorldMapLocation(100, 200)
+        return worldMap
     }
 
     private fun initializeSchemaList(): UnitSchemaIndex {

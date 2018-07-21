@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.domain.NpcList
+import com.pipai.adv.map.WorldMapLocation
 
 class AdvSave() {
 
@@ -18,6 +19,7 @@ class AdvSave() {
         gold = lines[5].toInt()
         inventory = mapper.readValue(lines[6])
         squads = mapper.readValue(lines[7])
+        squadLocations = mapper.readValue(lines[8])
     }
 
     companion object {
@@ -45,6 +47,9 @@ class AdvSave() {
         private set
 
     var squads: MutableMap<String, MutableList<Int>> = mutableMapOf()
+        private set
+
+    var squadLocations: MutableMap<String, WorldMapLocation> = mutableMapOf()
         private set
 
     init {
@@ -80,10 +85,14 @@ class AdvSave() {
     fun changeSquad(name: String, newName: String, npcIds: List<Int>) {
         squads.remove(name)
         squads[newName] = npcIds.toMutableList()
+        val previousLocation = squadLocations[name]!!
+        squadLocations.remove(name)
+        squadLocations[newName] = previousLocation
     }
 
     fun removeSquad(name: String) {
         squads.remove(name)
+        squadLocations.remove(name)
     }
 
     fun serialize(): String {
@@ -95,6 +104,7 @@ class AdvSave() {
                 .writerFor(object : TypeReference<List<InventoryItem>>() {})
                 .writeValueAsString(inventory)
         val squadLine = mapper.writeValueAsString(squads)
-        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine"
+        val squadLocationLine = mapper.writeValueAsString(squadLocations)
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine\n$squadLocationLine"
     }
 }

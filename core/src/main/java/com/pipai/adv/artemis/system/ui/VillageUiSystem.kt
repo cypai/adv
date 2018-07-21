@@ -8,6 +8,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.screens.MarketScreen
 import com.pipai.adv.artemis.screens.OrphanageScreen
+import com.pipai.adv.artemis.screens.WorldMapScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
 
 class VillageUiSystem(private val game: AdvGame,
@@ -79,6 +80,11 @@ class VillageUiSystem(private val game: AdvGame,
         val gateButton = TextButton("  Gate  ", skin)
         gateButton.x = config.resolution.width * 0.5f
         gateButton.y = config.resolution.height * 0.9f
+        gateButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                game.screen = WorldMapScreen(game)
+            }
+        })
         stage.addActor(gateButton)
     }
 }

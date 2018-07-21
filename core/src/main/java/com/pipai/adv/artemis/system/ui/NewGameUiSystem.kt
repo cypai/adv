@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
@@ -21,6 +20,7 @@ import com.pipai.adv.backend.battle.domain.UnitInstance
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
+import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.tiles.PccManager
@@ -204,7 +204,9 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val medicId = save.globalNpcList.addNpc(medicNpc)
         save.addToGuild(guildText.text, medicId)
 
-        save.setSquad("Squad 1", listOf(playerId, friendId, rivalId, knightId, medicId))
+        val squadName = "Squad 1"
+        save.setSquad(squadName, listOf(playerId, friendId, rivalId, knightId, medicId))
+        save.squadLocations[squadName] = game.globals.worldMap.villageLocations["Lagos Village"]!!
 
         return save
     }
