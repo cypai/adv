@@ -20,6 +20,7 @@ import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.StandardImageListItemView
+import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -31,6 +32,7 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val mSquad by mapper<SquadComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
+    private val mLines by mapper<LinesComponent>()
 
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
@@ -46,10 +48,12 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     private var selectedSquad: String? = null
     private var selectedSquadEntity: Int? = null
+    private val destinationEntityMap: MutableMap<String, Int> = mutableMapOf()
 
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
         createUi()
+        // TODO: init destinations
     }
 
     private fun createUi() {
@@ -115,8 +119,24 @@ class WorldMapUiSystem(private val game: AdvGame,
                     }
                 }
             }
+            Input.Buttons.RIGHT -> {
+                if (stateMachine.isInState(WorldMapUiState.SELECTED_SQUAD)) {
+                    setDestination(selectedSquad!!, WorldMapLocation(mouseX.toInt(), mouseY.toInt()))
+                }
+            }
         }
         return false
+    }
+
+    private fun setDestination(squad: String, location: WorldMapLocation) {
+        val save = game.globals.save!!
+        save.squadDestinations[squad] = location
+        val destinationEntity = destinationEntityMap[squad] ?: world.create()
+        destinationEntityMap[squad] = destinationEntity
+        val cLines = mLines.create(destinationEntity)
+        cLines.lines.clear()
+        val origin = save.squadLocations[squad]!!
+        cLines.lines.add(Pair(origin.toVector2(), location.toVector2()))
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false

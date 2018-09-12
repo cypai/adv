@@ -20,6 +20,7 @@ class AdvSave() {
         inventory = mapper.readValue(lines[6])
         squads = mapper.readValue(lines[7])
         squadLocations = mapper.readValue(lines[8])
+        squadDestinations = mapper.readValue(lines[9])
     }
 
     companion object {
@@ -50,6 +51,9 @@ class AdvSave() {
         private set
 
     var squadLocations: MutableMap<String, WorldMapLocation> = mutableMapOf()
+        private set
+
+    var squadDestinations: MutableMap<String, WorldMapLocation> = mutableMapOf()
         private set
 
     init {
@@ -88,11 +92,17 @@ class AdvSave() {
         val previousLocation = squadLocations[name]!!
         squadLocations.remove(name)
         squadLocations[newName] = previousLocation
+        val previousDestination = squadDestinations[name]
+        if (previousDestination != null) {
+            squadDestinations.remove(name)
+            squadDestinations[newName] = previousLocation
+        }
     }
 
     fun removeSquad(name: String) {
         squads.remove(name)
         squadLocations.remove(name)
+        squadDestinations.remove(name)
     }
 
     fun serialize(): String {
@@ -105,6 +115,7 @@ class AdvSave() {
                 .writeValueAsString(inventory)
         val squadLine = mapper.writeValueAsString(squads)
         val squadLocationLine = mapper.writeValueAsString(squadLocations)
-        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine\n$squadLocationLine"
+        val squadDestinationsLine = mapper.writeValueAsString(squadDestinations)
+        return "$playerGuild\n$guildsLine\n$npcListLine\n$classesLine\n$spLine\n$gold\n$inventoryLine\n$squadLine\n$squadLocationLine\n$squadDestinationsLine"
     }
 }
