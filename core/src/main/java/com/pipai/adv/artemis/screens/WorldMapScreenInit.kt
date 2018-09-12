@@ -9,6 +9,7 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.DrawableComponent
 import com.pipai.adv.artemis.components.OrthographicCameraComponent
+import com.pipai.adv.artemis.components.SquadComponent
 import com.pipai.adv.artemis.components.XYComponent
 
 @Wire
@@ -17,6 +18,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mDrawable: ComponentMapper<DrawableComponent>
+    private lateinit var mSquad: ComponentMapper<SquadComponent>
 
     private lateinit var sTags: TagManager
 
@@ -57,7 +59,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     }
 
     private fun initializeSquads() {
-        game.globals.save!!.squadLocations.forEach { _, worldMapLocation ->
+        game.globals.save!!.squadLocations.forEach { squad, worldMapLocation ->
             val entityId = world.create()
             val cXy = mXy.create(entityId)
             cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
@@ -67,6 +69,8 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             cDrawable.height = 7f
             cDrawable.depth = 1
             cDrawable.centered = true
+            val cSquad = mSquad.create(entityId)
+            cSquad.squad = squad
         }
     }
 

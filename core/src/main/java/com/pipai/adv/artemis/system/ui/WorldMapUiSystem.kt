@@ -1,6 +1,8 @@
 package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
+import com.artemis.managers.TagManager
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.fsm.StackStateMachine
@@ -13,15 +15,23 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.PauseEvent
+import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.StandardImageListItemView
-import com.pipai.adv.utils.system
+import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class WorldMapUiSystem(private val game: AdvGame,
                        private val stage: Stage) : BaseSystem(), InputProcessor {
 
+    private val mXy by mapper<XYComponent>()
+    private val mSquad by mapper<SquadComponent>()
+    private val mDrawable by mapper<DrawableComponent>()
+    private val mCamera by mapper<OrthographicCameraComponent>()
+
+    private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
 
     private val stateMachine = StackStateMachine<WorldMapUiSystem, WorldMapUiState>(this)
@@ -32,6 +42,8 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val mainTable = Table()
     private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val runTimeButton = TextButton("  Pass Time  ", skin)
+
+    private var selectedSquad: String? = null
 
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
@@ -78,7 +90,28 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     override fun keyTyped(character: Char) = false
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
+        val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
+        val mouseX = pickRay.origin.x
+        val mouseY = pickRay.origin.y
+        when (button) {
+            Input.Buttons.LEFT -> {
+                val squadEntities = world.fetch(allOf(SquadComponent::class, XYComponent::class, DrawableComponent::class))
+                for (squadEntity in squadEntities) {
+                    val cSquad = mSquad.get(squadEntity)
+                    val cXy = mXy.get(squadEntity)
+                    val cDrawable = mDrawable.get(squadEntity)
+                    val bounds = CollisionBounds.CollisionBoundingBox(cDrawable)
+                    if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
+                        stateMachine.changeState(WorldMapUiState.SELECTED_SQUAD)
+                        selectedSquad = cSquad.squad
+                    }
+                }
+            }
+        }
+        return false
+    }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
@@ -99,6 +132,10 @@ class WorldMapUiSystem(private val game: AdvGame,
             override fun enter(uiSystem: WorldMapUiSystem) {
                 uiSystem.stage.addActor(uiSystem.mainTable)
                 uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
+            }
+
+            override fun exit(uiSystem: WorldMapUiSystem) {
+                uiSystem.selectedSquad = null
             }
         },
         RUNNING_TIME() {
