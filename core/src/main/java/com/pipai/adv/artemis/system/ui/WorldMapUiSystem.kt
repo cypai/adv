@@ -20,6 +20,7 @@ import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.StandardImageListItemView
+import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -28,7 +29,7 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     private val mXy by mapper<XYComponent>()
     private val mSquad by mapper<SquadComponent>()
-    private val mDrawable by mapper<DrawableComponent>()
+    private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
 
     private val sTags by system<TagManager>()
@@ -44,6 +45,7 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val runTimeButton = TextButton("  Pass Time  ", skin)
 
     private var selectedSquad: String? = null
+    private var selectedSquadEntity: Int? = null
 
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
@@ -97,15 +99,19 @@ class WorldMapUiSystem(private val game: AdvGame,
         val mouseY = pickRay.origin.y
         when (button) {
             Input.Buttons.LEFT -> {
-                val squadEntities = world.fetch(allOf(SquadComponent::class, XYComponent::class, DrawableComponent::class))
+                val squadEntities = world.fetch(allOf(SquadComponent::class, XYComponent::class))
                 for (squadEntity in squadEntities) {
                     val cSquad = mSquad.get(squadEntity)
                     val cXy = mXy.get(squadEntity)
-                    val cDrawable = mDrawable.get(squadEntity)
-                    val bounds = CollisionBounds.CollisionBoundingBox(cDrawable)
+                    val bounds = CollisionBounds.CollisionBoundingBox(
+                            -PccManager.PCC_WIDTH / 2f, 0f,
+                            PccManager.PCC_WIDTH.toFloat(), PccManager.PCC_HEIGHT.toFloat())
                     if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
                         stateMachine.changeState(WorldMapUiState.SELECTED_SQUAD)
                         selectedSquad = cSquad.squad
+                        selectedSquadEntity = squadEntity
+                        val cAnimationFrames = mAnimationFrames.get(squadEntity)
+                        cAnimationFrames.tMax = 15
                     }
                 }
             }
@@ -136,6 +142,8 @@ class WorldMapUiSystem(private val game: AdvGame,
 
             override fun exit(uiSystem: WorldMapUiSystem) {
                 uiSystem.selectedSquad = null
+                uiSystem.mAnimationFrames.get(uiSystem.selectedSquadEntity!!).tMax = 60
+                uiSystem.selectedSquadEntity = null
             }
         },
         RUNNING_TIME() {

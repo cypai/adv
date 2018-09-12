@@ -7,10 +7,7 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Color
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.components.DrawableComponent
-import com.pipai.adv.artemis.components.OrthographicCameraComponent
-import com.pipai.adv.artemis.components.SquadComponent
-import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.components.*
 
 @Wire
 class WorldMapScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig) {
@@ -19,6 +16,8 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mDrawable: ComponentMapper<DrawableComponent>
     private lateinit var mSquad: ComponentMapper<SquadComponent>
+    private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
+    private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
 
     private lateinit var sTags: TagManager
 
@@ -52,6 +51,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
             val cDrawable = mDrawable.create(entityId)
             cDrawable.drawable = game.skin.newDrawable("white", Color.RED)
+            cDrawable.depth = -1
             cDrawable.width = 16f
             cDrawable.height = 16f
             cDrawable.centered = true
@@ -59,16 +59,19 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     }
 
     private fun initializeSquads() {
-        game.globals.save!!.squadLocations.forEach { squad, worldMapLocation ->
+        val save = game.globals.save!!
+        save.squadLocations.forEach { squad, worldMapLocation ->
             val entityId = world.create()
             val cXy = mXy.create(entityId)
             cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
-            val cDrawable = mDrawable.create(entityId)
-            cDrawable.drawable = game.skin.newDrawable("white", Color.CYAN)
-            cDrawable.width = 7f
-            cDrawable.height = 7f
-            cDrawable.depth = 1
-            cDrawable.centered = true
+            val squadLeader = save.squads[squad]!!.first()
+            val squadPcc = save.globalNpcList.getNpc(squadLeader)!!.tilesetMetadata
+            val cEnvObjTile = mEnvObjTile.create(entityId)
+            cEnvObjTile.tilesetMetadata = squadPcc
+            val cAnimationFrames = mAnimationFrames.create(entityId)
+            cAnimationFrames.frameMax = 3
+            cAnimationFrames.tMax = 60
+            cAnimationFrames.tStartNoise = 5
             val cSquad = mSquad.create(entityId)
             cSquad.squad = squad
         }
