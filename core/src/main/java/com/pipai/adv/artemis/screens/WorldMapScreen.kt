@@ -12,6 +12,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.misc.PassTimeMovementSystem
+import com.pipai.adv.artemis.system.misc.PathInterpolationSystem
+import com.pipai.adv.artemis.system.misc.XyInterpolationSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.rendering.WorldMapRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
@@ -32,7 +35,10 @@ class WorldMapScreen(game: AdvGame) : Screen {
                         GroupManager(),
                         EventSystem(),
 
+                        PassTimeMovementSystem(game),
                         AnimationFrameIncrementSystem(),
+                        PathInterpolationSystem(),
+                        XyInterpolationSystem(),
 
                         InputProcessingSystem())
                 .withPassive(-1,

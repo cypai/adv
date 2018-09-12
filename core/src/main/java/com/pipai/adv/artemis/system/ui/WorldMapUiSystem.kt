@@ -5,7 +5,7 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
-import com.badlogic.gdx.ai.fsm.StackStateMachine
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -18,6 +18,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.system.misc.PassTimeMovementSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.map.WorldMapLocation
@@ -33,11 +34,13 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mLines by mapper<LinesComponent>()
+    private val mPath by mapper<PathInterpolationComponent>()
 
     private val sTags by system<TagManager>()
     private val sEvent by system<EventSystem>()
+    private val sPassTimeMovement by system<PassTimeMovementSystem>()
 
-    private val stateMachine = StackStateMachine<WorldMapUiSystem, WorldMapUiState>(this)
+    private val stateMachine = DefaultStateMachine<WorldMapUiSystem, WorldMapUiState>(this)
 
     private val skin = game.skin
 
@@ -48,7 +51,6 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     private var selectedSquad: String? = null
     private var selectedSquadEntity: Int? = null
-    private val destinationEntityMap: MutableMap<String, Int> = mutableMapOf()
 
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
@@ -70,11 +72,17 @@ class WorldMapUiSystem(private val game: AdvGame,
 
         runTimeButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                if (stateMachine.isInState(WorldMapUiState.DISABLED)) {
-                    stateMachine.changeState(WorldMapUiState.RUNNING_TIME)
-                }
+                stateMachine.changeState(WorldMapUiState.RUNNING_TIME)
             }
         })
+    }
+
+    fun stopPassTime() {
+        val movingSquadEntities = world.fetch(allOf(SquadComponent::class, PathInterpolationComponent::class))
+        movingSquadEntities.forEach {
+            mPath.remove(it)
+        }
+        stateMachine.changeState(WorldMapUiState.DISABLED)
     }
 
     override fun processSystem() {
@@ -83,9 +91,16 @@ class WorldMapUiSystem(private val game: AdvGame,
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Keys.ESCAPE -> {
-                if (!stateMachine.isInState(WorldMapUiState.DISABLED)) {
-                    stateMachine.revertToPreviousState()
-                    return true
+                when (stateMachine.currentState) {
+                    WorldMapUiState.RUNNING_TIME -> {
+                        stopPassTime()
+                        stateMachine.changeState(WorldMapUiState.DISABLED)
+                    }
+                    WorldMapUiState.SELECTED_SQUAD -> {
+                        stateMachine.changeState(WorldMapUiState.DISABLED)
+                    }
+                    else -> {
+                    }
                 }
             }
         }
@@ -121,19 +136,17 @@ class WorldMapUiSystem(private val game: AdvGame,
             }
             Input.Buttons.RIGHT -> {
                 if (stateMachine.isInState(WorldMapUiState.SELECTED_SQUAD)) {
-                    setDestination(selectedSquad!!, WorldMapLocation(mouseX.toInt(), mouseY.toInt()))
+                    setDestination(selectedSquadEntity!!, selectedSquad!!, WorldMapLocation(mouseX.toInt(), mouseY.toInt()))
                 }
             }
         }
         return false
     }
 
-    private fun setDestination(squad: String, location: WorldMapLocation) {
+    private fun setDestination(entityId: Int, squad: String, location: WorldMapLocation) {
         val save = game.globals.save!!
         save.squadDestinations[squad] = location
-        val destinationEntity = destinationEntityMap[squad] ?: world.create()
-        destinationEntityMap[squad] = destinationEntity
-        val cLines = mLines.create(destinationEntity)
+        val cLines = mLines.create(entityId)
         cLines.lines.clear()
         val origin = save.squadLocations[squad]!!
         cLines.lines.add(Pair(origin.toVector2(), location.toVector2()))
@@ -168,6 +181,11 @@ class WorldMapUiSystem(private val game: AdvGame,
         },
         RUNNING_TIME() {
             override fun enter(uiSystem: WorldMapUiSystem) {
+                uiSystem.sPassTimeMovement.isEnabled = true
+            }
+
+            override fun exit(uiSystem: WorldMapUiSystem) {
+                uiSystem.sPassTimeMovement.isEnabled = false
             }
         };
 
