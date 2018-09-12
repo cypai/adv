@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.rendering.WorldMapRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
+import com.pipai.adv.artemis.system.ui.WorldMapUiSystem
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class WorldMapScreen(game: AdvGame) : Screen {
@@ -38,12 +39,14 @@ class WorldMapScreen(game: AdvGame) : Screen {
                         WorldMapRenderingSystem(game))
                 .withPassive(-2,
                         FpsRenderingSystem(game.batchHelper),
+                        WorldMapUiSystem(game, stage),
                         MainTextboxUiSystem(game))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(WorldMapUiSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 
