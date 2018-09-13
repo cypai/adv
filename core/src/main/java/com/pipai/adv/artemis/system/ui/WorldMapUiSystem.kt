@@ -30,7 +30,9 @@ class WorldMapUiSystem(private val game: AdvGame,
                        private val stage: Stage) : BaseSystem(), InputProcessor {
 
     private val mXy by mapper<XYComponent>()
+    private val mPoi by mapper<PointOfInterestComponent>()
     private val mSquad by mapper<SquadComponent>()
+    private val mDrawable by mapper<DrawableComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mLines by mapper<LinesComponent>()
@@ -131,6 +133,20 @@ class WorldMapUiSystem(private val game: AdvGame,
                         selectedSquadEntity = squadEntity
                         val cAnimationFrames = mAnimationFrames.get(squadEntity)
                         cAnimationFrames.tMax = 15
+                        return true
+                    }
+                }
+
+                val poiEntities = world.fetch(allOf(PointOfInterestComponent::class, XYComponent::class, DrawableComponent::class))
+                for (poiEntity in poiEntities) {
+                    val cPoi = mPoi.get(poiEntity)
+                    val cXy = mXy.get(poiEntity)
+                    val cDrawable = mDrawable.get(poiEntity)
+                    val bounds = CollisionBounds.CollisionBoundingBox(cDrawable.width, cDrawable.height, cDrawable.centered)
+                    if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
+                        val screen = cPoi.screenCallback()
+                        game.screen = screen
+                        return true
                     }
                 }
             }

@@ -16,6 +16,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     private lateinit var mXy: ComponentMapper<XYComponent>
     private lateinit var mDrawable: ComponentMapper<DrawableComponent>
     private lateinit var mSquad: ComponentMapper<SquadComponent>
+    private lateinit var mPoi: ComponentMapper<PointOfInterestComponent>
     private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
 
@@ -45,16 +46,19 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
 
     private fun initializePointsOfInterest() {
         val worldMap = game.globals.worldMap
-        worldMap.villageLocations.forEach { _, worldMapLocation ->
+        worldMap.villageLocations.forEach { village, worldMapLocation ->
             val entityId = world.create()
             val cXy = mXy.create(entityId)
             cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
             val cDrawable = mDrawable.create(entityId)
             cDrawable.drawable = game.skin.newDrawable("white", Color.RED)
             cDrawable.depth = -1
-            cDrawable.width = 16f
-            cDrawable.height = 16f
+            cDrawable.width = 24f
+            cDrawable.height = 24f
             cDrawable.centered = true
+            val cPoi = mPoi.create(entityId)
+            cPoi.name = village
+            cPoi.screenCallback = { VillageScreen(game) }
         }
     }
 
