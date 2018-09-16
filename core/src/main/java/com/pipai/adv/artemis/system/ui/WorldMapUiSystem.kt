@@ -33,6 +33,7 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val mPoi by mapper<PointOfInterestComponent>()
     private val mSquad by mapper<SquadComponent>()
     private val mDrawable by mapper<DrawableComponent>()
+    private val mText by mapper<TextComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mLines by mapper<LinesComponent>()
@@ -172,7 +173,26 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
 
-    override fun mouseMoved(screenX: Int, screenY: Int) = false
+    override fun mouseMoved(screenX: Int, screenY: Int) : Boolean {
+        val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
+        val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
+        val mouseX = pickRay.origin.x
+        val mouseY = pickRay.origin.y
+        val poiEntities = world.fetch(allOf(PointOfInterestComponent::class, XYComponent::class, DrawableComponent::class))
+        for (poiEntity in poiEntities) {
+            val cPoi = mPoi.get(poiEntity)
+            val cXy = mXy.get(poiEntity)
+            val cDrawable = mDrawable.get(poiEntity)
+            val bounds = CollisionBounds.CollisionBoundingBox(cDrawable.width, cDrawable.height, cDrawable.centered)
+            if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
+                val cText = mText.create(poiEntity)
+                cText.text = cPoi.name
+            } else {
+                mText.remove(poiEntity)
+            }
+        }
+        return false
+    }
 
     override fun scrolled(amount: Int): Boolean = false
 

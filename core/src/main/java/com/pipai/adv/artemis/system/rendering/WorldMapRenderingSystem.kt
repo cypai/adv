@@ -3,6 +3,7 @@ package com.pipai.adv.artemis.system.rendering
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
@@ -22,11 +23,14 @@ class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf
     private val mXy by mapper<XYComponent>()
     private val mDrawable by mapper<DrawableComponent>()
     private val mLines by mapper<LinesComponent>()
+    private val mText by mapper<TextComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mTileDescriptor by mapper<TileDescriptorComponent>()
 
     private val sTags by system<TagManager>()
+
+    private val glayout = GlyphLayout()
 
     override fun process(entityId: Int) {
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
@@ -40,6 +44,7 @@ class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf
         batch.spr.begin()
         batch.spr.color = Color.WHITE
         renderEverything()
+        renderText()
         batch.spr.end()
     }
 
@@ -129,6 +134,18 @@ class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf
             cDrawable.drawable.draw(batch.spr, cXy.x - cDrawable.width / 2, cXy.y - cDrawable.height / 2, cDrawable.width, cDrawable.height)
         } else {
             cDrawable.drawable.draw(batch.spr, cXy.x, cXy.y, cDrawable.width, cDrawable.height)
+        }
+    }
+
+    private fun renderText() {
+        val entities = world.fetch(allOf(TextComponent::class, XYComponent::class))
+        entities.forEach { id ->
+            val cXy = mXy.get(id)
+            val cText = mText.get(id)
+            val drawable = game.skin.newDrawable("white", Color.DARK_GRAY)
+            glayout.setText(batch.smallFont, cText.text)
+            drawable.draw(batch.spr, cXy.x, cXy.y, glayout.width + 12, glayout.height + 12)
+            batch.smallFont.draw(batch.spr, cText.text, cXy.x + 6, cXy.y + 6 + glayout.height)
         }
     }
 
