@@ -1,13 +1,13 @@
 package com.pipai.adv.map
 
-import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
-import com.pipai.adv.backend.battle.generators.OpenBattleMapGenerator
-import com.pipai.adv.index.WeaponSchemaIndex
+import com.pipai.adv.backend.battle.generators.OpenTerrainGenerator
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.domain.NpcList
+import com.pipai.adv.index.UnitSchemaIndex
+import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
@@ -37,7 +37,7 @@ class GuildMapGenerator : MapGenerator {
 class TestMapGenerator : MapGenerator {
 
     override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
-        val generator = OpenBattleMapGenerator()
+        val generator = OpenTerrainGenerator()
         val map = generator.generate(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)

@@ -19,6 +19,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.domain.NpcList
+import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
 
@@ -102,7 +103,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         val cInteraction = mInteraction.create(signId)
         cInteraction.interactionList.add(TextInteraction("Going to test map."))
         val squad = game.globals.save!!.squads.values.first()
-        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game, squad) }))
+        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game, squad, TestMapGenerator()) }))
     }
 
     private fun addGuildManagementSign() {

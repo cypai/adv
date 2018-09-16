@@ -17,11 +17,11 @@ import com.pipai.adv.utils.RNG
 
 internal val EXIT = Exit()
 
-interface BattleMapGenerator {
+interface TerrainGenerator {
     fun generate(width: Int, height: Int): BattleMap
 }
 
-class ParcelBattleMapGenerator : BattleMapGenerator {
+class ParcelTerrainGenerator : TerrainGenerator {
     override fun generate(width: Int, height: Int): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
         val mapParcel = MapParcel.Factory.readMapParcel(LocalFileHandleResolver(), "assets/binassets/maps/parcel1.tmx")
@@ -46,7 +46,7 @@ class ParcelBattleMapGenerator : BattleMapGenerator {
     }
 }
 
-class OpenBattleMapGenerator : BattleMapGenerator {
+class OpenTerrainGenerator : TerrainGenerator {
 
     var trees: Int = 50
     var rocks: Int = 0

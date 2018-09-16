@@ -9,5 +9,5 @@ class SquadComponent : Component() {
 
 class PointOfInterestComponent : Component() {
     lateinit var name: String
-    lateinit var screenCallback: () -> Screen
+    lateinit var screenCallback: (List<Int>) -> Screen
 }

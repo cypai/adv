@@ -4,10 +4,12 @@ import com.artemis.ComponentMapper
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
+import com.pipai.adv.map.TestMapGenerator
 
 @Wire
 class WorldMapScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig) {
@@ -58,7 +60,14 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             cDrawable.centered = true
             val cPoi = mPoi.create(entityId)
             cPoi.name = village
-            cPoi.screenCallback = { VillageScreen(game) }
+            cPoi.screenCallback = poiScreenForName(village)
+        }
+    }
+
+    private fun poiScreenForName(name: String): (List<Int>) -> Screen {
+        return when (name) {
+            "Lagos Forest" -> { party -> BattleMapScreen(game, party, TestMapGenerator()) }
+            else -> { _ -> VillageScreen(game) }
         }
     }
 

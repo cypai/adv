@@ -3,14 +3,13 @@ package com.pipai.adv.backend.battle.generators
 import org.junit.Assert
 import org.junit.Test
 
-import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.utils.*
 
-class OpenBattleMapGeneratorTest {
+class OpenTerrainGeneratorTest {
 
     @Test
     fun testOpenBattleMapGeneration() {
-        val generator = OpenBattleMapGenerator()
+        val generator = OpenTerrainGenerator()
         generator.rocks = 1
         generator.trees = 2
 

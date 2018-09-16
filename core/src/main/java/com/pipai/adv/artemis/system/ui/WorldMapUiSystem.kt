@@ -145,9 +145,16 @@ class WorldMapUiSystem(private val game: AdvGame,
                     val cDrawable = mDrawable.get(poiEntity)
                     val bounds = CollisionBounds.CollisionBoundingBox(cDrawable.width, cDrawable.height, cDrawable.centered)
                     if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
-                        val screen = cPoi.screenCallback()
-                        game.screen = screen
-                        return true
+                        val closeSquad = squadEntities.find { squad ->
+                            val cSquadXy = mXy.get(squad)
+                            MathUtils.distance2(cXy.x, cXy.y, cSquadXy.x, cSquadXy.y) < 100
+                        }
+                        if (closeSquad != null) {
+                            val cSquad = mSquad.get(closeSquad)
+                            val screen = cPoi.screenCallback(game.globals.save!!.squads[cSquad.squad]!!)
+                            game.screen = screen
+                            return true
+                        }
                     }
                 }
             }
