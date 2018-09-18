@@ -306,9 +306,18 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         }
     }
 
+    fun setConfirmed(item: T) {
+        if (!lockSelection) {
+            setSelected(item)
+            confirmedSelection = items.indexOf(item)
+            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
+        }
+    }
+
     fun setConfirmIndex(index: Int) {
         if (!lockSelection) {
             setSelectedIndex(index)
+            confirmedSelection = index
             confirmCallbacks.forEach { it.invoke(getSelected()!!) }
         }
     }

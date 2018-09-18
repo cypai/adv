@@ -630,7 +630,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
                 })
 
         leftColumn.clearConfirmCallbacks()
-        leftColumn.addConfirmCallback { initializeSkillAssignmentList() }
+        leftColumn.addConfirmCallback { initializeSkillAssignmentList(it) }
         leftColumn.clearSelection()
         rightColumn.clearItems()
         rightColumn.clearSelection()
@@ -638,9 +638,9 @@ class GuildManagementUiSystem(private val game: AdvGame,
         descriptionLable.setText("")
     }
 
-    private fun initializeSkillAssignmentList() {
+    private fun initializeSkillAssignmentList(selected: StringMenuItem) {
         val save = game.globals.save!!
-        val selectedNpcId = leftColumn.getSelected()!!.getData("npcId") as Int
+        val selectedNpcId = selected.getData("npcId") as Int
 
         val theClass = ClassTreeInitializer(game.globals.skillIndex).generateTree(selectedNpcId, save)
         val availableSkills = theClass.getSkillMap()
@@ -685,8 +685,8 @@ class GuildManagementUiSystem(private val game: AdvGame,
         npc.unitInstance.skills.add(skill)
         game.globals.save!!.sp[npcId] = game.globals.save!!.sp[npcId]!! - 1
         initializeSkillAssignmentNpcs()
-        leftColumn.setSelected(leftColumn.items.find { it.getData("npcId") == npcId }!!)
-        initializeSkillAssignmentList()
+        leftColumn.setConfirmed(leftColumn.items.find { it.getData("npcId") == npcId }!!)
+        initializeSkillAssignmentList(leftColumn.getSelected()!!)
     }
 
     override fun processSystem() {
