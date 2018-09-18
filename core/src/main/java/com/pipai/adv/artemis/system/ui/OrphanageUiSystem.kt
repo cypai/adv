@@ -162,7 +162,6 @@ class OrphanageUiSystem(private val game: AdvGame,
         leftColumn.setItems(recruits.map {
             StringMenuItem("Orphan", null, "").withData("pcc", it)
         })
-        leftColumn.setConfirmIndex(0)
         doubleColumnTable.validate()
     }
 
