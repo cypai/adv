@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
+import com.pipai.adv.backend.progression.ProgressionBackend
 import com.pipai.adv.index.*
 import com.pipai.adv.map.WorldMap
 import com.pipai.adv.map.WorldMapLocation
@@ -12,6 +13,7 @@ import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
 
 data class AdvGameGlobals(var save: AdvSave?,
+                          val progressionBackend: ProgressionBackend,
                           val saveManager: SaveManager,
                           val unitSchemaIndex: UnitSchemaIndex,
                           val weaponSchemaIndex: WeaponSchemaIndex,
@@ -83,7 +85,7 @@ class AdvGameInitializer {
                 .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
         animatedTilesetManager.loadTextures(animatedUnitTilesets)
         val worldMap = initializeWorldMap()
-        return AdvGameGlobals(null, SaveManager(), schemaList,
+        return AdvGameGlobals(null, ProgressionBackend(), SaveManager(), schemaList,
                 weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
                 tilesetList, textureManager, pccManager, animatedTilesetManager, worldMap)
     }

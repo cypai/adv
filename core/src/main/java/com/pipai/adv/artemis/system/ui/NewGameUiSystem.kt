@@ -208,6 +208,8 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         save.setSquad(squadName, listOf(playerId, friendId, rivalId, knightId, medicId))
         save.squadLocations[squadName] = game.globals.worldMap.villageLocations["Lagos Village"]!!
 
+        game.globals.progressionBackend.scheduleEvents(save)
+
         return save
     }
 
