@@ -1,2 +1,3 @@
 name,type,value,description
 Potion,CONSUMABLE,50,Heals some HP.
+D-Rank Guild Card,MISC,0,Certifies your guild as D-Rank.

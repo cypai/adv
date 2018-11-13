@@ -5,7 +5,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.domain.NpcList
-import com.pipai.adv.domain.Quest
 import com.pipai.adv.map.WorldMapLocation
 
 class AdvSave() {
@@ -24,6 +23,7 @@ class AdvSave() {
         squadDestinations = mapper.readValue(lines[9])
         availableQuests = mapper.readValue(lines[10])
         activeQuests = mapper.readValue(lines[11])
+        finishedQuests = mapper.readValue(lines[12])
     }
 
     companion object {
@@ -59,10 +59,13 @@ class AdvSave() {
     var squadDestinations: MutableMap<String, WorldMapLocation> = mutableMapOf()
         private set
 
-    var availableQuests: MutableList<Quest> = mutableListOf()
+    var availableQuests: MutableList<String> = mutableListOf()
         private set
 
-    var activeQuests: MutableList<Quest> = mutableListOf()
+    var activeQuests: MutableList<String> = mutableListOf()
+        private set
+
+    var finishedQuests: MutableList<String> = mutableListOf()
         private set
 
     init {
@@ -127,6 +130,7 @@ class AdvSave() {
         val squadDestinationsLine = mapper.writeValueAsString(squadDestinations)
         val availableQuestsLine = mapper.writeValueAsString(availableQuests)
         val activeQuestsLine = mapper.writeValueAsString(activeQuests)
+        val finishedQuestsLine = mapper.writeValueAsString(finishedQuests)
         return "$playerGuild\n" +
                 "$guildsLine\n" +
                 "$npcListLine\n" +
@@ -138,6 +142,7 @@ class AdvSave() {
                 "$squadLocationLine\n" +
                 "$squadDestinationsLine\n" +
                 "$availableQuestsLine\n" +
-                "$activeQuestsLine\n"
+                "$activeQuestsLine\n" +
+                "$finishedQuestsLine\n"
     }
 }
