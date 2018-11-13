@@ -16,6 +16,7 @@ import com.pipai.adv.backend.battle.engine.commands.MoveCommandFactory
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
 import com.pipai.adv.backend.battle.engine.commands.WaitCommand
 import com.pipai.adv.backend.battle.utils.BattleUtils
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.utils.GridUtils
 import com.pipai.adv.utils.RNG
 import com.pipai.adv.utils.getLogger
@@ -40,7 +41,7 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
 
     fun generateCommand(): BattleCommand {
         stateMachine.update()
-        val npc = backend.getNpc(npcId)!!
+        val npc = getNpc()
         logger.debug("${npc.unitInstance.nickname} AI state: ${stateMachine.currentState}")
         val command = when (stateMachine.currentState) {
             SimpleAiState.WANDERING -> generateWanderingCommand()
@@ -52,6 +53,12 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
         logger.debug("AI chose command $command")
         return command
     }
+
+    fun updateAiState() {
+        stateMachine.update()
+    }
+
+    private fun getNpc(): Npc = backend.getNpc(npcId)!!
 
     private fun generateWanderingCommand(): BattleCommand {
         return if (backend.getNpcAp(npcId) == ActionPointState.startingNumAPs) {
@@ -141,6 +148,7 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
             override fun update(entity: SimpleAi) {
                 val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isNotEmpty()) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} has become aggressive!")
                     entity.stateMachine.changeState(ATTACKING)
                 }
             }
@@ -149,6 +157,7 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
             override fun update(entity: SimpleAi) {
                 val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isNotEmpty()) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} has become aggressive!")
                     entity.stateMachine.changeState(ATTACKING)
                 }
             }
@@ -157,9 +166,11 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
             override fun update(entity: SimpleAi) {
                 val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isEmpty()) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} is now on alert!")
                     entity.stateMachine.changeState(ALERT)
                 }
                 if (entity.backend.getNpc(entity.npcId)!!.unitInstance.hp <= 20) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} turns to flee!")
                     entity.stateMachine.changeState(FLEEING)
                 }
             }
@@ -168,11 +179,13 @@ class SimpleAi(private val globals: AdvGameGlobals, private val backend: BattleB
             override fun update(entity: SimpleAi) {
                 val enemiesInRange = BattleUtils.enemiesInRange(entity.npcId, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (enemiesInRange.isEmpty()) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} has stopped fleeing and is now on alert!")
                     entity.stateMachine.changeState(ALERT)
                 }
                 val position = entity.backend.getNpcPosition(entity.npcId)!!
                 val nearbyTeammates = BattleUtils.teammatesInRange(entity.npcId, position, entity.backend, BattleBackend.VISIBLE_DISTANCE2)
                 if (nearbyTeammates.isNotEmpty()) {
+                    entity.logger.debug("${entity.getNpc().unitInstance.nickname} has found reinforcements and is now aggressive!")
                     entity.stateMachine.changeState(ATTACKING)
                 }
             }

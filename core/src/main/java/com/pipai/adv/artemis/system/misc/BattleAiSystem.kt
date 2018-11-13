@@ -62,10 +62,12 @@ class BattleAiSystem(private val globals: AdvGameGlobals) : NoProcessingSystem()
             sEvent.dispatch(EndTurnEvent(Team.AI))
             active = false
         } else {
-            val events = backend.execute(unitAi[npcId]!!.generateCommand())
+            val ai = unitAi[npcId]!!
+            val events = backend.execute(ai.generateCommand())
             if (backend.getNpcAp(npcId) == 0) {
                 unitsToMove.removeAt(0)
             }
+            ai.updateAiState()
             sBattleAnimation.processBattleEvents(events)
         }
     }

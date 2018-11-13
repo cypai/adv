@@ -50,7 +50,7 @@ object BattleUtils {
         potentialTargetIds.forEach {
             val targetPosition = backend.getNpcPosition(it)!!
             val distance2 = GridUtils.gridDistance2(position, targetPosition)
-            if (distance2 < range2) {
+            if (distance2 <= range2) {
                 enemiesInRange.add(it)
             }
         }
@@ -69,7 +69,7 @@ object BattleUtils {
         potentialTeammateIds.forEach {
             val teammatePosition = backend.getNpcPosition(it)!!
             val distance2 = GridUtils.gridDistance2(position, teammatePosition)
-            if (distance2 < maxRange2) {
+            if (distance2 <= maxRange2) {
                 teammatesInRange.add(it)
             }
         }
