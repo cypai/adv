@@ -6,23 +6,33 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.domain.Cutscene
+import com.pipai.adv.domain.CutsceneLine
+import com.pipai.adv.domain.CutsceneLineType
+import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.getSystemSafe
 import com.pipai.adv.utils.system
 
 class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : NoProcessingSystem(), InputProcessor {
 
+    private val logger = getLogger()
+
     private val sMainTextbox by system<MainTextboxUiSystem>()
 
-    var scene: List<String>? = null
-        private set
+    private var scene: String = "start"
     private var currentIndex: Int = 0
+    private var currentLine: CutsceneLine? = null
+
+    private val variables: MutableMap<String, String> = mutableMapOf()
 
     override fun keyDown(keycode: Int): Boolean {
         if (isEnabled) {
             if (keycode == Keys.Z) {
-                if (sMainTextbox.isDone()) {
-                } else {
-                    sMainTextbox.showFullText()
+                if (currentLine?.text != null) {
+                    if (sMainTextbox.isDone()) {
+                        finishLine()
+                    } else {
+                        sMainTextbox.showFullText()
+                    }
                 }
             }
         }
@@ -30,22 +40,85 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
     }
 
     fun showScene(sceneName: String) {
+        variables.clear()
         currentIndex = 0
+        scene = sceneName
+        if (scene in cutscene.scenes) {
+            performLine(cutscene.scenes[scene]!![0])
+        }
     }
 
-    private fun performLine(line: String) {
-
+    private fun performLine(line: CutsceneLine) {
+        currentLine = line
+        when (line.type) {
+            CutsceneLineType.TEXT -> {
+                showText(line.text!!)
+            }
+            CutsceneLineType.COMMAND -> {
+                runCommand(line.command!!, line.args!!)
+            }
+        }
     }
 
     private fun showText(text: String) {
         disableSystems()
-        sMainTextbox.setToText(text)
+        sMainTextbox.setToText(interpolateText(text))
         sMainTextbox.isEnabled = true
     }
 
-    private fun finishText() {
+    private fun interpolateText(text: String): String {
+        var interpolatedText = text.replace("\$player", game.globals.save!!.globalNpcList.getNpc(0)!!.unitInstance.nickname)
+        variables.forEach { variable, value -> interpolatedText = interpolatedText.replace("\$$variable", value) }
+        return interpolatedText
+    }
+
+    private fun runCommand(command: String, args: List<String>) {
+        when (command) {
+            "bg" -> {
+                // Change background somehow
+                finishLine() // This will probably be moved somewhere else
+            }
+            "exit" -> {
+                enableSystems()
+                sMainTextbox.isEnabled = false
+            }
+            "jmp" -> {
+                currentIndex = -1
+                scene = args[0]
+                finishLine()
+            }
+            "saveedit" -> {
+                when (args[0]) {
+                    "guildname" -> {
+                        game.globals.save!!.changePlayerGuildName(interpolateText(args[1]))
+                    }
+                    else -> logger.warn("Unsupported saveedit command ${args[0]}")
+                }
+                finishLine()
+            }
+            "set" -> {
+                variables[args[0]] = args[1]
+                finishLine()
+            }
+            "textinput" -> {
+                variables[args[0]] = "Moriya"
+                finishLine()
+            }
+            else -> logger.warn("Unsupported command $command")
+        }
+    }
+
+    private fun finishLine() {
         enableSystems()
         sMainTextbox.isEnabled = false
+        nextLine()
+    }
+
+    private fun nextLine() {
+        currentIndex++
+        if (currentIndex < cutscene.scenes[scene]!!.size) {
+            performLine(cutscene.scenes[scene]!![currentIndex])
+        }
     }
 
     private fun disableSystems() {

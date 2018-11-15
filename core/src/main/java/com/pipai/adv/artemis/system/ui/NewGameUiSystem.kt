@@ -134,7 +134,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
             val save = generateSave(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex)
             game.globals.loadSave(save)
             game.globals.autoSave()
-            game.screen = CutsceneScreen(game, CutsceneUtils.loadCutscene(Gdx.files.internal("assets/data/cutscenes/opening.txt")))
+            game.screen = CutsceneScreen(game, CutsceneUtils.loadCutscene(Gdx.files.internal("assets/data/cutscenes/opening.txt")), "intro")
             dispose()
         } else {
             stage.keyDown(keycode)

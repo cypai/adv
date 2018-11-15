@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.input.InteractionInputSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.domain.Cutscene
@@ -34,7 +34,7 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
                         EventSystem(),
 
                         AnimationFrameIncrementSystem(),
-                        InteractionInputSystem(game, this, game.advConfig),
+                        CutsceneInputSystem(game, cutscene),
 
                         InputProcessingSystem())
                 .withPassive(-1,
@@ -45,11 +45,14 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CutsceneInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 
         StandardScreenInit(world, game, game.advConfig)
                 .initialize()
+
+        world.getSystem(CutsceneInputSystem::class.java)?.showScene(scene)
     }
 
     override fun render(delta: Float) {
