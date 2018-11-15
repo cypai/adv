@@ -1,6 +1,7 @@
 package com.pipai.adv.artemis.system.ui
 
 import com.artemis.BaseSystem
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Color
@@ -12,11 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.screens.GuildScreen
+import com.pipai.adv.artemis.screens.CutsceneScreen
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.domain.UnitInstance
+import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.gui.PccCustomizer
 import com.pipai.adv.gui.PccPreview
@@ -132,7 +134,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
             val save = generateSave(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex)
             game.globals.loadSave(save)
             game.globals.autoSave()
-            game.screen = GuildScreen(game)
+            game.screen = CutsceneScreen(game, CutsceneUtils.loadCutscene(Gdx.files.internal("assets/data/cutscenes/opening.txt")))
             dispose()
         } else {
             stage.keyDown(keycode)

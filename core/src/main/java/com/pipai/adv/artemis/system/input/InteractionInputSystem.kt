@@ -74,7 +74,7 @@ class InteractionInputSystem(private val game: AdvGame,
         }
     }
 
-    private fun startInteractions(interactions: List<Interaction>) {
+    fun startInteractions(interactions: List<Interaction>) {
         currentInteractions.addAll(interactions)
         handleInteraction(interactions.first())
     }

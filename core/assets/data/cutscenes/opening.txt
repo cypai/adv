@@ -1,0 +1,50 @@
+# The intro cutscene
+
+@intro
+!bg townhall
+Mayor|As you are no doubt aware, our fair village of Lagos has been on hard times.
+Mayor|Bandits are raiding, Slimes wreck our farms, and who knows what else is out there, scheming to prey upon us.
+Mayor|And although many villages have their own guards and guilds to keep the peace, we have none.
+Mayor|I have called everyone here today to decide who to volunteer to protect our village.
+|...
+Farmer Guy|Not it.
+Farmer Girl|Not it.
+Shopkeeper|Not me either.
+Alchemist|I nominate $player! Without a job, an education, or parents, $player is a perfect candidate!
+$player|... What?
+Farmer Guy|Sounds good to me!
+$player|Hold on, don't I get a say in this?
+Mayor|Sure. All in favor say aye!
+Shopkeeper|Aye
+Farmer Girl|Aye
+Mayor|Aye
+$player|... Nay?
+Mayor|Welp, majority wins. Congratulations, $player. Here's some cash, go to the Guild Hall to turn in your application.
+
+@guildhall
+!bg guildhall
+Guild Associate|Hello there. What are you here for today?
+$player|... Ah, I'm here to create a new guild?
+Guild Associate|Ah, splendid! Please submit your application and resume, and we’ll get you started.
+$player|I need a resume?
+Guild Associate|Ahaha, just messing with you, kid!
+Guild Associate|No one who starts a guild has a resume worth anything anyways! Just write down your name and what you want to guild to be called, and we’ll get started.
+!textinput guildname "What is your guild's name?"
+!saveedit guildname $guildname
+Guild Associate|Perfect, $guildname, is it? I’ll have it registered as a new D-Rank Guild, as soon as you demonstrate that you can accomplish some simple tasks.
+Guild Associate|Quite frankly, there’s a lot of people that just assume that registering a guild means that they can go slay dragons or whatever… so we have some standards nowadays.
+Guild Associate|All you have to do is enter the nearby forest and bring back the key item in the chest near the back of the first area.
+$player|That sounds simple enough.
+Guild Associate|You’d think that, but if you want to survive, I highly recommend you not go by yourself. Wouldn’t want our new payche-, I mean, guild, to become defunct on the first day, y’know?
+$player|Alright, how would you recruit new members?
+Guild Associate|I dunno, that’s your problem, yeah? Maybe just go to the local orphanage and recruit some impressionable kids, hahaha!
+$player|Ugh...
+
+@villagesquare
+!bg village
+Mayor|Ah, excellent! I see you have registered your guild already.
+Mayor|I have some good news for you.
+Mayor|I took out a loan in your name so that your new guild can have a place to be!
+Mayor|Don’t worry about the size of the loan, I’m sure that you’ll do good work and pay it back!
+$player|Wait, what?!
+Mayor|Anyways, the village is relying on you! Good luck!

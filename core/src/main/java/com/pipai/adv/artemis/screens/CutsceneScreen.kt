@@ -7,24 +7,25 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
-import com.pipai.adv.artemis.system.input.ExitInputProcessor
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.rendering.PccRenderingSystem
-import com.pipai.adv.artemis.system.ui.NewGameUiSystem
-import com.pipai.adv.utils.getLogger
+import com.pipai.adv.artemis.system.input.InteractionInputSystem
+import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
+import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
+import com.pipai.adv.domain.Cutscene
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class NewGameScreen(game: AdvGame) : Screen {
+class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen {
 
-    private val logger = getLogger()
+    private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
     private val world: World
 
     init {
-        logger.debug("Starting NewGameScreen")
-
+        cutscene.prettyPrint()
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
@@ -32,30 +33,33 @@ class NewGameScreen(game: AdvGame) : Screen {
                         GroupManager(),
                         EventSystem(),
 
-                        NewGameUiSystem(game),
-                        InputProcessingSystem(),
-                        AnimationFrameIncrementSystem())
-                .withPassive(-2,
-                        PccRenderingSystem(game.batchHelper, game.globals, game.advConfig, game.globals.pccManager))
+                        AnimationFrameIncrementSystem(),
+                        InteractionInputSystem(game, this, game.advConfig),
+
+                        InputProcessingSystem())
+                .withPassive(-1,
+                        FpsRenderingSystem(game.batchHelper),
+                        MainTextboxUiSystem(game))
                 .build()
 
         world = World(config)
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
-        inputProcessor.addAlwaysOnProcessor(ExitInputProcessor())
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java))
-        inputProcessor.addAlwaysOnProcessor(world.getSystem(NewGameUiSystem::class.java).stage)
+        inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 
-        StandardScreenInit(world, game, game.advConfig).initialize()
+        StandardScreenInit(world, game, game.advConfig)
+                .initialize()
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClearColor(0f, 1f, 0.1f, 1f)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
         world.process()
+        stage.act()
+        stage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -75,5 +79,6 @@ class NewGameScreen(game: AdvGame) : Screen {
 
     override fun dispose() {
         world.dispose()
+        stage.dispose()
     }
 }
