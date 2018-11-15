@@ -20,31 +20,196 @@ Farmer Girl|Aye
 Mayor|Aye
 $player|... Nay?
 Mayor|Welp, majority wins. Congratulations, $player. Here's some cash, go to the Guild Hall to turn in your application.
+!jmp guildHall1
 
-@guildhall
+@guildHall1
 !bg guildhall
 Guild Associate|Hello there. What are you here for today?
 $player|... Ah, I'm here to create a new guild?
-Guild Associate|Ah, splendid! Please submit your application and resume, and we’ll get you started.
+Guild Associate|Ah, splendid! Please submit your application and resume, and we'll get you started.
 $player|I need a resume?
 Guild Associate|Ahaha, just messing with you, kid!
-Guild Associate|No one who starts a guild has a resume worth anything anyways! Just write down your name and what you want to guild to be called, and we’ll get started.
+Guild Associate|No one who starts a guild has a resume worth anything anyways! Just write down your name and what you want to guild to be called, and we'll get started.
 !textinput guildname "What is your guild's name?"
 !saveedit guildname $guildname
-Guild Associate|Perfect, $guildname, is it? I’ll have it registered as a new D-Rank Guild, as soon as you demonstrate that you can accomplish some simple tasks.
-Guild Associate|Quite frankly, there’s a lot of people that just assume that registering a guild means that they can go slay dragons or whatever… so we have some standards nowadays.
+Guild Associate|Perfect, $guildname, is it? I'll have it registered as a new D-Rank Guild, as soon as you demonstrate that you can accomplish some simple tasks.
+Guild Associate|Quite frankly, there's a lot of people that just assume that registering a guild means that they can go slay dragons or whatever… so we have some standards nowadays.
 Guild Associate|All you have to do is enter the nearby forest and bring back the key item in the chest near the back of the first area.
 $player|That sounds simple enough.
-Guild Associate|You’d think that, but if you want to survive, I highly recommend you not go by yourself. Wouldn’t want our new payche-, I mean, guild, to become defunct on the first day, y’know?
+Guild Associate|You'd think that, but if you want to survive, I highly recommend you not go by yourself. Wouldn't want our new payche-, I mean, guild, to become defunct on the first day, y'know?
 $player|Alright, how would you recruit new members?
-Guild Associate|I dunno, that’s your problem, yeah? Maybe just go to the local orphanage and recruit some impressionable kids, hahaha!
+Guild Associate|I dunno, that's your problem, yeah? Maybe just go to the local orphanage and recruit some impressionable kids, hahaha!
 $player|Ugh...
+!jmp villageSquare
 
-@villagesquare
+@villageSquare
 !bg village
 Mayor|Ah, excellent! I see you have registered your guild already.
 Mayor|I have some good news for you.
-Mayor|I took out a loan in your name so that your new guild can have a place to be!
-Mayor|Don’t worry about the size of the loan, I’m sure that you’ll do good work and pay it back!
+Mayor|I took out a loan in your name so that your new guild can have a place to stay!
+Mayor|Don't worry about the size of the loan, I'm sure that you'll do good work and pay it back!
 $player|Wait, what?!
 Mayor|Anyways, the village is relying on you! Good luck!
+!screen GuildScreen
+
+@firstImpressions
+$player|...
+$player|(It's... just an empty plot of grass...)
+$player|(Ugh, that stupid mayor! Though I suppose it's not all bad, since I technically own a piece of land now.)
+Tutorial|Welcome to your Guild Headquarters!
+Tutorial|It's not much to look at right now, but you can still manage your guild members, change names, and more by using the signpost in the middle of your square plot of land.
+Tutorial|If you don't want to just camp outdoors all year, I'd suggest paying off your loan...
+Tutorial|Feel free to walk around for now.
+
+@pub
+Bart|Hey there, $player! What are you in for today?
+$player|Well, you see, I was "volunteered" to start up a new guild, and now I need some members.
+Bart|Ah, so you're the unlucky one that the mayor managed to pick out.
+Bart|Well, I'll do what I can, but I doubt that the experienced mercenaries around here are willing to join someone so new.
+Bart|Don't you have some friends back at the orphanage that might be willing to help you out?
+$player|(I can't believe I'm actually taking that Guild Associate's idea seriously...)
+Tutorial|This is the Pub. You can technically recruit new members here, but at the moment, it is quite unlikely for you to succeed...
+
+@pubBartChat
+$player|I just realized something. Your name is Bart! And you're a bartender!
+Bart|Yes, you're definitely the first person to notice. Nice observation, Sherlock. Would you like a drink?
+
+@orphanage
+Orphelia|Oh, welcome back, $player! I heard you were recruited for the mayor's new job. Congratulations!
+$player|...
+Orphelia|Oh, turn that frown upside-down. Now you have a place to live!
+$player|Sure... Anyways, I need members for my guild, so maybe, just maybe, I could borrow some of the others?
+Orphelia|Oh, certainly! And, you may borrow them permanently if you wish!
+Tutorial|This is the Orphanage. You can recruit complete rookies here!
+Tutorial|Today is free, but later on, you will need to pay a processing fee.
+
+@orphanageOrpheliaChat
+$player|I just realized something. Isn't your name a misspelling of Ophelia?
+Orphelia|Oh, is it? I've always been Orphelia, though.
+$player|I feel like someone is laughing at us somewhere...
+
+@guildHall2
+Guild Associate|Ah, welcome back!
+!ifjmp $squadSize == 1 guildAssociateDisapproval
+!jmp guildAssociateApproval
+
+@guildAssociateApproval
+Guild Associate|I see you have a real party! Excellent!
+!ifshow $squadSize == 2 "Guild Associate|It's a little small, but it'll do."
+!jmp guildHall3
+
+@guildAssociateDisapproval
+Guild Associate|I see you don't yet have any other members. I still recommend finding others to watch your back out there, but it's your funeral.
+!jmp guildHall3
+
+@guildHall3
+Guild Associate|Like I mentioned before, in order to be certified as a Rank D Guild, you will need to first complete a task.
+Guild Associate|You will need to enter the Lagos Forest and bring back the key item at the back of the first area.
+Guild Associate|There's no need to stick around to try to eliminate all the monsters, but you can do so if you want to.
+Guild Associate|Before you head out, I'd also recommend you obtain a few items from the Market. But you can also head straight to the forest if you exit through the Gate.
+Guild Associate|Good luck!
+!quest accept"Guild Exam: D"
+
+@guildHallNotFinishedChat
+Guild Associate|Not done yet? Please come back when you're finished!
+
+@guildHallFinished
+Guild Associate|Ah, I see you've returned!
+!ifshow $squadHealth == PERFECT "Guild Associate|Impressive, you've even done so without any injuries! You have potential, greenhorn!"
+!ifshow $squadHealth == BAD "Guild Associate|You don't look so good there, though. I'm guessing you ran into some difficulties?"
+!ifshow $squadHealth == BAD "$player|I don't want to talk about it."
+Guild Associate|Anyways, congratulations on being certified as a Rank D Guild. That item you have there is your proof!
+Guild Associate|Now that you're registered, I'd also like to introduce you to our special, Guild Hall-sponsored classes!
+Guild Associate|Stabbing rats and stuff works around here, but if you want to pick a fight with dragons, you better pick some classes!
+Guild Associate|I'd suggest taking a quick look. And it's free for registered guilds!
+Guild Associate|We also provide contracts and quests with difficulty ratings tailored to your level, as well as special deals with medical care and rare items!
+$player|That... actually sounds decent.
+Guild Associate|Yep! And now for the bad news. To receive all of these benefits, you will need to pay us a monthly fee.
+$player|...
+Guild Associate|No worries, though! Our pricing is guaranteed to stay affordable!
+Guild Associate|As you increase your certification and guild size, the fee will increase, but we will also provide greater benefits.
+Guild Associate|At S Rank, your guild will be among the most experienced and will join the ranks of other famous guilds known across Radista!
+Guild Associate|But if you fail to pay us, well, you will be blacklisted to the F Ranks.
+$player|F Rank?
+Guild Associate|Yep! You'll still be able to take quests at your normal ranking, but we will take a cut of the quest rewards until your debt is paid.
+Guild Associate|Anyways, that should be everything. Feel free to take a look at quest postings and whatever, and have a good day!
+
+@guildHallTutorial
+Tutorial|Now that the main bit is over, let's go over the other functions of the Guild Hall!
+Tutorial|You can increase your ranking and guild size at the Registration.
+Tutorial|Doing so may require a fee and other requirements, however.
+Tutorial|The Guild Hall will post quests available in the Quest Postings.
+Tutorial|You will not be able to take quests above your current rank, so make sure to increase your ranking!
+Tutorial|Also, make sure you pay attention to the due date and conditions. It wouldn't do to become infamous...
+Tutorial|You can also fast-travel to faraway places from the Teleporter, but at a price.
+
+@mayorStart
+!bg village
+Mayor|Ah, excellent! You've completed your registration. Come with me.
+!bg townhall
+Mayor|Now that you're a registered guild, we have some tasks for you.
+Mayor|As the primary guild responsible for our village, you will be required to defend us from brigands and other unscrupulous individuals.
+Mayor|You'll be paid, of course, but also, if you're not around, you won't be able to defend us if one does occur!
+Mayor|Then they'll sack the place, and we'll be upset, and you'll become infamous, etc. etc...
+Mayor|So don't wander too far from the village. Not without posting someone as guard, anyways.
+Mayor|Lastly, we also have other requests for help from the villagers. We'll keep them posted here. In fact, we already have some ready!
+Mayor|We'll be expecting great things from you!
+
+@rabbitExterminationAccept
+Mayor|Ah yes. One of the farmers here has a problem with rabbits eating all his stuff.
+$leader|Huh. That doesn't sound too bad.
+Mayor|Anyways, go talk to the farmer in the village square, he'll have the information.
+!quest accept "Rabbit Extermination" start
+
+@rabbitExterminationInfo
+Farmer Guy|Hey, I see you took my request!
+Farmer Guy|Anyways, there are rabbits eating all my stuff! They're crazy!
+$leader|Alright.
+Farmer Guy|Be careful out there!
+$leader|What. Why?
+Farmer Guy|They're no ordinary rabbits! They're killers!
+$leader|wat.
+Farmer Guy|They can leap about!
+$leader|Alright, alright, we'll be careful.
+!quest updatestage "Rabbit Extermination" extermination
+
+@rabbitExterminationBattleStart
+$leader|Let's finish this up. Wipe out all the bunny rabbits!
+!ifshow $squadSize > 1 "$squadMember2|$leader, are you sure? That guy seemed pre-tty scared."
+!ifshow $squadSize > 1 "$leader|What's a rabbit gonna do, nibble my feet? Charge!"
+
+@catRescueAccept
+Mayor|Ah yes, one of the local girls, Calico, lost her cat. You should go find it for her!
+$leader|What a humiliating request...
+!quest accept "Calico Cat Rescue" start
+
+@catRescueInfo
+Calico|Hellooo...?
+$leader|Hey, we're here about your cat...
+Calico|Oooh. Yay! I last saw Mr. Whiskers out by the Gate. Maybe he left the village?
+$squadRandomName|That doesn't sound good... Alright, let's go search.
+!quest updatestage "Calico Cat Rescue" rescue
+
+@catRescueBattle1
+$squadMember2|Hey, isn't that Mr. Whiskers over there?
+$squadMember3|Yeah, it is. Good thing he's napping. Let's go there, grab him, and get out.
+
+@catEscape1
+$squadMember4|Mr. Whiskers woke up! He's getting away!
+$squadMember5|Let's run after him!
+
+@catRescueBattle2
+$leader|There he is. After that kitty!
+
+@catEscape2
+$squadMember3|Ugh, he saw us...
+$squadMember4|Not again...
+
+@catRescueBattle3
+$squadMember2|Um, looks like Mr. Whiskers is trapped on that tree.
+$squadMember4|How do we get him down?
+$leader|How's this plan: We attack the tree, Mr. Runs-a-lot falls down, we grab him, and then we go home.
+
+@catRescueBattleFinished
+$leader|That took way longer than necessary...
+!quest updatestage "Calico Cat Rescue" report

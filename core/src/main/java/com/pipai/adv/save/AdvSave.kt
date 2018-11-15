@@ -62,7 +62,7 @@ class AdvSave() {
     var availableQuests: MutableList<String> = mutableListOf()
         private set
 
-    var activeQuests: MutableList<String> = mutableListOf()
+    var activeQuests: MutableMap<String, String> = mutableMapOf()
         private set
 
     var finishedQuests: MutableList<String> = mutableListOf()
