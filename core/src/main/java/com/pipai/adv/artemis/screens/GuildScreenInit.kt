@@ -85,10 +85,9 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
 
         addInteractionObjects()
 
-        if (!game.globals.save!!.activeQuests.containsKey("Guild Exam: D")
-                && !game.globals.save!!.finishedQuests.contains("Guild Exam: D")) {
-
+        if (!game.globals.save!!.variables.containsKey("guildScreenTutorial")) {
             sCutsceneInputSystem.showScene("firstImpressions")
+            game.globals.save!!.variables["guildScreenTutorial"] = "1"
         }
     }
 

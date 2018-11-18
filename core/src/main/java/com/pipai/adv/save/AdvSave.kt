@@ -24,6 +24,7 @@ class AdvSave() {
         availableQuests = mapper.readValue(lines[10])
         activeQuests = mapper.readValue(lines[11])
         finishedQuests = mapper.readValue(lines[12])
+        variables = mapper.readValue(lines[13])
     }
 
     companion object {
@@ -66,6 +67,9 @@ class AdvSave() {
         private set
 
     var finishedQuests: MutableList<String> = mutableListOf()
+        private set
+
+    var variables: MutableMap<String, String> = mutableMapOf()
         private set
 
     init {
@@ -131,6 +135,7 @@ class AdvSave() {
         val availableQuestsLine = mapper.writeValueAsString(availableQuests)
         val activeQuestsLine = mapper.writeValueAsString(activeQuests)
         val finishedQuestsLine = mapper.writeValueAsString(finishedQuests)
+        val variablesLine = mapper.writeValueAsString(variables)
         return "$playerGuild\n" +
                 "$guildsLine\n" +
                 "$npcListLine\n" +
@@ -143,6 +148,7 @@ class AdvSave() {
                 "$squadDestinationsLine\n" +
                 "$availableQuestsLine\n" +
                 "$activeQuestsLine\n" +
-                "$finishedQuestsLine\n"
+                "$finishedQuestsLine\n" +
+                "$variablesLine\n"
     }
 }
