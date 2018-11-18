@@ -118,7 +118,7 @@ Guild Associate|You will need to enter the Lagos Forest and bring back the key i
 Guild Associate|There's no need to stick around to try to eliminate all the monsters, but you can do so if you want to.
 Guild Associate|Before you head out, I'd also recommend you obtain a few items from the Market. But you can also head straight to the forest if you exit through the Gate.
 Guild Associate|Good luck!
-!quest accept"Guild Exam: D"
+!quest accept "Guild Exam: D"
 
 @guildHallNotFinishedChat
 Guild Associate|Not done yet? Please come back when you're finished!

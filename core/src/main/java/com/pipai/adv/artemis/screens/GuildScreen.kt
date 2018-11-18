@@ -12,18 +12,17 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.collision.NpcCollisionSystem
-import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
-import com.pipai.adv.artemis.system.input.InputProcessingSystem
-import com.pipai.adv.artemis.system.input.InteractionInputSystem
-import com.pipai.adv.artemis.system.input.ZoomInputSystem
+import com.pipai.adv.artemis.system.input.*
 import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.misc.ExitToVillageSystem
 import com.pipai.adv.artemis.system.misc.PartialTextUpdateSystem
+import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.GuildManagementUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
+import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.map.GuildMapGenerator
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -62,12 +61,14 @@ class GuildScreen(game: AdvGame) : Screen {
                         InteractionInputSystem(game, this, game.advConfig),
                         PartialTextUpdateSystem(),
                         NpcCollisionSystem(),
-                        ExitToVillageSystem(game))
+                        ExitToVillageSystem(game),
+                        CutsceneInputSystem(game, CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))))
                 .withPassive(-1,
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,
                         BattleMapRenderingSystem(game, mapTileset, false))
                 .withPassive(-3,
+                        BackgroundRenderingSystem(game),
                         GuildManagementUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game),
@@ -82,6 +83,7 @@ class GuildScreen(game: AdvGame) : Screen {
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(InteractionInputSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CutsceneInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
         inputProcessor.activateInput()
 

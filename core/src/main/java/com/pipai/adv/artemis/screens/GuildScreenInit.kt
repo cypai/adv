@@ -10,6 +10,7 @@ import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
 import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
 import com.pipai.adv.artemis.components.Interaction.TextInteraction
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.ui.GuildManagementUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
@@ -42,6 +43,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
     private lateinit var mTileDescriptor: ComponentMapper<TileDescriptorComponent>
 
     private lateinit var sGuildManagement: GuildManagementUiSystem
+    private lateinit var sCutsceneInputSystem: CutsceneInputSystem
 
     private lateinit var sTags: TagManager
 
@@ -82,6 +84,12 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         }
 
         addInteractionObjects()
+
+        if (!game.globals.save!!.activeQuests.containsKey("Guild Exam: D")
+                && !game.globals.save!!.finishedQuests.contains("Guild Exam: D")) {
+
+            sCutsceneInputSystem.showScene("firstImpressions")
+        }
     }
 
     private fun addInteractionObjects() {
