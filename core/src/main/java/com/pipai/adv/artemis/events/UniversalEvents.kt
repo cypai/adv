@@ -6,3 +6,5 @@ import net.mostlyoriginal.api.event.common.Event
 data class ScreenResolutionChangeEvent(val resolution: ScreenResolution) : Event
 
 data class PauseEvent(val isPaused: Boolean) : Event
+
+class BackgroundFadeFinishedEvent : Event

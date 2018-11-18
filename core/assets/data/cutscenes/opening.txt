@@ -2,6 +2,7 @@
 
 @intro
 !bg townhall
+!bgfade in 30
 Mayor|As you are no doubt aware, our fair village of Lagos has been on hard times.
 Mayor|Bandits are raiding, Slimes wreck our farms, and who knows what else is out there, scheming to prey upon us.
 Mayor|And although many villages have their own guards and guilds to keep the peace, we have none.
@@ -20,10 +21,12 @@ Farmer Girl|Aye
 Mayor|Aye
 $player|... Nay?
 Mayor|Welp, majority wins. Congratulations, $player. Here's some cash, go to the Guild Hall to turn in your application.
+!bgfade out 15
 !jmp guildHall1
 
 @guildHall1
 !bg guildhall
+!bgfade in 15
 Guild Associate|Hello there. What are you here for today?
 $player|... Ah, I'm here to create a new guild?
 Guild Associate|Ah, splendid! Please submit your application and resume, and we'll get you started.

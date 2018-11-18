@@ -3,7 +3,10 @@ package com.pipai.adv.artemis.system.input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.events.BackgroundFadeFinishedEvent
+import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.domain.Cutscene
 import com.pipai.adv.domain.CutsceneLine
@@ -11,11 +14,13 @@ import com.pipai.adv.domain.CutsceneLineType
 import com.pipai.adv.utils.getLogger
 import com.pipai.adv.utils.getSystemSafe
 import com.pipai.adv.utils.system
+import net.mostlyoriginal.api.event.common.Subscribe
 
-class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : NoProcessingSystem(), InputProcessor {
+class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutscene) : NoProcessingSystem(), InputProcessor {
 
     private val logger = getLogger()
 
+    private val sBackgroundRenderingSystem by system<BackgroundRenderingSystem>()
     private val sMainTextbox by system<MainTextboxUiSystem>()
 
     private var scene: String = "start"
@@ -23,21 +28,6 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
     private var currentLine: CutsceneLine? = null
 
     private val variables: MutableMap<String, String> = mutableMapOf()
-
-    override fun keyDown(keycode: Int): Boolean {
-        if (isEnabled) {
-            if (keycode == Keys.Z) {
-                if (currentLine?.text != null) {
-                    if (sMainTextbox.isDone()) {
-                        finishLine()
-                    } else {
-                        sMainTextbox.showFullText()
-                    }
-                }
-            }
-        }
-        return false
-    }
 
     fun showScene(sceneName: String, initVariables: Map<String, String>) {
         variables.clear()
@@ -94,32 +84,38 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
     private fun runCommand(command: String, args: List<String>) {
         when (command) {
             "bg" -> {
-                // Change background somehow
-                finishLine() // This will probably be moved somewhere else
+                sBackgroundRenderingSystem.changeBackground(args[0])
+                finishCutsceneLine()
+            }
+            "bgfade" -> {
+                when (args[0]) {
+                    "in" -> sBackgroundRenderingSystem.fadeIn(Integer.valueOf(args[1]))
+                    "out" -> sBackgroundRenderingSystem.fadeOut(Integer.valueOf(args[1]))
+                }
             }
             "exit" -> {
                 enableSystems()
                 sMainTextbox.isEnabled = false
             }
             "ifjmp" -> {
-                if (checkCondition(interpolateText(args[1]), args[2], interpolateText(args[3]))) {
+                if (checkCondition(interpolateText(args[0]), args[1], interpolateText(args[2]))) {
                     currentIndex = -1
                     scene = args[0]
                 }
-                finishLine()
+                finishCutsceneLine()
             }
             "ifshow" -> {
-                if (checkCondition(interpolateText(args[1]), args[2], interpolateText(args[3]))) {
-                    val lineSplit = args[4].split('|')
+                if (checkCondition(interpolateText(args[0]), args[1], interpolateText(args[2]))) {
+                    val lineSplit = args[3].split('|')
                     showText(lineSplit[1])
                 } else {
-                    finishLine()
+                    finishCutsceneLine()
                 }
             }
             "jmp" -> {
                 currentIndex = -1
                 scene = args[0]
-                finishLine()
+                finishCutsceneLine()
             }
             "quest" -> {
                 when (args[0]) {
@@ -143,15 +139,20 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
                     }
                     else -> logger.warn("Unsupported saveedit command ${args[0]}")
                 }
-                finishLine()
+                finishCutsceneLine()
+            }
+            "screen" -> {
+                when (args[0]) {
+                    "GuildScreen" -> game.screen = GuildScreen(game)
+                }
             }
             "set" -> {
                 variables[args[0]] = args[1]
-                finishLine()
+                finishCutsceneLine()
             }
             "textinput" -> {
                 variables[args[0]] = "Moriya"
-                finishLine()
+                finishCutsceneLine()
             }
             else -> logger.warn("Unsupported command $command")
         }
@@ -169,7 +170,7 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
         }
     }
 
-    private fun finishLine() {
+    fun finishCutsceneLine() {
         enableSystems()
         sMainTextbox.isEnabled = false
         nextLine()
@@ -188,6 +189,28 @@ class CutsceneInputSystem(private val game: AdvGame, var cutscene: Cutscene) : N
 
     private fun enableSystems() {
         world.getSystemSafe(CharacterMovementInputSystem::class.java)?.enable()
+    }
+
+    @Subscribe
+    fun handleBackgroundFadeFinished(event: BackgroundFadeFinishedEvent) {
+        if (currentLine?.command == "bgfade") {
+            finishCutsceneLine()
+        }
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        if (isEnabled) {
+            if (keycode == Keys.Z) {
+                if (currentLine?.text != null) {
+                    if (sMainTextbox.isDone()) {
+                        finishCutsceneLine()
+                    } else {
+                        sMainTextbox.showFullText()
+                    }
+                }
+            }
+        }
+        return false
     }
 
     override fun keyUp(keycode: Int): Boolean = false

@@ -13,6 +13,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.domain.Cutscene
@@ -38,6 +39,8 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
 
                         InputProcessingSystem())
                 .withPassive(-1,
+                        BackgroundRenderingSystem(game))
+                .withPassive(-2,
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game))
                 .build()
@@ -56,7 +59,7 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0f, 1f, 0.1f, 1f)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.setDelta(delta)
