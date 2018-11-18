@@ -80,6 +80,15 @@ class MainTextboxUiSystem(private val game: AdvGame) : BaseSystem() {
         fullText = text
     }
 
+    fun setToText(speaker: String, text: String) {
+        if (speaker.isBlank()) {
+            setToText(text)
+        } else {
+            this.text = "$speaker: "
+            fullText = "$speaker: $text"
+        }
+    }
+
     fun showFullText() {
         text = fullText
     }

@@ -48,7 +48,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
         currentLine = line
         when (line.type) {
             CutsceneLineType.TEXT -> {
-                showText(line.text!!)
+                showText(line.speaker ?: "", line.text!!)
             }
             CutsceneLineType.COMMAND -> {
                 runCommand(line.command!!, line.args!!)
@@ -56,9 +56,9 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
         }
     }
 
-    private fun showText(text: String) {
+    private fun showText(speaker: String, text: String) {
         disableSystems()
-        sMainTextbox.setToText(interpolateText(text))
+        sMainTextbox.setToText(interpolateText(speaker), interpolateText(text))
         sMainTextbox.isEnabled = true
     }
 
@@ -107,7 +107,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
             "ifshow" -> {
                 if (checkCondition(interpolateText(args[0]), args[1], interpolateText(args[2]))) {
                     val lineSplit = args[3].split('|')
-                    showText(lineSplit[1])
+                    showText(lineSplit[0], lineSplit[1])
                 } else {
                     finishCutsceneLine()
                 }
