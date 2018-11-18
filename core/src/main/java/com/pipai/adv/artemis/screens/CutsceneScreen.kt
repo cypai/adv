@@ -26,7 +26,6 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
     private val world: World
 
     init {
-        cutscene.prettyPrint()
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
