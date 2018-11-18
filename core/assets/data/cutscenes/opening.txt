@@ -2,7 +2,7 @@
 
 @intro
 !bg townhall
-!bgfade in 30
+!bgfade in 60
 Mayor|As you are no doubt aware, our fair village of Lagos has been on hard times.
 Mayor|Bandits are raiding, Slimes wreck our farms, and who knows what else is out there, scheming to prey upon us.
 Mayor|And although many villages have their own guards and guilds to keep the peace, we have none.
@@ -21,41 +21,45 @@ Farmer Girl|Aye
 Mayor|Aye
 $player|... Nay?
 Mayor|Welp, majority wins. Congratulations, $player. Here's some cash, go to the Guild Hall to turn in your application.
-!bgfade out 15
+!bgfade out 30
 !jmp guildHall1
 
 @guildHall1
 !bg guildhall
-!bgfade in 15
+!bgfade in 30
 Guild Associate|Hello there. What are you here for today?
 $player|... Ah, I'm here to create a new guild?
 Guild Associate|Ah, splendid! Please submit your application and resume, and we'll get you started.
 $player|I need a resume?
 Guild Associate|Ahaha, just messing with you, kid!
-Guild Associate|No one who starts a guild has a resume worth anything anyways! Just write down your name and what you want to guild to be called, and we'll get started.
+Guild Associate|No one who starts a guild has a resume worth anything anyways! Just write down your name and what you want your guild to be called, and we'll get started.
 !textinput guildname "What is your guild's name?"
 !saveedit guildname $guildname
 Guild Associate|Perfect, $guildname, is it? I'll have it registered as a new D-Rank Guild, as soon as you demonstrate that you can accomplish some simple tasks.
-Guild Associate|Quite frankly, there's a lot of people that just assume that registering a guild means that they can go slay dragons or whatever… so we have some standards nowadays.
+Guild Associate|Quite frankly, there's a lot of people that just assume that registering a guild means that they can go slay dragons or whatever... so we have some standards nowadays.
 Guild Associate|All you have to do is enter the nearby forest and bring back the key item in the chest near the back of the first area.
 $player|That sounds simple enough.
 Guild Associate|You'd think that, but if you want to survive, I highly recommend you not go by yourself. Wouldn't want our new payche-, I mean, guild, to become defunct on the first day, y'know?
 $player|Alright, how would you recruit new members?
 Guild Associate|I dunno, that's your problem, yeah? Maybe just go to the local orphanage and recruit some impressionable kids, hahaha!
 $player|Ugh...
+!bgfade out 30
 !jmp villageSquare
 
 @villageSquare
 !bg village
+!bgfade in 30
 Mayor|Ah, excellent! I see you have registered your guild already.
 Mayor|I have some good news for you.
 Mayor|I took out a loan in your name so that your new guild can have a place to stay!
 Mayor|Don't worry about the size of the loan, I'm sure that you'll do good work and pay it back!
 $player|Wait, what?!
 Mayor|Anyways, the village is relying on you! Good luck!
+!bgfade out 30
 !screen GuildScreen
 
 @firstImpressions
+!bgfade in 30
 $player|...
 $player|(It's... just an empty plot of grass...)
 $player|(Ugh, that stupid mayor! Though I suppose it's not all bad, since I technically own a piece of land now.)
@@ -65,6 +69,7 @@ Tutorial|If you don't want to just camp outdoors all year, I'd suggest paying of
 Tutorial|Feel free to walk around for now.
 
 @pub
+!bgfade in 30
 Bart|Hey there, $player! What are you in for today?
 $player|Well, you see, I was "volunteered" to start up a new guild, and now I need some members.
 Bart|Ah, so you're the unlucky one that the mayor managed to pick out.
@@ -78,6 +83,7 @@ $player|I just realized something. Your name is Bart! And you're a bartender!
 Bart|Yes, you're definitely the first person to notice. Nice observation, Sherlock. Would you like a drink?
 
 @orphanage
+!bgfade in 30
 Orphelia|Oh, welcome back, $player! I heard you were recruited for the mayor's new job. Congratulations!
 $player|...
 Orphelia|Oh, turn that frown upside-down. Now you have a place to live!
@@ -92,6 +98,7 @@ Orphelia|Oh, is it? I've always been Orphelia, though.
 $player|I feel like someone is laughing at us somewhere...
 
 @guildHall2
+!bgfade in 30
 Guild Associate|Ah, welcome back!
 !ifjmp $squadSize == 1 guildAssociateDisapproval
 !jmp guildAssociateApproval
@@ -117,6 +124,7 @@ Guild Associate|Good luck!
 Guild Associate|Not done yet? Please come back when you're finished!
 
 @guildHallFinished
+!bgfade in 30
 Guild Associate|Ah, I see you've returned!
 !ifshow $squadHealth == PERFECT "Guild Associate|Impressive, you've even done so without any injuries! You have potential, greenhorn!"
 !ifshow $squadHealth == BAD "Guild Associate|You don't look so good there, though. I'm guessing you ran into some difficulties?"
