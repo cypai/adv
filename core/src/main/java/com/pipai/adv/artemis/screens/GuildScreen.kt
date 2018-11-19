@@ -62,7 +62,7 @@ class GuildScreen(game: AdvGame) : Screen {
                         PartialTextUpdateSystem(),
                         NpcCollisionSystem(),
                         ExitToVillageSystem(game),
-                        CutsceneInputSystem(game, CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))))
+                        CutsceneInputSystem(game))
                 .withPassive(-1,
                         CameraFollowSystem(game.advConfig))
                 .withPassive(-2,
@@ -86,6 +86,8 @@ class GuildScreen(game: AdvGame) : Screen {
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CutsceneInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(PauseUiSystem::class.java))
         inputProcessor.activateInput()
+
+        world.getSystem(CutsceneInputSystem::class.java)?.cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
 
         GuildScreenInit(world, game, game.advConfig, npcList, map)
                 .initialize()

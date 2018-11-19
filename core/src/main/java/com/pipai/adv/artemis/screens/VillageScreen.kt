@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
@@ -34,7 +35,8 @@ class VillageScreen(game: AdvGame) : Screen {
 
                         AnimationFrameIncrementSystem(),
 
-                        InputProcessingSystem())
+                        InputProcessingSystem(),
+                        CutsceneInputSystem(game))
                 .withPassive(-1,
                         VillageUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),

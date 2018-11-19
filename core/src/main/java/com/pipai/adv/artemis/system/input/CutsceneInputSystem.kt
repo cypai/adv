@@ -17,7 +17,7 @@ import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutscene) : NoProcessingSystem(), InputProcessor {
+class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), InputProcessor {
 
     private val logger = getLogger()
 
@@ -32,6 +32,8 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
 
     private val variables: MutableMap<String, String> = mutableMapOf()
 
+    var cutscene: Cutscene = Cutscene(mapOf())
+
     fun showScene(sceneName: String, initVariables: Map<String, String>) {
         sEvent.dispatch(CutsceneEvent(true))
         variables.clear()
@@ -41,7 +43,6 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
         if (scene in cutscene.scenes) {
             performLine(cutscene.scenes[scene]!![0])
         }
-
     }
 
     fun showScene(sceneName: String) {

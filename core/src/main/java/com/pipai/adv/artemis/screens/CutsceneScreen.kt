@@ -34,7 +34,7 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
                         EventSystem(),
 
                         AnimationFrameIncrementSystem(),
-                        CutsceneInputSystem(game, cutscene),
+                        CutsceneInputSystem(game),
 
                         InputProcessingSystem())
                 .withPassive(-1,
@@ -54,6 +54,7 @@ class CutsceneScreen(game: AdvGame, cutscene: Cutscene, scene: String) : Screen 
         StandardScreenInit(world, game, game.advConfig)
                 .initialize()
 
+        world.getSystem(CutsceneInputSystem::class.java)?.cutscene = cutscene
         world.getSystem(CutsceneInputSystem::class.java)?.showScene(scene)
     }
 
