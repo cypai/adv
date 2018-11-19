@@ -109,22 +109,27 @@ class AdvGameInitializer {
         schemaList.addSchema("Human", UnitStats(50, 20, 10, 10, 10, 10, 10, 0, 10),
                 Resistances(),
                 0,
+                listOf(),
                 EnvObjTilesetMetadata.NONE)
         schemaList.addSchema("Brown Rat", UnitStats(60, 10, 8, 7, 10, 5, 5, 5, 12),
                 Resistances().copy(blind = Resistance.WEAK, head = Resistance.WEAK),
                 10,
+                listOf("Super Fang"),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("brown_rat.png"))
         schemaList.addSchema("Black Butterfly", UnitStats(35, 30, 5, 5, 20, 15, 5, 15, 12),
                 Resistances().copy(lightning = Resistance.WEAK, poison = Resistance.WEAK, blind = Resistance.RESIST),
                 12,
+                listOf("Blind Buzz"),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("black_butterfly.png"))
         schemaList.addSchema("Killer Rabbit", UnitStats(80, 10, 12, 10, 12, 5, 5, 0, 14),
                 Resistances().copy(ice = Resistance.WEAK, leg = Resistance.WEAK),
                 17,
+                listOf("Rush", "Leap About", "Hyper Fang"),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("rabbit.png"))
         schemaList.addSchema("Slime", UnitStats(100, 30, 8, 5, 20, 15, 5, 0, 7),
                 Resistances().copy(fire = Resistance.WEAK, ice = Resistance.RESIST, poison = Resistance.RESIST, acid = Resistance.RESIST),
                 21,
+                listOf("Acid Blast", "Acid Suppression"),
                 EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata("slime.png"))
         return schemaList
     }

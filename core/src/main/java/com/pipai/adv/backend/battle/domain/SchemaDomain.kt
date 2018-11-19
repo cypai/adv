@@ -96,7 +96,8 @@ data class UnitSchema(
         val name: String,
         val baseStats: UnitStats,
         val resistances: Resistances,
-        val expGiven: Int)
+        val expGiven: Int,
+        val enemySkills: List<String>)
 
 data class UnitInstance(
         val schema: String,

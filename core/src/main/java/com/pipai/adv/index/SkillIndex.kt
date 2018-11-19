@@ -1,6 +1,7 @@
 package com.pipai.adv.index
 
 import com.badlogic.gdx.files.FileHandle
+import com.pipai.adv.backend.battle.engine.domain.BodyPart
 import com.pipai.adv.domain.SkillRangeType
 import com.pipai.adv.domain.SkillSchema
 import com.pipai.adv.domain.SkillType
@@ -23,6 +24,7 @@ class SkillIndex(skillsFile: FileHandle) {
                     SkillType.valueOf(record.get("type")),
                     SkillRangeType.valueOf(record.get("rangeType")),
                     record.get("maxLevel").toInt(),
+                    if (record.get("bodyPartUsed") == "") null else BodyPart.valueOf(record.get("bodyPartUsed")),
                     record.get("description"))
             mutIndex[name] = weaponSchema
         }

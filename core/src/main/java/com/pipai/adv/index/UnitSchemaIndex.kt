@@ -13,8 +13,9 @@ class UnitSchemaIndex : Iterable<SchemaMetadata> {
         return schemas.values.iterator()
     }
 
-    fun addSchema(name: String, stats: UnitStats, resistances: Resistances, expGiven: Int, tilesetMetadata: EnvObjTilesetMetadata) {
-        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, resistances, expGiven), tilesetMetadata))
+    fun addSchema(name: String, stats: UnitStats, resistances: Resistances, expGiven: Int, enemySkills: List<String>,
+                  tilesetMetadata: EnvObjTilesetMetadata) {
+        schemas.put(name, SchemaMetadata(UnitSchema(name, stats, resistances, expGiven, enemySkills), tilesetMetadata))
     }
 
     fun getSchema(name: String): SchemaMetadata {

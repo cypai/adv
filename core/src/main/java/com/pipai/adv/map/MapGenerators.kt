@@ -6,6 +6,7 @@ import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.generators.OpenTerrainGenerator
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.tiles.MapTileType
@@ -119,7 +120,8 @@ private fun generatePod(position: GridPosition, map: BattleMap, schemas: UnitSch
             "Brown Butterfly" -> defaultMelee
             else -> defaultMelee
         }
-        val id = npcList.addNpc(Npc(UnitInstance(schema.schema, schema.schema.name, weaponSchema), schema.tilesetMetadata))
+        val skills = schema.schema.enemySkills.map { UnitSkill(1, it) }
+        val id = npcList.addNpc(Npc(UnitInstance(schema.schema, schema.schema.name, weaponSchema, skills), schema.tilesetMetadata))
         map.getCell(schemaPosition).fullEnvObject = NpcEnvObject(id, Team.AI, schema.tilesetMetadata)
     }
 }
