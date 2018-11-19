@@ -111,7 +111,8 @@ class NormalAttackTest : GdxMockedTest() {
         val target = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
         val targetId = npcList.addNpc(target)
         map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(BattleBackend.RANGED_WEAPON_DISTANCE.toInt(), 0).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        map.getCell(BattleBackend.RANGED_WEAPON_DISTANCE.toInt(), 0)
+                .fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
 
         val backend = generateBackend(npcList, map)
 

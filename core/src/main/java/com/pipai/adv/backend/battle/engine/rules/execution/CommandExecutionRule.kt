@@ -8,6 +8,10 @@ import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 
 interface CommandExecutionRule {
     fun matches(command: BattleCommand, previews: List<PreviewComponent>): Boolean
-    fun preview(command: BattleCommand, previews: List<PreviewComponent>, backend: BattleBackend, state: BattleState, cache: BattleBackendCache): List<PreviewComponent>
-    fun execute(command: BattleCommand, previews: List<PreviewComponent>, backend: BattleBackend, state: BattleState, cache: BattleBackendCache)
+
+    fun preview(command: BattleCommand, previews: List<PreviewComponent>,
+                backend: BattleBackend, state: BattleState, cache: BattleBackendCache): List<PreviewComponent>
+
+    fun execute(command: BattleCommand, previews: List<PreviewComponent>,
+                backend: BattleBackend, state: BattleState, cache: BattleBackendCache)
 }

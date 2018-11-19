@@ -62,7 +62,6 @@ class MarketUiSystem(private val game: AdvGame,
                 .left()
                 .top()
 
-
         saleTable.x = (game.advConfig.resolution.width - mainMenuWidth) / 2
         saleTable.y = (game.advConfig.resolution.height - mainMenuHeight) / 2
         saleTable.width = mainMenuWidth

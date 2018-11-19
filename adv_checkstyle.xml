@@ -214,7 +214,7 @@
     <property name="message" value="Maximum line length of 150 exceeded"/>
   </module>
   <module name="RegexpSingleline">
-    <property name="format" value="[^+]\+$"/>
+    <property name="format" value="(?=.[^+]\+$)[^&quot;] \+"/>
     <property name="message" value="Operators should go on a new line"/>
     <property name="fileExtensions" value="kt"/>
   </module>

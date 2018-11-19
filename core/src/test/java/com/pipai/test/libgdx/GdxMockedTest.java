@@ -21,7 +21,7 @@ public abstract class GdxMockedTest {
 
     @BeforeClass
     public static void mockGdxFiles() {
-
+        // @cs.suppress [AnonInnerLength] we really don't want to create this as its own thing
         application = new HeadlessApplication(new ApplicationListener() {
             @Override
             public void create() {
@@ -51,7 +51,7 @@ public abstract class GdxMockedTest {
         Gdx.files = Mockito.mock(Files.class);
         Mockito.when(Gdx.files.internal(Matchers.anyString())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new FileHandle("assets/" + (String) args[0]);
+            return new FileHandle("assets/" + args[0]);
         });
         Mockito.when(Gdx.files.local(Matchers.anyString())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
@@ -59,12 +59,11 @@ public abstract class GdxMockedTest {
         });
         Mockito.when(Gdx.files.external(Matchers.anyString())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            File file = new File("" + (String) args[0]);
+            File file = new File("" + args[0]);
             return new FileHandle(file);
         });
 
-        MockGraphics mockGraphics = new MockGraphics();
-        Gdx.graphics = mockGraphics;
+        Gdx.graphics = new MockGraphics();
         Gdx.gl20 = Mockito.mock(GL20.class);
         Gdx.gl = Gdx.gl20;
     }

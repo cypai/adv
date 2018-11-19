@@ -23,7 +23,7 @@ class NormalAttackAnimationHandler(world: World) {
 
     fun animate(normalAttackEvent: NormalAttackEvent) {
         val entityId = sNpcId.getNpcEntityId(normalAttackEvent.attackerId)
-        
+
         if (entityId == null) {
             sEvent.dispatch(BattleEventAnimationEndEvent(normalAttackEvent))
         } else {

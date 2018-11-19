@@ -71,7 +71,8 @@ class CharacterGenerator {
         val hairColor = MathUtils.randomSelect(hairColors)
         val hairStyle = MathUtils.randomSelect(listOf("hair_2.png", "hair_4.png"))
         pcc.add(PccMetadata("hair", hairStyle, hairColor.first, hairColor.second))
-        val subHair = MathUtils.randomSelect(listOf(null, "subhair_1.png", "subhair_3.png", "subhair_9.png", "subhair_10.png", "subhair_11.png", "subhair_12.png", "subhair_58.png"))
+        val subHair = MathUtils.randomSelect(listOf(null, "subhair_1.png", "subhair_3.png", "subhair_9.png",
+                "subhair_10.png", "subhair_11.png", "subhair_12.png", "subhair_58.png"))
         if (subHair != null) {
             pcc.add(PccMetadata("subhair", subHair, hairColor.first, hairColor.second))
         }

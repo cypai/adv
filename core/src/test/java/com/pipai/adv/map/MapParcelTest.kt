@@ -14,7 +14,7 @@ class MapParcelTest : GdxMockedTest() {
 
     @Test
     fun testMapParcel() {
-        val mapParcel = MapParcel.Factory.readMapParcel(ExternalFileHandleResolver(), PARCEL_FILE)
+        MapParcel.Factory.readMapParcel(ExternalFileHandleResolver(), PARCEL_FILE)
     }
 
 }

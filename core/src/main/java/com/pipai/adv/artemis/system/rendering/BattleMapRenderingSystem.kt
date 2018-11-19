@@ -198,7 +198,8 @@ class BattleMapRenderingSystem(game: AdvGame,
         val tilesetMetadata = cEnvObjTile.tilesetMetadata
         when (tilesetMetadata) {
             is PccTilesetMetadata -> {
-                if (enableFogOfWar && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
+                if (enableFogOfWar
+                        && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
                     return
                 }
                 for (pcc in tilesetMetadata.pccMetadata) {
@@ -257,7 +258,8 @@ class BattleMapRenderingSystem(game: AdvGame,
                 }
             }
             is AnimatedUnitTilesetMetadata -> {
-                if (enableFogOfWar && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
+                if (enableFogOfWar
+                        && fogOfWar.getPlayerTileVisibility(GridUtils.localToGridPosition(cXy.toVector2(), tileSize)) != TileVisibility.VISIBLE) {
                     return
                 }
                 val unitTexture = animatedTilesetManager.getTilesetFrame(tilesetMetadata.filename, animationFrame)

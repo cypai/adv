@@ -13,12 +13,14 @@ import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap
+    fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+                 width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class GuildMapGenerator : MapGenerator {
 
-    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+                          width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
@@ -36,7 +38,8 @@ class GuildMapGenerator : MapGenerator {
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>, width: Int, height: Int, tileset: MapTileset): BattleMap {
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+                          width: Int, height: Int, tileset: MapTileset): BattleMap {
         val generator = OpenTerrainGenerator()
         val map = generator.generate(width, height)
         generateGround(map)
