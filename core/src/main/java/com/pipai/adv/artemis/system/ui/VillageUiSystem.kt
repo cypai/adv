@@ -1,90 +1,101 @@
 package com.pipai.adv.artemis.system.ui
 
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.events.PauseEvent
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.screens.MarketScreen
 import com.pipai.adv.artemis.screens.OrphanageScreen
 import com.pipai.adv.artemis.screens.WorldMapScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
+import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.gui.StandardImageListItemView
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class VillageUiSystem(private val game: AdvGame,
                       private val stage: Stage) : NoProcessingSystem() {
 
+    private val skin = game.skin
+
+    private val mainTable = Table()
+    private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+
     init {
-        createMainForm()
+        createTables()
+    }
+
+    @Subscribe
+    fun handlePause(event: PauseEvent) {
+        if (!event.isPaused) {
+            stage.keyboardFocus = mainMenuList
+        }
     }
 
     override fun initialize() {
         isEnabled = false
     }
 
-    private fun createMainForm() {
-        val skin = game.skin
-        val config = game.advConfig
+    private fun createTables() {
+        val menuItems = mutableListOf(
+                StringMenuItem(game.globals.save!!.playerGuild, null, ""),
+                StringMenuItem("Hospital", null, ""),
+                StringMenuItem("Market", null, ""),
+                StringMenuItem("Pub", null, ""),
+                StringMenuItem("Orphanage", null, ""),
+                StringMenuItem("Guild Hall", null, ""),
+                StringMenuItem("Town Hall", null, ""),
+                StringMenuItem("Gate", null, ""))
 
-        val townHallButton = TextButton("  Town Hall  ", skin)
-        townHallButton.x = config.resolution.width * 0.2f
-        townHallButton.y = config.resolution.height * 0.7f
-        stage.addActor(townHallButton)
+        mainMenuList.setItems(menuItems)
+        mainMenuList.hoverSelect = true
+        mainMenuList.keySelection = true
+        mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
+        mainTable.add(mainMenuList)
+                .pad(16f)
+                .left()
+                .top()
 
-        val guildHallButton = TextButton("  Guild Hall  ", skin)
-        guildHallButton.x = config.resolution.width * 0.5f
-        guildHallButton.y = config.resolution.height * 0.7f
-        stage.addActor(guildHallButton)
+        mainTable.x = 64f
+        mainTable.y = 64f
+        mainTable.width = mainTable.prefWidth
+        mainTable.height = mainTable.prefHeight
+        mainTable.background = skin.getDrawable("frameDrawable")
 
-        val marketButton = TextButton("  Market  ", skin)
-        marketButton.x = config.resolution.width * 0.8f
-        marketButton.y = config.resolution.height * 0.7f
-        marketButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                game.screen = MarketScreen(game)
-            }
-        })
-        stage.addActor(marketButton)
+        stage.addActor(mainTable)
 
-        val hospitalButton = TextButton("  Hospital  ", skin)
-        hospitalButton.x = config.resolution.width * 0.2f
-        hospitalButton.y = config.resolution.height * 0.4f
-        stage.addActor(hospitalButton)
+        mainMenuList.setSelectedIndex(0)
+        stage.keyboardFocus = mainMenuList
+    }
 
-        val pubButton = TextButton("  Pub  ", skin)
-        pubButton.x = config.resolution.width * 0.5f
-        pubButton.y = config.resolution.height * 0.4f
-        pubButton.pad(10f)
-        stage.addActor(pubButton)
-
-        val orphanageButton = TextButton("  Orphanage  ", skin)
-        orphanageButton.x = config.resolution.width * 0.8f
-        orphanageButton.y = config.resolution.height * 0.4f
-        orphanageButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                game.screen = OrphanageScreen(game)
-            }
-        })
-        stage.addActor(orphanageButton)
-
-        val guildButton = TextButton("  ${game.globals.save!!.playerGuild}  ", skin)
-        guildButton.x = config.resolution.width * 0.5f
-        guildButton.y = config.resolution.height * 0.1f
-        guildButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+    private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
+        when (menuItem.text) {
+            game.globals.save!!.playerGuild -> {
                 game.screen = GuildScreen(game)
             }
-        })
-        stage.addActor(guildButton)
-
-        val gateButton = TextButton("  Gate  ", skin)
-        gateButton.x = config.resolution.width * 0.5f
-        gateButton.y = config.resolution.height * 0.9f
-        gateButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+            "Hospital" -> {
+                // go
+            }
+            "Market" -> {
+                game.screen = MarketScreen(game)
+            }
+            "Pub" -> {
+                // go
+            }
+            "Orphanage" -> {
+                game.screen = OrphanageScreen(game)
+            }
+            "Guild Hall" -> {
+                // go
+            }
+            "Town Hall" -> {
+                // go
+            }
+            "Gate" -> {
                 game.screen = WorldMapScreen(game)
             }
-        })
-        stage.addActor(gateButton)
+        }
     }
+
 }
