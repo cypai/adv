@@ -58,8 +58,8 @@ class OrphanageScreen(game: AdvGame) : Screen {
         StandardScreenInit(world, game, game.advConfig)
                 .initialize()
 
+        cutsceneSystem.cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
         if (!game.globals.save!!.variables.containsKey("orphanageTutorial")) {
-            cutsceneSystem.cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
             cutsceneSystem.showScene("orphanage")
             game.globals.save!!.variables["orphanageTutorial"] = "1"
         }

@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.CutsceneEvent
 import com.pipai.adv.artemis.screens.VillageScreen
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
@@ -27,10 +28,13 @@ import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.DirectionUtils
 import com.pipai.adv.utils.RNG
+import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class OrphanageUiSystem(private val game: AdvGame,
                         private val stage: Stage) : BaseSystem(), InputProcessor {
+
+    private val sCutscene by system<CutsceneInputSystem>()
 
     private val stateMachine = StackStateMachine<OrphanageUiSystem, OrphanageUiState>(this)
 
@@ -80,6 +84,7 @@ class OrphanageUiSystem(private val game: AdvGame,
         mainTable.background = skin.getDrawable("frameDrawable")
 
         val menuItems = mutableListOf(
+                StringMenuItem("Chat", null, ""),
                 StringMenuItem("Recruit", null, ""),
                 StringMenuItem("Back", null, ""))
 
@@ -161,6 +166,9 @@ class OrphanageUiSystem(private val game: AdvGame,
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
+            "Chat" -> {
+                sCutscene.showScene("orphanageOrpheliaChat")
+            }
             "Recruit" -> {
                 stateMachine.changeState(OrphanageUiState.SHOWING_RECRUITING_LIST)
             }
