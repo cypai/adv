@@ -8,11 +8,13 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.events.CutsceneEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.misc.PausableSystem
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem(), InputProcessor, PausableSystem {
 
@@ -26,6 +28,15 @@ class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem()
 
     private val heldKeys: HeldKeys = HeldKeys()
     private var keyDownDirection: MutableList<Direction> = mutableListOf()
+
+    @Subscribe
+    fun handleCutsceneEvent(event: CutsceneEvent) {
+        if (event.start) {
+            disable()
+        } else {
+            enable()
+        }
+    }
 
     fun enable() {
         isEnabled = true

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.BackgroundFadeFinishedEvent
+import com.pipai.adv.artemis.events.CutsceneEvent
 import com.pipai.adv.artemis.screens.GuildScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
@@ -12,8 +13,8 @@ import com.pipai.adv.domain.Cutscene
 import com.pipai.adv.domain.CutsceneLine
 import com.pipai.adv.domain.CutsceneLineType
 import com.pipai.adv.utils.getLogger
-import com.pipai.adv.utils.getSystemSafe
 import com.pipai.adv.utils.system
+import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
 class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutscene) : NoProcessingSystem(), InputProcessor {
@@ -23,6 +24,8 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
     private val sBackgroundRenderingSystem by system<BackgroundRenderingSystem>()
     private val sMainTextbox by system<MainTextboxUiSystem>()
 
+    private val sEvent by system<EventSystem>()
+
     private var scene: String = "start"
     private var currentIndex: Int = 0
     private var currentLine: CutsceneLine? = null
@@ -30,6 +33,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
     private val variables: MutableMap<String, String> = mutableMapOf()
 
     fun showScene(sceneName: String, initVariables: Map<String, String>) {
+        sEvent.dispatch(CutsceneEvent(true))
         variables.clear()
         variables.putAll(initVariables)
         currentIndex = 0
@@ -57,7 +61,6 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
     }
 
     private fun showText(speaker: String, text: String) {
-        disableSystems()
         sMainTextbox.setToText(interpolateText(speaker), interpolateText(text))
         sMainTextbox.isEnabled = true
     }
@@ -94,7 +97,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
                 }
             }
             "exit" -> {
-                enableSystems()
+                sEvent.dispatch(CutsceneEvent(false))
                 sMainTextbox.isEnabled = false
             }
             "ifjmp" -> {
@@ -170,8 +173,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
         }
     }
 
-    fun finishCutsceneLine() {
-        enableSystems()
+    private fun finishCutsceneLine() {
         sMainTextbox.isEnabled = false
         nextLine()
     }
@@ -180,15 +182,9 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
         currentIndex++
         if (currentIndex < cutscene.scenes[scene]!!.size) {
             performLine(cutscene.scenes[scene]!![currentIndex])
+        } else {
+            sEvent.dispatch(CutsceneEvent(false))
         }
-    }
-
-    private fun disableSystems() {
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.disable()
-    }
-
-    private fun enableSystems() {
-        world.getSystemSafe(CharacterMovementInputSystem::class.java)?.enable()
     }
 
     @Subscribe
