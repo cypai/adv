@@ -71,9 +71,7 @@ class LoadGameDisplay(private val game: AdvGame) : ScrollPane(Table(), game.skin
 
     private fun loadSave(slot: Int) {
         game.globals.loadSave(slot)
-        val currentScreen = game.screen
         game.screen = GuildScreen(game)
-        currentScreen.dispose()
     }
 
 }
