@@ -11,6 +11,7 @@ import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
+import com.pipai.adv.utils.getLogger
 
 data class AdvGameGlobals(var save: AdvSave?,
                           val progressionBackend: ProgressionBackend,
@@ -25,6 +26,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val pccManager: PccManager,
                           val animatedTilesetManager: AnimatedTilesetManager,
                           val worldMap: WorldMap) {
+
+    private val logger = getLogger()
 
     val shaderProgram: ShaderProgram
 
@@ -41,10 +44,12 @@ data class AdvGameGlobals(var save: AdvSave?,
 
     fun writeSave(slot: Int) {
         saveManager.save(slot, save!!)
+        logger.debug("Save written to slot $slot")
     }
 
     fun autoSave() {
         saveManager.save(0, save!!)
+        logger.debug("Autosave written")
     }
 
     fun loadSave(slot: Int) {
