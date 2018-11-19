@@ -129,10 +129,12 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
                     "accept" -> {
                         game.globals.save!!.availableQuests.remove(args[1])
                         game.globals.save!!.activeQuests[args[1]] = args[2]
+                        logger.debug("Quest ${args[1]} was accepted and set to stage ${args[2]}")
                         game.globals.autoSave()
                     }
                     "updatestage" -> {
                         game.globals.save!!.activeQuests[args[1]] = args[2]
+                        logger.debug("Quest ${args[1]} was updated to stage ${args[2]}")
                         game.globals.autoSave()
                     }
                     else -> logger.warn("Unsupported quest command ${args[0]}")
@@ -141,11 +143,16 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
             "saveedit" -> {
                 when (args[0]) {
                     "guildname" -> {
-                        game.globals.save!!.changePlayerGuildName(interpolateText(args[1]))
+                        val guildName = interpolateText(args[1])
+                        game.globals.save!!.changePlayerGuildName(guildName)
+                        logger.debug("Player guild name set to $guildName")
                         game.globals.autoSave()
                     }
                     "variables" -> {
-                        game.globals.save!!.variables[args[1]] = args[2]
+                        val value = interpolateText(args[2])
+                        game.globals.save!!.variables[args[1]] = value
+                        logger.debug("Save variable ${args[1]} set to $value")
+                        game.globals.autoSave()
                     }
                     else -> logger.warn("Unsupported saveedit command ${args[0]}")
                 }
