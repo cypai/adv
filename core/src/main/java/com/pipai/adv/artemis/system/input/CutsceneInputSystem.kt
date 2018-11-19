@@ -43,6 +43,8 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
         scene = sceneName
         if (scene in cutscene.scenes) {
             performLine(cutscene.scenes[scene]!![0])
+        } else {
+            logger.warn("Scene $sceneName does not exist")
         }
     }
 

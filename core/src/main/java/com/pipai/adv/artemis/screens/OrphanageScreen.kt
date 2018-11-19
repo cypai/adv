@@ -11,10 +11,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.OrphanageUiSystem
+import com.pipai.adv.domain.CutsceneUtils
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class OrphanageScreen(game: AdvGame) : Screen {
@@ -33,8 +36,10 @@ class OrphanageScreen(game: AdvGame) : Screen {
 
                         AnimationFrameIncrementSystem(),
 
-                        InputProcessingSystem())
+                        InputProcessingSystem(),
+                        CutsceneInputSystem(game))
                 .withPassive(-1,
+                        BackgroundRenderingSystem(game),
                         OrphanageUiSystem(game, stage),
                         FpsRenderingSystem(game.batchHelper),
                         MainTextboxUiSystem(game))
@@ -42,13 +47,22 @@ class OrphanageScreen(game: AdvGame) : Screen {
 
         world = World(config)
 
+        val cutsceneSystem = world.getSystem(CutsceneInputSystem::class.java)
+
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(OrphanageUiSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(cutsceneSystem)
         inputProcessor.activateInput()
 
         StandardScreenInit(world, game, game.advConfig)
                 .initialize()
+
+        if (!game.globals.save!!.variables.containsKey("orphanageTutorial")) {
+            cutsceneSystem.cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
+            cutsceneSystem.showScene("orphanage")
+            game.globals.save!!.variables["orphanageTutorial"] = "1"
+        }
     }
 
     override fun render(delta: Float) {

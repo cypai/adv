@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
+import com.pipai.adv.artemis.events.CutsceneEvent
 import com.pipai.adv.artemis.screens.VillageScreen
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.backend.battle.domain.Direction
@@ -26,6 +27,7 @@ import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.tiles.PccMetadata
 import com.pipai.adv.utils.DirectionUtils
 import com.pipai.adv.utils.RNG
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class OrphanageUiSystem(private val game: AdvGame,
                         private val stage: Stage) : BaseSystem(), InputProcessor {
@@ -55,6 +57,16 @@ class OrphanageUiSystem(private val game: AdvGame,
         generateRecruits()
         createTables()
         stateMachine.changeState(OrphanageUiState.SHOWING_MAIN_MENU)
+    }
+
+    @Subscribe
+    fun handleCutsceneEvent(event: CutsceneEvent) {
+        if (event.start) {
+            mainTable.isVisible = false
+        } else {
+            mainTable.isVisible = true
+            mainMenuList.setSelectedIndex(0)
+        }
     }
 
     private fun createTables() {
