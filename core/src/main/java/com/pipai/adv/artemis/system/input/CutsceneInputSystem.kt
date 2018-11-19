@@ -6,6 +6,7 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.BackgroundFadeFinishedEvent
 import com.pipai.adv.artemis.events.CutsceneEvent
 import com.pipai.adv.artemis.screens.GuildScreen
+import com.pipai.adv.artemis.screens.VillageScreen
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
@@ -141,6 +142,9 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
                         game.globals.save!!.changePlayerGuildName(interpolateText(args[1]))
                         game.globals.autoSave()
                     }
+                    "variables" -> {
+                        game.globals.save!!.variables[args[1]] = args[2]
+                    }
                     else -> logger.warn("Unsupported saveedit command ${args[0]}")
                 }
                 finishCutsceneLine()
@@ -148,6 +152,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
             "screen" -> {
                 when (args[0]) {
                     "GuildScreen" -> game.screen = GuildScreen(game)
+                    "VillageScreen" -> game.screen = VillageScreen(game)
                 }
             }
             "set" -> {

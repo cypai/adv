@@ -69,6 +69,7 @@ Tutorial|If you don't want to just camp outdoors all year, I'd suggest paying of
 Tutorial|Feel free to walk around for now.
 
 @pub
+!bg pub
 !bgfade in 30
 Bart|Hey there, $player! What are you in for today?
 $player|Well, you see, I was "volunteered" to start up a new guild, and now I need some members.
@@ -77,10 +78,17 @@ Bart|Well, I'll do what I can, but I doubt that the experienced mercenaries arou
 Bart|Don't you have some friends back at the orphanage that might be willing to help you out?
 $player|(I can't believe I'm actually taking that Guild Associate's idea seriously...)
 Tutorial|This is the Pub. You can technically recruit new members here, but at the moment, it is quite unlikely for you to succeed...
+!saveedit variables disabledVillageOptions "Hospital|Market|Guild Hall|Town Hall|Gate"
+!bgfade out 30
+!screen VillageScreen
 
 @pubBartChat
+!bg pub
+!bgfade in 30
 $player|I just realized something. Your name is Bart! And you're a bartender!
 Bart|Yes, you're definitely the first person to notice. Nice observation, Sherlock. Would you like a drink?
+!bgfade out 30
+!screen VillageScreen
 
 @orphanage
 !bgfade in 30
@@ -91,6 +99,7 @@ $player|Sure... Anyways, I need members for my guild, so maybe, just maybe, I co
 Orphelia|Oh, certainly! And, you may borrow them permanently if you wish!
 Tutorial|This is the Orphanage. You can recruit complete rookies here!
 Tutorial|Today is free, but later on, you will need to pay a processing fee.
+!saveedit variables disabledVillageOptions "Hospital|Market|Town Hall|Gate"
 
 @orphanageOrpheliaChat
 $player|I just realized something. Isn't your name a misspelling of Ophelia?
@@ -119,6 +128,7 @@ Guild Associate|There's no need to stick around to try to eliminate all the mons
 Guild Associate|Before you head out, I'd also recommend you obtain a few items from the Market. But you can also head straight to the forest if you exit through the Gate.
 Guild Associate|Good luck!
 !quest accept "Guild Exam: D"
+!saveedit variables disabledVillageOptions "Town Hall"
 
 @guildHallNotFinishedChat
 Guild Associate|Not done yet? Please come back when you're finished!
@@ -165,6 +175,7 @@ Mayor|Then they'll sack the place, and we'll be upset, and you'll become infamou
 Mayor|So don't wander too far from the village. Not without posting someone as guard, anyways.
 Mayor|Lastly, we also have other requests for help from the villagers. We'll keep them posted here. In fact, we already have some ready!
 Mayor|We'll be expecting great things from you!
+!saveedit variables disabledVillageOptions ""
 
 @rabbitExterminationAccept
 Mayor|Ah yes. One of the farmers here has a problem with rabbits eating all his stuff.

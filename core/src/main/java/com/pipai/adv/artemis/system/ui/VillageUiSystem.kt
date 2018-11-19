@@ -1,17 +1,16 @@
 package com.pipai.adv.artemis.system.ui
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.events.PauseEvent
-import com.pipai.adv.artemis.screens.GuildScreen
-import com.pipai.adv.artemis.screens.MarketScreen
-import com.pipai.adv.artemis.screens.OrphanageScreen
-import com.pipai.adv.artemis.screens.WorldMapScreen
+import com.pipai.adv.artemis.screens.*
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.gui.StandardImageListItemView
 import net.mostlyoriginal.api.event.common.Subscribe
 
@@ -22,6 +21,8 @@ class VillageUiSystem(private val game: AdvGame,
 
     private val mainTable = Table()
     private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+
+    private val openingCutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
 
     init {
         createTables()
@@ -85,7 +86,11 @@ class VillageUiSystem(private val game: AdvGame,
                 game.screen = MarketScreen(game)
             }
             "Pub" -> {
-                // go
+                if ("Orphanage" in game.globals.save!!.variables["disabledVillageOptions"]!!) {
+                    game.screen = CutsceneScreen(game, openingCutscene, "pub")
+                } else {
+                    game.screen = CutsceneScreen(game, openingCutscene, "pubBartChat")
+                }
             }
             "Orphanage" -> {
                 game.screen = OrphanageScreen(game)
