@@ -107,6 +107,7 @@ Orphelia|Oh, is it? I've always been Orphelia, though.
 $player|I feel like someone is laughing at us somewhere...
 
 @guildHall2
+!bg guildhall
 !bgfade in 30
 Guild Associate|Ah, welcome back!
 !ifjmp $squadSize == 1 guildAssociateDisapproval
@@ -127,13 +128,20 @@ Guild Associate|You will need to enter the Lagos Forest and bring back the key i
 Guild Associate|There's no need to stick around to try to eliminate all the monsters, but you can do so if you want to.
 Guild Associate|Before you head out, I'd also recommend you obtain a few items from the Market. But you can also head straight to the forest if you exit through the Gate.
 Guild Associate|Good luck!
-!quest accept "Guild Exam: D"
+!quest accept "Guild Exam: D" start
 !saveedit variables disabledVillageOptions "Town Hall"
+!bgfade out 30
+!screen VillageScreen
 
 @guildHallNotFinishedChat
+!bg guildhall
+!bgfade in 30
 Guild Associate|Not done yet? Please come back when you're finished!
+!bgfade out 30
+!screen VillageScreen
 
 @guildHallFinished
+!bg guildhall
 !bgfade in 30
 Guild Associate|Ah, I see you've returned!
 !ifshow $squadHealth == PERFECT "Guild Associate|Impressive, you've even done so without any injuries! You have potential, greenhorn!"
@@ -154,6 +162,7 @@ Guild Associate|But if you fail to pay us, well, you will be blacklisted to the 
 $player|F Rank?
 Guild Associate|Yep! You'll still be able to take quests at your normal ranking, but we will take a cut of the quest rewards until your debt is paid.
 Guild Associate|Anyways, that should be everything. Feel free to take a look at quest postings and whatever, and have a good day!
+!jmp guildHallTutorial
 
 @guildHallTutorial
 Tutorial|Now that the main bit is over, let's go over the other functions of the Guild Hall!

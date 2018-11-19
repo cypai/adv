@@ -18,6 +18,7 @@ class VillageUiSystem(private val game: AdvGame,
                       private val stage: Stage) : NoProcessingSystem() {
 
     private val skin = game.skin
+    private val save = game.globals.save!!
 
     private val mainTable = Table()
     private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
@@ -41,7 +42,7 @@ class VillageUiSystem(private val game: AdvGame,
 
     private fun createTables() {
         val menuItems = mutableListOf(
-                StringMenuItem(game.globals.save!!.playerGuild, null, ""),
+                StringMenuItem(save.playerGuild, null, ""),
                 StringMenuItem("Hospital", null, ""),
                 StringMenuItem("Market", null, ""),
                 StringMenuItem("Pub", null, ""),
@@ -71,12 +72,12 @@ class VillageUiSystem(private val game: AdvGame,
         mainMenuList.setSelectedIndex(0)
         stage.keyboardFocus = mainMenuList
 
-        mainMenuList.setDisabledPredicate { it.text in game.globals.save!!.variables["disabledVillageOptions"]!!.split('|') }
+        mainMenuList.setDisabledPredicate { it.text in save.variables["disabledVillageOptions"]!!.split('|') }
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
         when (menuItem.text) {
-            game.globals.save!!.playerGuild -> {
+            save.playerGuild -> {
                 game.screen = GuildScreen(game)
             }
             "Hospital" -> {
@@ -86,7 +87,7 @@ class VillageUiSystem(private val game: AdvGame,
                 game.screen = MarketScreen(game)
             }
             "Pub" -> {
-                if ("Orphanage" in game.globals.save!!.variables["disabledVillageOptions"]!!) {
+                if ("Orphanage" in save.variables["disabledVillageOptions"]!!) {
                     game.screen = CutsceneScreen(game, openingCutscene, "pub")
                 } else {
                     game.screen = CutsceneScreen(game, openingCutscene, "pubBartChat")
@@ -96,7 +97,11 @@ class VillageUiSystem(private val game: AdvGame,
                 game.screen = OrphanageScreen(game)
             }
             "Guild Hall" -> {
-                // go
+                if (save.questTaken("Guild Exam: D")) {
+                    game.screen = CutsceneScreen(game, openingCutscene, "guildHallNotFinishedChat")
+                } else {
+                    game.screen = CutsceneScreen(game, openingCutscene, "guildHall2")
+                }
             }
             "Town Hall" -> {
                 // go

@@ -77,6 +77,10 @@ class AdvSave() {
         guilds.put(playerGuild, mutableListOf())
     }
 
+    fun questTaken(quest: String): Boolean {
+        return quest in activeQuests || quest in finishedQuests
+    }
+
     fun changePlayerGuildName(name: String) {
         guilds.put(name, guilds[playerGuild]!!)
         guilds.remove(playerGuild)
