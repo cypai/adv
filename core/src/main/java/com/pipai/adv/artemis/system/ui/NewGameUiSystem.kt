@@ -210,6 +210,8 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         save.setSquad(squadName, listOf(playerId, friendId, rivalId, knightId, medicId))
         save.squadLocations[squadName] = game.globals.worldMap.villageLocations["Lagos Village"]!!
 
+        save.variables["disabledVillageOptions"] = "Hospital|Market|Orphanage|Guild Hall|Town Hall|Gate"
+
         game.globals.progressionBackend.scheduleEvents(save)
 
         return save

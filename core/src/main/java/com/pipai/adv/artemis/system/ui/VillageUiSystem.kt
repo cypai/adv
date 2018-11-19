@@ -1,5 +1,6 @@
 package com.pipai.adv.artemis.system.ui
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -51,6 +52,7 @@ class VillageUiSystem(private val game: AdvGame,
         mainMenuList.setItems(menuItems)
         mainMenuList.hoverSelect = true
         mainMenuList.keySelection = true
+        mainMenuList.disabledFontColor = Color.GRAY
         mainMenuList.addConfirmCallback { handleMainMenuConfirm(it) }
         mainTable.add(mainMenuList)
                 .pad(16f)
@@ -67,6 +69,8 @@ class VillageUiSystem(private val game: AdvGame,
 
         mainMenuList.setSelectedIndex(0)
         stage.keyboardFocus = mainMenuList
+
+        mainMenuList.setDisabledPredicate { it.text in game.globals.save!!.variables["disabledVillageOptions"]!!.split('|') }
     }
 
     private fun handleMainMenuConfirm(menuItem: StringMenuItem) {
