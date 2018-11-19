@@ -139,6 +139,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
                     }
                     else -> logger.warn("Unsupported quest command ${args[0]}")
                 }
+                finishCutsceneLine()
             }
             "saveedit" -> {
                 when (args[0]) {
