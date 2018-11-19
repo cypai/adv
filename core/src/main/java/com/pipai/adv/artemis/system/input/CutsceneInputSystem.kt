@@ -188,7 +188,7 @@ class CutsceneInputSystem(private val game: AdvGame, private var cutscene: Cutsc
     }
 
     @Subscribe
-    fun handleBackgroundFadeFinished(event: BackgroundFadeFinishedEvent) {
+    fun handleBackgroundFadeFinished(@Suppress("UNUSED_PARAMETER") event: BackgroundFadeFinishedEvent) {
         if (currentLine?.command == "bgfade") {
             finishCutsceneLine()
         }
