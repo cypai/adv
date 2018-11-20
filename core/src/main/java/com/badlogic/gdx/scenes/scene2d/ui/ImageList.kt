@@ -26,7 +26,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     var lockSelection = false
     var keySelection = false
     var disabledFontColor = style.fontColorSelected
-    var confirmSelectionDrawable = style.selection
 
     private var confirmCallbacks: MutableList<(T) -> Unit> = mutableListOf()
 
@@ -37,7 +36,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     internal var prefWidth: Float = 0f
     internal var prefHeight: Float = 0f
 
-    internal var confirmedSelection: Int? = null
     internal val selection: MutableList<Int> = mutableListOf()
     internal val disabledItems: MutableList<Int> = mutableListOf()
     internal var culling: Rectangle? = null
@@ -85,10 +83,10 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                                 selection.add(if (index == items.size - 1) 0 else index + 1)
                             }
                         }
-                        Input.Keys.ENTER -> {
-                            confirmedSelection = index
-                            if (index != null) {
-                                confirmCallbacks.forEach { it.invoke(getSelected()!!) }
+                        Input.Keys.Z -> {
+                            val selected = getSelected()
+                            if (selected != null) {
+                                confirmCallbacks.forEach { it.invoke(selected) }
                             }
                         }
                     }
@@ -143,7 +141,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
             selection.clear()
             selection.add(index)
             if (isConfirm) {
-                confirmedSelection = index
                 confirmCallbacks.forEach { it.invoke(getSelected()!!) }
             }
         }
@@ -214,10 +211,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
         for (i in 0 until items.size) {
             val item = items.get(i)
 
-            if (confirmedSelection == i) {
-                confirmSelectionDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
-                font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
-            } else if (selection.contains(i)) {
+            if (selection.contains(i)) {
                 selectedDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight)
                 font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
             } else {
@@ -256,7 +250,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
 
         items.clear()
         items.addAll(newItems)
-        confirmedSelection = null
         selection.clear()
         disabledItems.clear()
         lockSelection = false
@@ -277,7 +270,7 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
     }
 
     fun getSelected(): T? {
-        return confirmedSelection?.let { items[it] } ?: return null
+        return if (selection.isEmpty()) null else items[selection[0]]
     }
 
     fun setSelected(item: T) {
@@ -303,22 +296,6 @@ open class ImageList<T>(internal var style: List.ListStyle, private val itemView
                 selection.clear()
                 selection.add(index)
             }
-        }
-    }
-
-    fun setConfirmed(item: T) {
-        if (!lockSelection) {
-            setSelected(item)
-            confirmedSelection = items.indexOf(item)
-            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
-        }
-    }
-
-    fun setConfirmIndex(index: Int) {
-        if (!lockSelection) {
-            setSelectedIndex(index)
-            confirmedSelection = index
-            confirmCallbacks.forEach { it.invoke(getSelected()!!) }
         }
     }
 

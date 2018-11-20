@@ -135,7 +135,7 @@ class OrphanageUiSystem(private val game: AdvGame,
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 generateRecruits()
                 populateRecruitList()
-                leftColumn.setConfirmIndex(0)
+                leftColumn.setSelectedIndex(0)
             }
         })
     }
