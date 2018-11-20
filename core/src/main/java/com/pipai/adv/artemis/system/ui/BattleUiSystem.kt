@@ -673,6 +673,10 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
         leftPreviewList.forEach {
             if (it.getData("disabled") as Boolean) {
                 commandPreviewList.setDisabled(it, true)
+            } else {
+                if (commandPreviewList.getSelected() == null) {
+                    commandPreviewList.setSelected(it)
+                }
             }
         }
         updateRightPreviewDetails(command, previewComponents)
