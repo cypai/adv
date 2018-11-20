@@ -64,7 +64,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             MoveCommandSanityRule(),
             NormalAttackCommandSanityRule(weaponSchemaIndex),
             DoubleSlashSanityRule(weaponSchemaIndex),
-            BodyPartUseRule())
+            BodyPartUseRule(skillIndex))
 
     /**
      * Rules that verify that the battle state shown by the preview is OK

@@ -8,8 +8,9 @@ import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.domain.BodyPart
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
+import com.pipai.adv.index.SkillIndex
 
-class BodyPartUseRule : CommandRule {
+class BodyPartUseRule(private val skillIndex: SkillIndex) : CommandRule {
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is ActionCommand) {
@@ -19,19 +20,7 @@ class BodyPartUseRule : CommandRule {
                 is NormalAttackCommand -> return ExecutableStatus(binds.arms == 0, "Arm Binds")
                 is TargetSkillCommand -> {
                     val skill = command.skill
-                    val bodyPartRequired = when (skill.name) {
-                        "Double Slash" -> BodyPart.ARMS
-                        "Hamstring" -> BodyPart.ARMS
-                        "Fireball" -> BodyPart.HEAD
-                        "Thunder" -> BodyPart.HEAD
-                        "Icicle" -> BodyPart.HEAD
-                        "Heal" -> BodyPart.HEAD
-                        "Head Strike" -> BodyPart.ARMS
-                        "Arm Strike" -> BodyPart.ARMS
-                        "Leg Strike" -> BodyPart.ARMS
-                        else -> null
-                    }
-                    when (bodyPartRequired) {
+                    when (skillIndex.getSkillSchema(skill.name)!!.bodyPartUsed) {
                         BodyPart.HEAD -> return ExecutableStatus(binds.head == 0, "Head Binds")
                         BodyPart.ARMS -> return ExecutableStatus(binds.arms == 0, "Arm Binds")
                         BodyPart.LEGS -> return ExecutableStatus(binds.legs == 0, "Leg Binds")
