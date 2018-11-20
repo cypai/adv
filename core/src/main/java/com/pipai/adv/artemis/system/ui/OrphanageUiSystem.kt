@@ -66,9 +66,13 @@ class OrphanageUiSystem(private val game: AdvGame,
     @Subscribe
     fun handleCutsceneEvent(event: CutsceneEvent) {
         if (event.start) {
+            isEnabled = false
+            stage.keyboardFocus = null
             mainTable.isVisible = false
         } else {
+            isEnabled = true
             mainTable.isVisible = true
+            stage.keyboardFocus = mainMenuList
             mainMenuList.setSelectedIndex(0)
         }
     }
@@ -206,13 +210,15 @@ class OrphanageUiSystem(private val game: AdvGame,
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        when (keycode) {
-            Keys.ESCAPE -> {
-                if (stateMachine.isInState(OrphanageUiState.SHOWING_MAIN_MENU)) {
-                    game.screen = VillageScreen(game)
-                } else {
-                    stateMachine.revertToPreviousState()
-                    return true
+        if (isEnabled) {
+            when (keycode) {
+                Keys.ESCAPE -> {
+                    if (stateMachine.isInState(OrphanageUiState.SHOWING_MAIN_MENU)) {
+                        game.screen = VillageScreen(game)
+                    } else {
+                        stateMachine.revertToPreviousState()
+                        return true
+                    }
                 }
             }
         }
