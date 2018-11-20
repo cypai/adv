@@ -67,7 +67,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                 .withPassive(-2,
                         BattleMapRenderingSystem(game, mapTileset, true))
                 .withPassive(-5,
-                        BattleUiSystem(game, stage),
+                        BattleUiSystem(game, npcList, stage),
                         PauseUiSystem(game, stage, false),
                         BattleEndSystem(game, stage),
                         DevUiSystem(game, stage))

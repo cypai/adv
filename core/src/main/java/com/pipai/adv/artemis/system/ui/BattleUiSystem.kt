@@ -37,6 +37,8 @@ import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.TpUsedPreviewComponent
 import com.pipai.adv.backend.battle.utils.BattleUtils
+import com.pipai.adv.domain.NpcList
+import com.pipai.adv.gui.NpcDisplay
 import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.gui.UiConstants
 import com.pipai.adv.tiles.UnitAnimationFrame
@@ -44,7 +46,7 @@ import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : BaseSystem(), InputProcessor, PausableSystem {
+class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, private val stage: Stage) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val logger = getLogger()
 
@@ -88,6 +90,10 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
     private val commandPreviewDetailsList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<MenuItem>())
     private val commandPreviewDetailsScrollPane = ScrollPane(commandPreviewDetailsList, game.skin)
     private val commandConfirmButton = TextButton("Execute", game.skin)
+
+    private val infoTable = Table()
+    private val infoStatsDisplay = NpcDisplay(game, npcList, null)
+    private val infoSkillsTable = Table()
 
     private val movePreviewDrawable = game.skin.newDrawable("white", Color(0.3f, 0.3f, 0.8f, 0.7f))
     private val movePreviewDrawableSize = 6f
@@ -253,6 +259,15 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                 executeCommand(targetNpcIds[targetIndex!!].second)
             }
         })
+
+        infoTable.background = game.skin.getDrawable("frameDrawable")
+        infoTable.pad(8f)
+        infoTable.add(infoStatsDisplay)
+                .top()
+        infoTable.add(infoSkillsTable)
+                .top()
+                .pad(8f)
+        infoTable.row()
     }
 
     @Subscribe
@@ -888,11 +903,38 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
 
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
+    private fun initInfoView() {
+        val npc = npcList.getNpc(selectedNpcId!!)!!
+        infoStatsDisplay.setNpcId(selectedNpcId)
+        infoSkillsTable.clearChildren()
+        infoSkillsTable.add(Label("Skills", game.skin))
+                .minWidth(infoStatsDisplay.width)
+        infoSkillsTable.row()
+        npc.unitInstance.skills.forEach {
+            infoSkillsTable.add(Label("${it.name} ${it.level}: ${game.globals.skillIndex.getSkillSchema(it.name)!!.description}",
+                    game.skin, "small"))
+                    .left()
+            infoSkillsTable.row()
+        }
+        infoSkillsTable.width = infoSkillsTable.prefWidth
+        infoSkillsTable.height = infoSkillsTable.prefHeight
+        infoTable.width = infoTable.prefWidth
+        infoTable.height = infoTable.prefHeight
+        infoTable.x = (game.advConfig.resolution.width - infoTable.width) / 2
+        infoTable.y = (game.advConfig.resolution.height - infoTable.height) / 2
+    }
+
     private fun changeStateBack() {
         when (stateMachine.currentState) {
             BattleUiState.PLAYER_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
             BattleUiState.ENEMY_SELECTED -> stateMachine.changeState(BattleUiState.NOTHING_SELECTED)
             BattleUiState.SKILL_SELECTION -> stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+            BattleUiState.INFO_VIEW -> {
+                when (getBackend().getNpcTeam(selectedNpcId!!)) {
+                    Team.PLAYER -> stateMachine.changeState(BattleUiState.PLAYER_SELECTED)
+                    Team.AI -> stateMachine.changeState(BattleUiState.ENEMY_SELECTED)
+                }
+            }
             BattleUiState.TARGET_SELECTION -> {
                 stateMachine.revertToPreviousState()
 
@@ -917,6 +959,11 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
                     BattleUiState.TARGET_SELECTION -> selectNextTarget()
                     else -> {
                     }
+                }
+            }
+            Input.Keys.F1 -> {
+                if (stateMachine.isInState(BattleUiState.PLAYER_SELECTED) || stateMachine.isInState(BattleUiState.ENEMY_SELECTED)) {
+                    stateMachine.changeState(BattleUiState.INFO_VIEW)
                 }
             }
             Input.Keys.ESCAPE -> {
@@ -1099,6 +1146,16 @@ class BattleUiSystem(private val game: AdvGame, private val stage: Stage) : Base
             override fun exit(uiSystem: BattleUiSystem) {
                 uiSystem.clearTileHighlights()
                 uiSystem.clearMovementPreview()
+            }
+        },
+        INFO_VIEW() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.stage.addActor(uiSystem.infoTable)
+                uiSystem.initInfoView()
+            }
+
+            override fun exit(uiSystem: BattleUiSystem) {
+                uiSystem.infoTable.remove()
             }
         },
         SKILL_SELECTION() {
