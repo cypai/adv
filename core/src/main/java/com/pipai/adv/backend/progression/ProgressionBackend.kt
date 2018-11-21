@@ -51,7 +51,7 @@ class ProgressionBackend {
         createQuest(Quest("Rabbit Extermination", mapOf(
                 Pair("start", QuestStage(listOf(QuestGoal.TalkWithNpcGoal("Farmer Guy")),
                         "A local farmer has a request! Speak with him to get the details.")),
-                Pair("extermination", QuestStage(listOf(QuestGoal.ClearRandomMapGoal(WorldMapLocation(200, 150))),
+                Pair("extermination", QuestStage(listOf(QuestGoal.ClearTempMapGoal("Carrot Farm", WorldMapLocation(200, 150))),
                         "Go to the farmer's field and exterminate all the rabbits!")),
                 Pair("report", QuestStage(listOf(QuestGoal.TalkWithNpcGoal("Farmer Guy")),
                         "Report your success to the farmer!")))

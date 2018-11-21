@@ -13,9 +13,11 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
+import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.*
+import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.BattleEndSystem
@@ -52,6 +54,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                         CameraMovementInputSystem(game.advConfig),
                         CameraInterpolationSystem(),
                         ZoomInputSystem(),
+                        CutsceneInputSystem(game),
 
                         TimerSystem(),
                         AnimationFrameIncrementSystem(),
@@ -64,14 +67,15 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                         NpcIdSystem(),
                         BattleAnimationSystem(game),
                         BattleAiSystem(game.globals))
+                .withPassive(-1,
+                        BattleMapRenderingSystem(game, mapTileset, true),
+                        BackgroundRenderingSystem(game))
                 .withPassive(-2,
-                        BattleMapRenderingSystem(game, mapTileset, true))
-                .withPassive(-5,
                         BattleUiSystem(game, npcList, stage),
                         PauseUiSystem(game, stage, false),
                         BattleEndSystem(game, stage),
                         DevUiSystem(game, stage))
-                .withPassive(-6,
+                .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper))
                 .build()
 

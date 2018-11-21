@@ -208,7 +208,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
 
         val squadName = "Squad 1"
         save.setSquad(squadName, listOf(playerId, friendId, rivalId, knightId, medicId))
-        save.squadLocations[squadName] = game.globals.worldMap.villageLocations["Lagos Village"]!!
+        save.squadLocations[squadName] = game.globals.worldMap.getPoi("Lagos Village").location
 
         save.variables["disabledVillageOptions"] = "Hospital|Market|Orphanage|Guild Hall|Town Hall|Gate"
 

@@ -81,6 +81,14 @@ class AdvSave() {
         return quest in activeQuests || quest in finishedQuests
     }
 
+    fun playerTheoreticalRank(): Char {
+        if (finishedQuests.contains("Guild Exam: D")) {
+            return 'D'
+        } else {
+            return 'F'
+        }
+    }
+
     fun changePlayerGuildName(name: String) {
         guilds.put(name, guilds[playerGuild]!!)
         guilds.remove(playerGuild)

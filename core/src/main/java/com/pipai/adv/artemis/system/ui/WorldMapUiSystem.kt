@@ -11,16 +11,23 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.PauseEvent
+import com.pipai.adv.artemis.screens.BattleMapScreen
 import com.pipai.adv.artemis.screens.Tags
+import com.pipai.adv.artemis.screens.VillageScreen
 import com.pipai.adv.artemis.system.misc.PassTimeMovementSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.domain.QuestGoal
 import com.pipai.adv.gui.StandardImageListItemView
+import com.pipai.adv.map.PointOfInterest
+import com.pipai.adv.map.PointOfInterestType
+import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.*
@@ -48,8 +55,9 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val skin = game.skin
 
     private val screenTable = Table()
-    private val mainTable = Table()
-    private val mainMenuList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
+    private val excursionTable = Table()
+    private val excursionLabel = Label("", game.skin)
+    private val excursionList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
     private val runTimeButton = TextButton("  Pass Time  ", skin)
 
     private var selectedSquad: String? = null
@@ -58,7 +66,6 @@ class WorldMapUiSystem(private val game: AdvGame,
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
         createUi()
-        // TODO: init destinations
     }
 
     private fun createUi() {
@@ -70,6 +77,19 @@ class WorldMapUiSystem(private val game: AdvGame,
                 .expand()
                 .top()
                 .padTop(32f)
+
+        excursionTable.background = game.skin.getDrawable("frameDrawable")
+        excursionTable.pad(16f)
+        excursionTable.add(excursionLabel)
+                .expand()
+                .top()
+        excursionTable.row()
+        excursionTable.add(excursionList)
+                .padTop(16f)
+
+        excursionList.keySelection = true
+        excursionList.hoverSelect = true
+        excursionList.addConfirmCallback { handleExcursionEvent(it) }
 
         stage.addActor(screenTable)
 
@@ -100,6 +120,9 @@ class WorldMapUiSystem(private val game: AdvGame,
                         stateMachine.changeState(WorldMapUiState.DISABLED)
                     }
                     WorldMapUiState.SELECTED_SQUAD -> {
+                        stateMachine.changeState(WorldMapUiState.DISABLED)
+                    }
+                    WorldMapUiState.EXCURSION_SELECTION -> {
                         stateMachine.changeState(WorldMapUiState.DISABLED)
                     }
                     else -> {
@@ -151,8 +174,7 @@ class WorldMapUiSystem(private val game: AdvGame,
                         }
                         if (closeSquad != null) {
                             val cSquad = mSquad.get(closeSquad)
-                            val screen = cPoi.screenCallback(game.globals.save!!.squads[cSquad.squad]!!)
-                            game.screen = screen
+                            interactWithPoi(cSquad.squad, cPoi.poi)
                             return true
                         }
                     }
@@ -165,6 +187,74 @@ class WorldMapUiSystem(private val game: AdvGame,
             }
         }
         return false
+    }
+
+    private fun interactWithPoi(squad: String, poi: PointOfInterest) {
+        when (poi.type) {
+            PointOfInterestType.VILLAGE -> game.screen = VillageScreen(game)
+            PointOfInterestType.DUNGEON -> selectDungeonExcursionType(squad, poi)
+            PointOfInterestType.QUEST_DUNGEON -> {
+            }
+        }
+    }
+
+    private fun selectDungeonExcursionType(squad: String, poi: PointOfInterest) {
+        excursionLabel.setText(poi.name)
+
+        val excursions: MutableList<StringMenuItem> = mutableListOf()
+        if (game.globals.save!!.playerTheoreticalRank() != 'F') {
+            excursions.add(StringMenuItem("Exploration", null, "")
+                    .withData("squad", squad))
+        }
+
+        game.globals.save!!.activeQuests.forEach { questName, stageName ->
+            val quest = game.globals.progressionBackend.getQuest(questName)
+            val stage = quest.stages[stageName]!!
+            stage.goals.forEach {
+                when (it) {
+                    is QuestGoal.ItemRetrievalGoal -> {
+                        if (it.location == poi.name) {
+                            excursions.add(StringMenuItem("Retrieve Item: $questName", null, "")
+                                    .withData("squad", squad)
+                                    .withData("quest", quest)
+                                    .withData("stage", stage)
+                                    .withData("goal", it))
+                        }
+                    }
+                    is QuestGoal.ClearMapGoal -> {
+                        if (it.location == poi.name) {
+                            excursions.add(StringMenuItem("Clear Map: $questName", null, "")
+                                    .withData("squad", squad)
+                                    .withData("quest", quest)
+                                    .withData("stage", stage)
+                                    .withData("goal", it))
+                        }
+                    }
+                }
+            }
+        }
+
+        excursionList.setItems(excursions)
+        excursionList.setSelectedIndex(0)
+        excursionTable.width = excursionTable.prefWidth
+        excursionTable.height = excursionTable.prefHeight
+        excursionTable.x = (game.advConfig.resolution.width - excursionTable.width) / 2
+        excursionTable.y = (game.advConfig.resolution.height - excursionTable.height) / 2
+
+        stateMachine.changeState(WorldMapUiState.EXCURSION_SELECTION)
+    }
+
+    private fun handleExcursionEvent(excursion: StringMenuItem) {
+        val squad = game.globals.save!!.squads[excursion.getData("squad") as String]!!
+        when {
+            excursion.text == "Exploration" -> game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+            excursion.text.startsWith("Retrieve Item") -> {
+                game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+            }
+            excursion.text.startsWith("Clear Map") -> {
+                game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+            }
+        }
     }
 
     private fun setDestination(entityId: Int, squad: String, location: WorldMapLocation) {
@@ -180,7 +270,7 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
 
-    override fun mouseMoved(screenX: Int, screenY: Int) : Boolean {
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
         val cCamera = mCamera.get(sTags.getEntityId(Tags.CAMERA.toString()))
         val pickRay = cCamera.camera.getPickRay(screenX.toFloat(), screenY.toFloat())
         val mouseX = pickRay.origin.x
@@ -193,7 +283,7 @@ class WorldMapUiSystem(private val game: AdvGame,
             val bounds = CollisionBounds.CollisionBoundingBox(cDrawable.width, cDrawable.height, cDrawable.centered)
             if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
                 val cText = mText.create(poiEntity)
-                cText.text = cPoi.name
+                cText.text = cPoi.poi.name
             } else {
                 mText.remove(poiEntity)
             }
@@ -206,16 +296,20 @@ class WorldMapUiSystem(private val game: AdvGame,
     enum class WorldMapUiState : State<WorldMapUiSystem> {
         DISABLED() {
             override fun enter(uiSystem: WorldMapUiSystem) {
-                uiSystem.mainTable.remove()
                 uiSystem.sEvent.dispatch(PauseEvent(false))
             }
         },
-        SELECTED_SQUAD() {
+        EXCURSION_SELECTION() {
             override fun enter(uiSystem: WorldMapUiSystem) {
-                uiSystem.stage.addActor(uiSystem.mainTable)
-                uiSystem.stage.keyboardFocus = uiSystem.mainMenuList
+                uiSystem.stage.keyboardFocus = uiSystem.excursionTable
+                uiSystem.stage.addActor(uiSystem.excursionTable)
             }
 
+            override fun exit(uiSystem: WorldMapUiSystem) {
+                uiSystem.excursionTable.remove()
+            }
+        },
+        SELECTED_SQUAD() {
             override fun exit(uiSystem: WorldMapUiSystem) {
                 uiSystem.selectedSquad = null
                 uiSystem.mAnimationFrames.get(uiSystem.selectedSquadEntity!!).tMax = 60

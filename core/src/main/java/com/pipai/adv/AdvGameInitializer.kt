@@ -6,6 +6,8 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.progression.ProgressionBackend
 import com.pipai.adv.index.*
+import com.pipai.adv.map.PointOfInterest
+import com.pipai.adv.map.PointOfInterestType
 import com.pipai.adv.map.WorldMap
 import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.save.AdvSave
@@ -96,9 +98,9 @@ class AdvGameInitializer {
     }
 
     private fun initializeWorldMap(): WorldMap {
-        val worldMap = WorldMap(mutableMapOf())
-        worldMap.villageLocations["Lagos Village"] = WorldMapLocation(200, 100)
-        worldMap.villageLocations["Lagos Forest"] = WorldMapLocation(100, 200)
+        val worldMap = WorldMap()
+        worldMap.addPoi(PointOfInterest("Lagos Village", PointOfInterestType.VILLAGE, WorldMapLocation(200, 100)))
+        worldMap.addPoi(PointOfInterest("Lagos Forest", PointOfInterestType.DUNGEON, WorldMapLocation(100, 200)))
         return worldMap
     }
 

@@ -4,12 +4,10 @@ import com.artemis.ComponentMapper
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.map.TestMapGenerator
 
 @Wire
 class WorldMapScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig) {
@@ -29,13 +27,13 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     }
 
     fun initialize() {
-        val startPosition = game.globals.worldMap.villageLocations["Lagos Village"]!!
+        val startPosition = game.globals.worldMap.getPoi("Lagos Village")
 
         val cameraId = world.create()
         sTags.register(Tags.CAMERA.toString(), cameraId)
         val camera = mCamera.create(cameraId)
-        camera.camera.position.x = startPosition.x.toFloat()
-        camera.camera.position.y = startPosition.y.toFloat()
+        camera.camera.position.x = startPosition.location.x.toFloat()
+        camera.camera.position.y = startPosition.location.y.toFloat()
         camera.camera.update()
 
         val uiCameraId = world.create()
@@ -48,10 +46,10 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
 
     private fun initializePointsOfInterest() {
         val worldMap = game.globals.worldMap
-        worldMap.villageLocations.forEach { village, worldMapLocation ->
+        worldMap.getAllPois().forEach { poi ->
             val entityId = world.create()
             val cXy = mXy.create(entityId)
-            cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
+            cXy.setXy(poi.location.x.toFloat(), poi.location.y.toFloat())
             val cDrawable = mDrawable.create(entityId)
             cDrawable.drawable = game.skin.newDrawable("white", Color.RED)
             cDrawable.depth = -1
@@ -59,15 +57,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             cDrawable.height = 24f
             cDrawable.centered = true
             val cPoi = mPoi.create(entityId)
-            cPoi.name = village
-            cPoi.screenCallback = poiScreenForName(village)
-        }
-    }
-
-    private fun poiScreenForName(name: String): (List<Int>) -> Screen {
-        return when (name) {
-            "Lagos Forest" -> { party -> BattleMapScreen(game, party, TestMapGenerator()) }
-            else -> { _ -> VillageScreen(game) }
+            cPoi.poi = poi
         }
     }
 
