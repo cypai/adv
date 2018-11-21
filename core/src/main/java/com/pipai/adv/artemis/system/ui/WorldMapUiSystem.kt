@@ -23,6 +23,7 @@ import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.screens.VillageScreen
 import com.pipai.adv.artemis.system.misc.PassTimeMovementSystem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
+import com.pipai.adv.domain.GuildRank
 import com.pipai.adv.domain.QuestGoal
 import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.map.PointOfInterest
@@ -202,7 +203,7 @@ class WorldMapUiSystem(private val game: AdvGame,
         excursionLabel.setText(poi.name)
 
         val excursions: MutableList<StringMenuItem> = mutableListOf()
-        if (game.globals.save!!.playerTheoreticalRank() != 'F') {
+        if (game.globals.save!!.playerTheoreticalRank() != GuildRank.F) {
             excursions.add(StringMenuItem("Exploration", null, "")
                     .withData("squad", squad))
         }

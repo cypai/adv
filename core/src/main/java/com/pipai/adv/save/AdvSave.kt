@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
+import com.pipai.adv.domain.GuildRank
 import com.pipai.adv.domain.NpcList
 import com.pipai.adv.map.WorldMapLocation
 
@@ -81,11 +82,13 @@ class AdvSave() {
         return quest in activeQuests || quest in finishedQuests
     }
 
-    fun playerTheoreticalRank(): Char {
-        if (finishedQuests.contains("Guild Exam: D")) {
-            return 'D'
+    fun playerTheoreticalRank(): GuildRank {
+        val examsFinished = finishedQuests.filter { it.startsWith("Guild Exam") }
+                .sorted()
+        if (examsFinished.isEmpty()) {
+            return GuildRank.F
         } else {
-            return 'F'
+            return GuildRank.valueOf(examsFinished[0].last().toString())
         }
     }
 
