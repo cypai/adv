@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.domain.NpcList
 import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
@@ -28,5 +29,5 @@ fun <T> getTestResourceFilePath(cls: Class<T>, filename: String): String {
 fun generateBackend(npcList: NpcList, map: BattleMap): BattleBackend {
     val weaponSchemaIndex = WeaponSchemaIndex(Gdx.files.internal("data/weapons.csv"))
     val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
-    return BattleBackend(weaponSchemaIndex, skillIndex, npcList, map)
+    return BattleBackend(weaponSchemaIndex, skillIndex, npcList, map, MapClearEndingRule())
 }

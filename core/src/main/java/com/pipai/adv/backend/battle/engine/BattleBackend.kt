@@ -15,7 +15,6 @@ import com.pipai.adv.backend.battle.engine.log.BattleLog
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
 import com.pipai.adv.backend.battle.engine.rules.command.*
 import com.pipai.adv.backend.battle.engine.rules.ending.EndingRule
-import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApVerificationRule
@@ -41,7 +40,9 @@ import com.pipai.adv.utils.getLogger
  */
 class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
                     val skillIndex: SkillIndex,
-                    private val npcList: NpcList, private val battleMap: BattleMap) {
+                    private val npcList: NpcList,
+                    private val battleMap: BattleMap,
+                    val objective: EndingRule) {
 
     private val logger = getLogger()
 
@@ -113,7 +114,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
 
     private val endingRules: List<EndingRule> = listOf(
             TotalPartyKillEndingRule(),
-            MapClearEndingRule())
+            objective)
 
     companion object {
         const val MELEE_WEAPON_DISTANCE = 1.8

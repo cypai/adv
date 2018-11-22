@@ -7,6 +7,7 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.artemis.components.*
+import com.pipai.adv.artemis.system.cutscene.BattleCutsceneSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.BattleAiSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
@@ -15,6 +16,7 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.domain.NpcList
 import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager
@@ -38,6 +40,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
     private lateinit var sTags: TagManager
     private lateinit var sAi: BattleAiSystem
+    private lateinit var sBattleCutscene: BattleCutsceneSystem
 
     private var playerUnitIndex = 0
 
@@ -52,7 +55,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     fun initialize() {
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, map)
+        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, map, MapClearEndingRule())
         sTags.register(Tags.BACKEND.toString(), backendId)
 
         val cameraId = world.create()
@@ -77,6 +80,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
             }
         }
         sAi.initializeAi()
+
+        sBattleCutscene.checkCutsceneDirectors()
     }
 
     private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {

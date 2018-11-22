@@ -12,6 +12,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
 import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
+import com.pipai.adv.artemis.system.cutscene.BattleCutsceneSystem
+import com.pipai.adv.artemis.system.cutscene.directors.BattleCutsceneDirector
+import com.pipai.adv.artemis.system.cutscene.directors.OpeningDirector
 import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
@@ -43,6 +46,9 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
         val map = mapGenerator
                 .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
 
+        val cutsceneDirectors: MutableList<BattleCutsceneDirector> = mutableListOf()
+        cutsceneDirectors.add(OpeningDirector())
+
         val config = WorldConfigurationBuilder()
                 .with(
                         // Managers
@@ -66,6 +72,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                         CameraFollowSystem(game.advConfig),
                         NpcIdSystem(),
                         BattleAnimationSystem(game),
+                        BattleCutsceneSystem(cutsceneDirectors),
                         BattleAiSystem(game.globals))
                 .withPassive(-1,
                         BattleMapRenderingSystem(game, mapTileset, true),

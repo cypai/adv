@@ -19,6 +19,7 @@ import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetad
 import com.pipai.adv.backend.battle.domain.FullEnvObject
 import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.domain.NpcList
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.tiles.TileDescriptor
@@ -55,7 +56,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, map)
+        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, map, MapClearEndingRule())
 
         val cameraId = world.create()
         val camera = mCamera.create(cameraId).camera
