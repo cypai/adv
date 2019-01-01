@@ -54,6 +54,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
 
     private fun performLine(line: CutsceneLine) {
         currentLine = line
+        logger.debug("Performing $line")
         when (line.type) {
             CutsceneLineType.TEXT -> {
                 showText(line.speaker ?: "", line.text!!)
@@ -100,6 +101,10 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
                     "out" -> sBackgroundRenderingSystem.fadeOut(Integer.valueOf(args[1]))
                 }
             }
+            "dialoginput" -> {
+                variables[args[0]] = args[2]
+                finishCutsceneLine()
+            }
             "exit" -> {
                 sEvent.dispatch(CutsceneEvent(false))
                 sMainTextbox.isEnabled = false
@@ -107,7 +112,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
             "ifjmp" -> {
                 if (checkCondition(interpolateText(args[0]), args[1], interpolateText(args[2]))) {
                     currentIndex = -1
-                    scene = args[0]
+                    scene = args[3]
                 }
                 finishCutsceneLine()
             }
@@ -202,6 +207,8 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
             sEvent.dispatch(CutsceneEvent(false))
         }
     }
+
+    fun getVariable(variable: String) = variables[variable]
 
     @Subscribe
     fun handleBackgroundFadeFinished(@Suppress("UNUSED_PARAMETER") event: BackgroundFadeFinishedEvent) {

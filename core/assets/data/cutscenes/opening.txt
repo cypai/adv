@@ -140,6 +140,40 @@ Guild Associate|Not done yet? Please come back when you're finished!
 !bgfade out 30
 !screen VillageScreen
 
+@tutorialSkip
+!dialoginput skipTutorial "Skip tutorial?" No Yes
+!ifjmp $skipTutorial == No tutorialMovement
+
+@tutorialMovement
+Tutorial|Welcome to your first mission! This first mission will explain the basic controls and systems of battle.
+Tutorial|On the right side of the screen is a list of your party's characters and their status. You can click on the list or the characters themselves to select them.
+Tutorial|This will cause some tiles on the ground to be highlighted, as well as an action menu to show up.
+Tutorial|Each character has 2 Action Points (AP), which can be spent by moving or performing an action in the menu.
+Tutorial|By right clicking on a blue tile, you will spend 1 AP to move there. Right clicking on a yellow tile will spend 2 AP, but you move further at once.
+Tutorial|Your first mission is to obtain the key item in the back of the map. Feel free to start moving towards it.
+
+@tutorialEnemyEncounter
+Tutorial|You have encountered an enemy target!
+Tutorial|In general, when you perform a Costly Action such as attacking, you will spend all of your AP performing that action.
+Tutorial|To perform a normal attack with your equipped weapon, select Attack from your Action Menu.
+Tutorial|This will highlight available targets, which you can select by clicking the list on the left or selecting the targets directly.
+Tutorial|The predicted effects of your attack will be shown at the bottom of the screen. Details of the calculations can be shown by clicking each category.
+Tutorial|Note that in this mission, it is technically not required to defeat all the enemies. Feel free to run away if necessary.
+Tutorial|You may also select Defend, which will decrease all chances to hit and crit against that character.
+Tutorial|Lastly, you may use character-specific skills in the Skill menu, and items from the Item menu.
+!ifjmp $blackButterfly == TRUE tutorialStatus
+
+@tutorialStatus
+Tutorial|The Black Butterfly is special in that it uses ranged attacks.
+Tutorial|Ranged attacks will be affected by whether or not you are in cover.
+Tutorial|Being in cover means standing behind a tree, rock, or other similar objects. Shields can also supply cover.
+Tutorial|If you are not in cover, normal and critical hit chances will be increased.
+Tutorial|Note that melee attacks are NOT affected by cover. Be careful that melee attackers do not get too close to you!
+Tutorial|Black Butterflies will also attempt to blind you. Blind is a status effect.
+Tutorial|Status effects are temporary, but may seriously affect your character's battle performance, for good or ill.
+Tutorial|Blind in particular is an Ailment status effect. Characters may only have 1 Ailment affecting them at once. If another Ailment is inflicted, the original one is replaced.
+Tutorial|The other Ailments are Poison, Acid, Paralyze, and Vulnerable. Details on Ailments and other status effects are in the Help Menu in the Pause Menu.
+
 @guildHallFinished
 !bg guildhall
 !bgfade in 30
@@ -208,6 +242,20 @@ $leader|Alright, alright, we'll be careful.
 $leader|Let's finish this up. Wipe out all the bunny rabbits!
 !ifshow $squadSize > 1 "$squadMember2|$leader, are you sure? That guy seemed pre-tty scared."
 !ifshow $squadSize > 1 "$leader|What's a rabbit gonna do, nibble my feet? Charge!"
+
+@rabbitTutorialSkip
+!dialoginput skipTutorial "Skip tutorial?" No Yes
+!ifjmp $skipTutorial == No tutorialOverwatch
+
+@tutorialOverwatch
+Tutorial|You've encountered a Killer Rabbit!
+Tutorial|Despite what $leader says, it is recommended to check what kind of enemy you are encountering.
+Tutorial|If you click on the Killer Rabbit, its status will show up on the left side of the screen.
+Tutorial|Pressing F1 at this time will show additional details, such as its skills and stats.
+Tutorial|You can also do this for your own characters if you need to review their skills.
+Tutorial|Killer Rabbits are melee specialists, so it is recommended for you not to let them get too close. One tactic to avoid this is Overwatch.
+Tutorial|The Overwatch status effect allows your character to attack on the enemy's turn. They will attack the first enemy that moves in their range.
+Tutorial|Overwatch will be cancelled the instant it is activated. It can also be cancelled via other means, such as being Blind, Suppressed, or Disoriented.
 
 @catRescueAccept
 Mayor|Ah yes, one of the local girls, Calico, lost her cat. You should go find it for her!

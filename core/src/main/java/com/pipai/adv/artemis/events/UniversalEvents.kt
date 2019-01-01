@@ -10,3 +10,5 @@ data class PauseEvent(val isPaused: Boolean) : Event
 class BackgroundFadeFinishedEvent : Event
 
 data class CutsceneEvent(val start: Boolean) : Event
+
+class DirectorEndEvent : Event

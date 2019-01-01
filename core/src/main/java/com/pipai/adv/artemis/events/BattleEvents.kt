@@ -19,3 +19,5 @@ class CommandAnimationEndEvent : Event
 data class BattleTextEvent(val text: String) : Event
 
 data class EndTurnEvent(val team: Team) : Event
+
+class DirectorsFinishedEvent : Event

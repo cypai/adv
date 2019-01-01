@@ -15,6 +15,7 @@ import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.cutscene.BattleCutsceneSystem
 import com.pipai.adv.artemis.system.cutscene.directors.BattleCutsceneDirector
 import com.pipai.adv.artemis.system.cutscene.directors.OpeningDirector
+import com.pipai.adv.artemis.system.cutscene.directors.TutorialDirector
 import com.pipai.adv.artemis.system.input.CameraMovementInputSystem
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
@@ -23,10 +24,7 @@ import com.pipai.adv.artemis.system.misc.*
 import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
-import com.pipai.adv.artemis.system.ui.BattleEndSystem
-import com.pipai.adv.artemis.system.ui.BattleUiSystem
-import com.pipai.adv.artemis.system.ui.DevUiSystem
-import com.pipai.adv.artemis.system.ui.PauseUiSystem
+import com.pipai.adv.artemis.system.ui.*
 import com.pipai.adv.map.MapGenerator
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -47,7 +45,6 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                 .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
 
         val cutsceneDirectors: MutableList<BattleCutsceneDirector> = mutableListOf()
-        cutsceneDirectors.add(OpeningDirector())
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -79,6 +76,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
                         BackgroundRenderingSystem(game))
                 .withPassive(-2,
                         BattleUiSystem(game, npcList, stage),
+                        MainTextboxUiSystem(game),
                         PauseUiSystem(game, stage, false),
                         BattleEndSystem(game, stage),
                         DevUiSystem(game, stage))
@@ -88,17 +86,23 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
 
         world = World(config)
 
+        cutsceneDirectors.add(OpeningDirector())
+        cutsceneDirectors.add(TutorialDirector(world))
+
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(ZoomInputSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(BattleUiSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(DevUiSystem::class.java))
         inputProcessor.addProcessor(world.getSystem(PauseUiSystem::class.java))
+        inputProcessor.addProcessor(world.getSystem(CutsceneInputSystem::class.java))
         inputProcessor.addProcessor(stage)
         inputProcessor.activateInput()
 
         BattleMapScreenInit(world, game.advConfig, game.globals, npcList, partyList, map)
                 .initialize()
+
+        world.getSystem(BattleCutsceneSystem::class.java).checkAllCutsceneDirectors()
     }
 
     override fun render(delta: Float) {

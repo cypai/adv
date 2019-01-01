@@ -7,7 +7,7 @@ class OpeningDirector : BattleCutsceneDirector {
 
     private var shown = false
 
-    override fun check(backend: BattleBackend) {
+    override fun check(backend: BattleBackend): Boolean {
         if (!shown) {
             when (backend.objective) {
                 is MapClearEndingRule -> {
@@ -16,6 +16,7 @@ class OpeningDirector : BattleCutsceneDirector {
             }
             shown = true
         }
+        return false
     }
 
 }

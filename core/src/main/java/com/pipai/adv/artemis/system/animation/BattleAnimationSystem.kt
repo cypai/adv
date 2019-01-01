@@ -6,6 +6,7 @@ import com.pipai.adv.artemis.components.BattleBackendComponent
 import com.pipai.adv.artemis.events.BattleEventAnimationEndEvent
 import com.pipai.adv.artemis.events.BattleTextEvent
 import com.pipai.adv.artemis.events.CommandAnimationEndEvent
+import com.pipai.adv.artemis.events.DirectorsFinishedEvent
 import com.pipai.adv.artemis.screens.Tags
 import com.pipai.adv.artemis.system.NoProcessingSystem
 import com.pipai.adv.artemis.system.animation.handlers.*
@@ -50,7 +51,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
     }
 
     @Subscribe
-    fun handleBattleEventAnimationEnd(@Suppress("UNUSED_PARAMETER") event: BattleEventAnimationEndEvent) {
+    fun handleDirectorsFinished(@Suppress("UNUSED_PARAMETER") event: DirectorsFinishedEvent) {
         animateNextEvent()
     }
 

@@ -40,7 +40,6 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
     private lateinit var sTags: TagManager
     private lateinit var sAi: BattleAiSystem
-    private lateinit var sBattleCutscene: BattleCutsceneSystem
 
     private var playerUnitIndex = 0
 
@@ -80,8 +79,6 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
             }
         }
         sAi.initializeAi()
-
-        sBattleCutscene.checkCutsceneDirectors()
     }
 
     private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {
