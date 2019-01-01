@@ -1,10 +1,10 @@
 apply plugin: "kotlin"
 
 sourceCompatibility = 1.8
-sourceSets.main.java.srcDirs = [ "src/main/java/" ]
-sourceSets.main.resources.srcDirs = [ "src/main/resources/" ]
-sourceSets.test.java.srcDirs = [ "src/test/java/" ]
-sourceSets.test.resources.srcDirs = [ "src/test/resources/" ]
+sourceSets.main.java.srcDirs = ["src/main/java/"]
+sourceSets.main.resources.srcDirs = ["src/main/resources/"]
+sourceSets.test.java.srcDirs = ["src/test/java/"]
+sourceSets.test.resources.srcDirs = ["src/test/resources/"]
 
 project.ext.mainClassName = "com.pipai.adv.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
@@ -15,7 +15,7 @@ project.ext.runConfigDir = new File(runDir, 'config/')
 project.ext.runSaveDir = new File(runDir, 'save/')
 
 def cleanRunDir() {
-    delete fileTree(dir: runDir, excludes: [ 'save/', 'config/' ])
+    delete fileTree(dir: runDir, excludes: ['save/', 'config/'])
 }
 
 def makeRunDirs() {
@@ -44,11 +44,11 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
+    from { configurations.compile.collect { zipTree(it) } }
     from files(project.assetsDir);
- 
+
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
@@ -64,12 +64,12 @@ eclipse {
 }
 
 task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-  doLast {
-    def classpath = new XmlParser().parse(file(".classpath"))
-    new Node(classpath, "classpathentry", [ kind: 'src', path: 'assets' ]);
-    def writer = new FileWriter(file(".classpath"))
-    def printer = new XmlNodePrinter(new PrintWriter(writer))
-    printer.setPreserveWhitespace(true)
-    printer.print(classpath)
-  }
+    doLast {
+        def classpath = new XmlParser().parse(file(".classpath"))
+        new Node(classpath, "classpathentry", [kind: 'src', path: 'assets']);
+        def writer = new FileWriter(file(".classpath"))
+        def printer = new XmlNodePrinter(new PrintWriter(writer))
+        printer.setPreserveWhitespace(true)
+        printer.print(classpath)
+    }
 }
