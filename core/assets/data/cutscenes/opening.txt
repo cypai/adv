@@ -256,6 +256,10 @@ Tutorial|You can also do this for your own characters if you need to review thei
 Tutorial|Killer Rabbits are melee specialists, so it is recommended for you not to let them get too close. One tactic to avoid this is Overwatch.
 Tutorial|The Overwatch status effect allows your character to attack on the enemy's turn. They will attack the first enemy that moves in their range.
 Tutorial|Overwatch will be cancelled the instant it is activated. It can also be cancelled via other means, such as being Blind, Suppressed, or Disoriented.
+Tutorial|You can also prevent the Killer Rabbit's most dangerous skills with binds.
+Tutorial|All skills require the use of either the Arms, Legs, or Head. If they attempt to use a skill with a bound required part, they will fail and be unable to move.
+Tutorial|Binds also have a side effect outside of skills. Head binds reduce hit and crit chances, Arm binds reduce normal attack damage, and Leg binds reduce mobility.
+Tutorial|If you can leverage these systems properly, no situation will be impossible for you!
 
 @catRescueAccept
 Mayor|Ah yes, one of the local girls, Calico, lost her cat. You should go find it for her!
