@@ -67,7 +67,8 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             NormalAttackCommandSanityRule(weaponSchemaIndex),
             DoubleSlashSanityRule(weaponSchemaIndex),
             BodyPartUseRule(skillIndex),
-            RunLocationRule())
+            RunLocationRule(),
+            InteractRule())
 
     /**
      * Rules that verify that the battle state shown by the preview is OK
@@ -94,6 +95,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             RushExecutionRule(),
             DefendExecutionRule(),
             WaitExecutionRule(),
+            InteractExecutionRule(),
             RunExecutionRule(),
             NormalAttackExecutionRule(),
             DoubleSlashExecutionRule(),

@@ -15,6 +15,10 @@ interface TargetCommand : ActionCommand {
     val targetId: Int
 }
 
+interface PositionCommand : ActionCommand {
+    val position: GridPosition
+}
+
 data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) : ActionCommand
 
 data class RunCommand(override val unitId: Int) : ActionCommand
@@ -32,6 +36,9 @@ data class SkillTpCheckCommand(val skill: UnitSkill,
 data class DefendCommand(override val unitId: Int) : ActionCommand
 
 data class WaitCommand(override val unitId: Int) : ActionCommand
+
+data class InteractCommand(override val unitId: Int,
+                           override val position: GridPosition) : ActionCommand, PositionCommand
 
 data class TargetStageExecuteCommand(val preview: TargetStagePreviewComponent) : ActionCommand, TargetCommand {
     override val unitId: Int = preview.unitId
