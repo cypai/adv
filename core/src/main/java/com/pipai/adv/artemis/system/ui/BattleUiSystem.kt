@@ -28,10 +28,7 @@ import com.pipai.adv.artemis.system.ui.menu.ActionMenuCommandItem
 import com.pipai.adv.artemis.system.ui.menu.MenuItem
 import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
 import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
-import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
-import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
@@ -433,6 +430,7 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                 StringMenuItem("Skill", null, ""),
                 StringMenuItem("Item", null, ""),
                 ActionMenuCommandItem("Defend", null, DefendCommandFactory(backend)),
+                StringMenuItem("Interact", null, ""),
                 ActionMenuCommandItem("Run", null, RunCommandFactory(backend))))
 
         val npcId = selectedNpcId!!
@@ -446,8 +444,8 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
         }
         val position = backend.getNpcPosition(npcId)!!
         val map = backend.getBattleMapState()
-        if (position.x != 0 && position.x != map.width - 1 && position.y != 0 && position.y != map.height - 1) {
-            primaryActionMenu.setDisabledIndex(4, true)
+        if (map.getCell(position).specialFlags.any { it is BattleMapCellSpecialFlag.Exit }) {
+            primaryActionMenu.setDisabledIndex(5, true)
         }
         primaryActionMenu.height = primaryActionMenu.prefHeight
     }
