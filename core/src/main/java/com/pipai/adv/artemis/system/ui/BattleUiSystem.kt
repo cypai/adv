@@ -433,7 +433,7 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                 StringMenuItem("Skill", null, ""),
                 StringMenuItem("Item", null, ""),
                 ActionMenuCommandItem("Defend", null, DefendCommandFactory(backend)),
-                StringMenuItem("Run", null, "")))
+                ActionMenuCommandItem("Run", null, RunCommandFactory(backend))))
 
         val npcId = selectedNpcId!!
         if (normalAttackFactory.generateInvalid(npcId).isEmpty()) {
