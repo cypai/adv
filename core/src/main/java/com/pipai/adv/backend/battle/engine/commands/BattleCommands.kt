@@ -17,6 +17,8 @@ interface TargetCommand : ActionCommand {
 
 data class MoveCommand(override val unitId: Int, val path: List<GridPosition>) : ActionCommand
 
+data class RunCommand(override val unitId: Int) : ActionCommand
+
 data class NormalAttackCommand(override val unitId: Int,
                                override val targetId: Int) : ActionCommand, TargetCommand
 

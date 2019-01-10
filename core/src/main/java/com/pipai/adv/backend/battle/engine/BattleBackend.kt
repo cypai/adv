@@ -15,6 +15,7 @@ import com.pipai.adv.backend.battle.engine.log.BattleLog
 import com.pipai.adv.backend.battle.engine.log.BattleLogEvent
 import com.pipai.adv.backend.battle.engine.rules.command.*
 import com.pipai.adv.backend.battle.engine.rules.ending.EndingRule
+import com.pipai.adv.backend.battle.engine.rules.ending.RunAwayEndingRule
 import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApVerificationRule
@@ -47,7 +48,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
     private val logger = getLogger()
 
     private var state: BattleState = BattleState(Team.PLAYER, npcList, battleMap, BattleLog(),
-            ActionPointState(npcList), NpcStatusState(npcList), BattleStats(npcList))
+            ActionPointState(npcList), NpcStatusState(npcList), BattleStats(npcList), mutableMapOf())
     private lateinit var cache: BattleBackendCache
 
     private val hitCalculator = HitCalculator()
@@ -65,7 +66,8 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             MoveCommandSanityRule(),
             NormalAttackCommandSanityRule(weaponSchemaIndex),
             DoubleSlashSanityRule(weaponSchemaIndex),
-            BodyPartUseRule(skillIndex))
+            BodyPartUseRule(skillIndex),
+            RunLocationRule())
 
     /**
      * Rules that verify that the battle state shown by the preview is OK
@@ -92,6 +94,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             RushExecutionRule(),
             DefendExecutionRule(),
             WaitExecutionRule(),
+            RunExecutionRule(),
             NormalAttackExecutionRule(),
             DoubleSlashExecutionRule(),
             ElementalSkillExecutionRule(),
@@ -114,7 +117,8 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
 
     private val endingRules: List<EndingRule> = listOf(
             TotalPartyKillEndingRule(),
-            objective)
+            objective,
+            RunAwayEndingRule())
 
     companion object {
         const val MELEE_WEAPON_DISTANCE = 1.8
@@ -280,7 +284,8 @@ data class BattleState(var turn: Team,
                        val battleLog: BattleLog,
                        val apState: ActionPointState,
                        val npcStatusState: NpcStatusState,
-                       val battleStats: BattleStats) {
+                       val battleStats: BattleStats,
+                       val variables: MutableMap<String, String>) {
 
     fun getNpc(npcId: Int) = npcList.getNpc(npcId)
     fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)
