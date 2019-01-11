@@ -42,7 +42,7 @@ class InteractExecutionRule : CommandExecutionRule {
             val chest = cell.fullEnvObject as FullEnvObject.ChestEnvObject
             npc.unitInstance.inventory.first { it.item == null }.item = chest.item
             cell.fullEnvObject = null
-            state.battleLog.addEvent(CellStateEvent(command.position, cell.deepCopy()))
+            state.battleLog.addEvent(CellStateEvent(command.position, cell.deepCopy(), "Opens this chest"))
             state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} obtained a ${chest.item.name}!"))
         }
     }

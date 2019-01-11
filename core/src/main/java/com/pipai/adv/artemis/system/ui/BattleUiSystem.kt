@@ -24,10 +24,7 @@ import com.pipai.adv.artemis.system.animation.BattleAnimationSystem
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
 import com.pipai.adv.artemis.system.misc.PausableSystem
-import com.pipai.adv.artemis.system.ui.menu.ActionMenuCommandItem
-import com.pipai.adv.artemis.system.ui.menu.MenuItem
-import com.pipai.adv.artemis.system.ui.menu.StringMenuItem
-import com.pipai.adv.artemis.system.ui.menu.TargetMenuCommandItem
+import com.pipai.adv.artemis.system.ui.menu.*
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.MapGraph
 import com.pipai.adv.backend.battle.engine.commands.*
@@ -101,6 +98,7 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
         private set
 
     private val targetNpcIds: MutableList<Pair<Int, TargetCommand>> = mutableListOf()
+    private val targetTiles: MutableList<PositionCommand> = mutableListOf()
     private var targetIndex: Int? = null
 
     private var mapGraph: MapGraph? = null
@@ -253,7 +251,12 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
 
         commandConfirmButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                executeCommand(targetNpcIds[targetIndex!!].second)
+                val state = getState()
+                when (state) {
+                    BattleUiState.TARGET_SELECTION -> executeCommand(targetNpcIds[targetIndex!!].second)
+                    BattleUiState.TILE_SELECTION -> executeCommand(targetTiles[targetIndex!!])
+                    else -> logger.warn("UI state $state not expected for command execution")
+                }
             }
         })
 
@@ -425,12 +428,13 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
     private fun setPrimaryActionMenuItems() {
         val backend = getBackend()
         val normalAttackFactory = NormalAttackCommandFactory(backend)
+        val interactFactory = InteractCommandFactory(backend)
         primaryActionMenu.setItems(listOf(
                 TargetMenuCommandItem("Attack", null, normalAttackFactory),
                 StringMenuItem("Skill", null, ""),
                 StringMenuItem("Item", null, ""),
                 ActionMenuCommandItem("Defend", null, DefendCommandFactory(backend)),
-                StringMenuItem("Interact", null, ""),
+                TilesMenuCommandItem("Interact", null, interactFactory),
                 ActionMenuCommandItem("Run", null, RunCommandFactory(backend))))
 
         val npcId = selectedNpcId!!
@@ -441,6 +445,9 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
         val weaponSchema = if (weapon == null) null else game.globals.weaponSchemaIndex.getWeaponSchema(weapon.name)
         if (weapon == null || !BattleUtils.weaponRequiresAmmo(backend.weaponSchemaIndex, weapon) || weapon.ammo < weaponSchema!!.magazineSize) {
             primaryActionMenu.setDisabledIndex(2, true)
+        }
+        if (interactFactory.generateInvalid(npcId).isEmpty()) {
+            primaryActionMenu.setDisabledIndex(4, true)
         }
         val position = backend.getNpcPosition(npcId)!!
         val map = backend.getBattleMapState()
@@ -508,6 +515,13 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                     commandPreviewSubtitle.setText(maybeSkill.description)
                 }
                 stateMachine.changeState(BattleUiState.TARGET_SELECTION)
+            }
+            is TilesMenuCommandItem -> {
+                val commands = menuItem.factory.generateInvalid(selectedNpcId!!)
+                targetTiles.clear()
+                targetTiles.addAll(commands)
+                commandPreviewTitle.setText(menuItem.text)
+                stateMachine.changeState(BattleUiState.TILE_SELECTION)
             }
             is ActionMenuCommandItem -> {
                 val command = menuItem.factory.generate(selectedNpcId!!).firstOrNull()
@@ -676,6 +690,25 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
         showTargetTileHighlights()
     }
 
+    private fun selectTargetPosition(position: GridPosition) {
+        targetTiles.firstOrNull { it.position == position }
+                ?.let { cmd ->
+                    if (cmd is InteractCommand) {
+                        val envObj = getBackend().getBattleMapUnsafe().getCell(cmd.position).fullEnvObject!!
+                        when (envObj) {
+                            is FullEnvObject.ChestEnvObject -> commandPreviewSubtitle.setText("Open this chest")
+                            is FullEnvObject.NpcEnvObject -> {
+                                commandPreviewSubtitle.setText("Interact with ${getBackend().getNpc(envObj.npcId)!!.unitInstance.nickname}")
+                            }
+                            else -> commandPreviewSubtitle.setText("Interact with this object")
+                        }
+                    }
+                    sCameraInterpolation.sendCameraToPosition(GridUtils.gridPositionToLocal(position, game.advConfig.resolution.tileSize.toFloat()))
+                    updatePreviewDetails(cmd)
+                    showTargetPositionTileHighlights()
+                }
+    }
+
     private fun updatePreviewDetails(command: BattleCommand) {
         val backend = getBackend()
         val previewComponents = backend.preview(command)
@@ -699,13 +732,14 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
     }
 
     private fun updateRightPreviewDetails(command: BattleCommand, preview: List<PreviewComponent>) {
+        commandPreviewDetailsList.clearItems()
         val previewAggregator = PreviewAggregator()
-        val selected = commandPreviewList.getSelected()!!
-        val rightPreviewList = previewAggregator.aggregateDetails(command, preview, selected.text)
-        if (rightPreviewList.isEmpty()) {
-            commandPreviewDetailsList.clearItems()
-        } else {
-            commandPreviewDetailsList.setItems(rightPreviewList)
+        val selected = commandPreviewList.getSelected()
+        if (selected != null) {
+            val rightPreviewList = previewAggregator.aggregateDetails(command, preview, selected.text)
+            if (rightPreviewList.isNotEmpty()) {
+                commandPreviewDetailsList.setItems(rightPreviewList)
+            }
         }
         commandPreviewDetailsList.disableAll()
         commandPreviewDetailsList.clearSelection()
@@ -724,6 +758,20 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                 untargetedTiles.add(position)
             }
             index++
+        }
+        tileHighlights[NON_TARGET_COLOR] = untargetedTiles
+        sEvent.dispatch(TileHighlightUpdateEvent(tileHighlights))
+    }
+
+    private fun showTargetPositionTileHighlights() {
+        val tileHighlights: MutableMap<Color, List<GridPosition>> = mutableMapOf()
+        val untargetedTiles: MutableList<GridPosition> = mutableListOf()
+        targetTiles.forEachIndexed { index, positionCommand ->
+            if (index == targetIndex) {
+                tileHighlights[TARGET_COLOR] = listOf(positionCommand.position)
+            } else {
+                untargetedTiles.add(positionCommand.position)
+            }
         }
         tileHighlights[NON_TARGET_COLOR] = untargetedTiles
         sEvent.dispatch(TileHighlightUpdateEvent(tileHighlights))
@@ -940,6 +988,13 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                 val cXy = mXy.get(npcEntityId)
                 sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
             }
+            BattleUiState.TILE_SELECTION -> {
+                stateMachine.revertToPreviousState()
+
+                val npcEntityId = sNpcId.getNpcEntityId(selectedNpcId!!)!!
+                val cXy = mXy.get(npcEntityId)
+                sCameraInterpolation.sendCameraToPosition(cXy.toVector2())
+            }
             else -> {
             }
         }
@@ -1036,6 +1091,10 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                         }
                         stateMachine.isInState(BattleUiState.TARGET_SELECTION) -> {
                             selectTarget(npcId)
+                        }
+                        stateMachine.isInState(BattleUiState.TILE_SELECTION) -> {
+                            val mouseGridPosition = GridUtils.localToGridPosition(mouseX, mouseY, game.advConfig.resolution.tileSize.toFloat())
+                            selectTargetPosition(mouseGridPosition)
                         }
                     }
                 }
@@ -1190,6 +1249,16 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
                         index++
                     }
                     uiSystem.selectTarget(uiSystem.targetNpcIds[0].first)
+                }
+            }
+        },
+        TILE_SELECTION() {
+            override fun enter(uiSystem: BattleUiSystem) {
+                uiSystem.primaryActionMenu.lockSelection = true
+                uiSystem.secondaryActionMenu.lockSelection = true
+                uiSystem.targetIndex = 0
+                if (uiSystem.targetTiles.isNotEmpty()) {
+                    uiSystem.selectTargetPosition(uiSystem.targetTiles[0].position)
                 }
             }
         },

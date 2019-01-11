@@ -136,7 +136,9 @@ data class TextEvent(val text: String) : BattleLogEvent {
 }
 
 data class CellStateEvent(val position: GridPosition,
-                          val cell: BattleMapCell) : BattleLogEvent {
+                          val cell: BattleMapCell,
+                          val text: String) : BattleLogEvent {
 
+    override fun userFriendlyDescription(): String = text
     override fun description(): String = "Cell at $position changed state to $cell"
 }

@@ -44,6 +44,10 @@ object GridUtils {
         return arr
     }
 
+    fun neighbors(position: GridPosition): Array<GridPosition> {
+        return boundaries(GridPosition(position.x - 1, position.y - 1), GridPosition(position.x + 1, position.y + 1))
+    }
+
     fun gridInRadius(center: GridPosition, radius: Int, minX: Int, minY: Int, maxX: Int, maxY: Int): Array<GridPosition> {
         val arr = Array<GridPosition>()
         arr.add(center)

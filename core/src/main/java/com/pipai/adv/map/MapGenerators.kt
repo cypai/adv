@@ -11,6 +11,8 @@ import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.index.WeaponSchemaIndex
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
+import com.pipai.adv.tiles.TileDescriptor
+import com.pipai.adv.tiles.TilePosition
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
@@ -56,6 +58,9 @@ class TestMapGenerator : MapGenerator {
         generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList)
 
         generateWallBoundary(map)
+        val chestTile = EnvObjTilesetMetadata.SingleTilesetMetadata(TileDescriptor("chest", TilePosition(0, 0)))
+        map.getCell(3, 3).fullEnvObject = FullEnvObject.ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile)
+        map.getCell(4, 3).fullEnvObject = FullEnvObject.ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile)
         map.getCell(8, 8).fullEnvObject = FullEnvObject.FULL_WALL
         return map
     }
