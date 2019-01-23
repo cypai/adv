@@ -1,7 +1,6 @@
 package com.pipai.adv.backend.battle.domain
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.google.common.base.Preconditions
 import com.pipai.adv.backend.battle.engine.domain.CoverType
 import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.PccMetadata
@@ -21,8 +20,6 @@ data class BattleMap internal constructor(val width: Int, val height: Int, val c
     }
 
     fun getCell(x: Int, y: Int): BattleMapCell {
-        Preconditions.checkElementIndex(x, width)
-        Preconditions.checkElementIndex(y, height)
         return cells[x][y]
     }
 

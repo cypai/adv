@@ -52,8 +52,8 @@ class TestMapGenerator : MapGenerator {
             currentY++
         }
 
-        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + 4, RNG.nextInt((height - 10) + 6)), map, schemas, weapons, npcList)
-        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt((height - 10) + 6)), map, schemas, weapons, npcList)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + 4, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList)
 
         generateWallBoundary(map)
         map.getCell(8, 8).fullEnvObject = FullEnvObject.FULL_WALL
