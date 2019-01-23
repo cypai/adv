@@ -3,11 +3,13 @@ package com.pipai.test.libgdx
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.EnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
+import com.pipai.adv.utils.AutoIncrementIdMap
 import java.io.File
 
 fun <T> getTestResourceFileHandle(cls: Class<T>, filename: String): FileHandle {
@@ -26,8 +28,8 @@ fun <T> getTestResourceFilePath(cls: Class<T>, filename: String): String {
     return file.absolutePath
 }
 
-fun generateBackend(npcList: NpcList, map: BattleMap): BattleBackend {
+fun generateBackend(npcList: AutoIncrementIdMap<Npc>, envObjList: AutoIncrementIdMap<EnvObject>, map: BattleMap): BattleBackend {
     val weaponSchemaIndex = WeaponSchemaIndex(Gdx.files.internal("data/weapons.csv"))
     val skillIndex = SkillIndex(Gdx.files.internal("data/skills.csv"))
-    return BattleBackend(weaponSchemaIndex, skillIndex, npcList, map, MapClearEndingRule())
+    return BattleBackend(weaponSchemaIndex, skillIndex, npcList, envObjList, map, MapClearEndingRule())
 }

@@ -26,6 +26,7 @@ import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.*
 import com.pipai.adv.map.MapGenerator
+import com.pipai.adv.utils.AutoIncrementIdMap
 import net.mostlyoriginal.api.event.common.EventSystem
 
 class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGenerator) : Screen {
@@ -42,7 +43,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = mapGenerator
-                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, partyList, 40, 30, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, AutoIncrementIdMap(), partyList, 40, 30, mapTileset)
 
         val cutsceneDirectors: MutableList<BattleCutsceneDirector> = mutableListOf()
 

@@ -1,30 +1,25 @@
 package com.pipai.adv.backend.battle.generators
 
 import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver
-import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.BattleMapCellSpecialFlag.Exit
-import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
-import com.pipai.adv.backend.battle.domain.FullEnvObject
-import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObject
-import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType
-import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType.ROCK
-import com.pipai.adv.backend.battle.domain.FullEnvObject.DestructibleEnvObjectType.TREE
-import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.engine.domain.CoverType
 import com.pipai.adv.map.MapParcel
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.RNG
 
 internal val EXIT = Exit()
 
 interface TerrainGenerator {
-    fun generate(width: Int, height: Int): BattleMap
+    fun generate(envObjList: AutoIncrementIdMap<EnvObject>, width: Int, height: Int): BattleMap
 }
 
 class ParcelTerrainGenerator : TerrainGenerator {
-    override fun generate(width: Int, height: Int): BattleMap {
+    override fun generate(envObjList: AutoIncrementIdMap<EnvObject>, width: Int, height: Int): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
-        val mapParcel = MapParcel.Factory.readMapParcel(LocalFileHandleResolver(), "assets/binassets/maps/parcel1.tmx")
+        val mapParcel = MapParcel.Factory.readMapParcel(LocalFileHandleResolver(), "assets/binassets/maps/parcel1.tmx", envObjList)
         placeParcelInMap(map, mapParcel)
         return map
     }
@@ -36,9 +31,9 @@ class ParcelTerrainGenerator : TerrainGenerator {
                 val parcelCell = mapParcel.cells[position]
                 if (parcelCell != null) {
                     val mapCell = map.getCell(x, y)
-                    mapCell.fullEnvObject = parcelCell.fullEnvObject
+                    mapCell.fullEnvObjId = parcelCell.fullEnvObjId
                     mapCell.backgroundTiles.addAll(parcelCell.backgroundTiles)
-                    mapCell.envObjects.addAll(parcelCell.envObjects)
+                    mapCell.envObjIds.addAll(parcelCell.envObjIds)
                     mapCell.specialFlags.addAll(parcelCell.specialFlags)
                 }
             }
@@ -51,15 +46,15 @@ class OpenTerrainGenerator : TerrainGenerator {
     var trees: Int = 50
     var rocks: Int = 0
 
-    override fun generate(width: Int, height: Int): BattleMap {
+    override fun generate(envObjList: AutoIncrementIdMap<EnvObject>, width: Int, height: Int): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
         repeat(trees, {
-            val tree = createDefaultDestructibleFullEnvironmentObject(TREE)
-            addFullEnvironmentObjectToRandomPosition(map, tree)
+            val tree = DestructibleEnvObject(10, CoverType.FULL, EnvObjTilesetMetadata.SingleTilesetMetadata(TileDescriptor("trees", TilePosition(0, 0))))
+            addFullEnvironmentObjectToRandomPosition(envObjList, map, tree)
         })
         repeat(rocks, {
-            val rock = createDefaultDestructibleFullEnvironmentObject(ROCK)
-            addFullEnvironmentObjectToRandomPosition(map, rock)
+            val rock = DestructibleEnvObject(5, CoverType.HALF, EnvObjTilesetMetadata.NONE)
+            addFullEnvironmentObjectToRandomPosition(envObjList, map, rock)
         })
         addExitsToPerimeter(map)
         return map
@@ -80,18 +75,9 @@ fun addExitsToPerimeter(map: BattleMap) {
     }
 }
 
-fun createDefaultDestructibleFullEnvironmentObject(type: DestructibleEnvObjectType): DestructibleEnvObject {
-    val min = type.defaultMinHp
-    val max = type.defaultMaxHp
-    val hp = min + RNG.nextInt(max - min)
-    val tile = when (type) {
-        TREE -> EnvObjTilesetMetadata.SingleTilesetMetadata(TileDescriptor("trees", TilePosition(0, 0)))
-        else -> EnvObjTilesetMetadata.NONE
-    }
-    return DestructibleEnvObject(type, hp, tile)
-}
+fun addFullEnvironmentObjectToRandomPosition(envObjList: AutoIncrementIdMap<EnvObject>, map: BattleMap, envObj: EnvObject) {
+    val envObjId = envObjList.add(envObj)
 
-fun addFullEnvironmentObjectToRandomPosition(map: BattleMap, envObj: FullEnvObject) {
     val width = map.width
     val height = map.height
 
@@ -100,8 +86,8 @@ fun addFullEnvironmentObjectToRandomPosition(map: BattleMap, envObj: FullEnvObje
         val x = RNG.nextInt(width)
         val y = RNG.nextInt(height)
         val cell = map.getCell(x, y)
-        if (cell.fullEnvObject == null) {
-            cell.fullEnvObject = envObj
+        if (cell.fullEnvObjId == null) {
+            cell.fullEnvObjId = envObjId
             added = true
         }
     }

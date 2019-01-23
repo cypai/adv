@@ -55,7 +55,7 @@ class AttackCalculationExecutionRule(private val hitCalculator: HitCalculator,
 
         val hitRoll = RNG.nextInt(100)
         var damage: Int
-        val target = state.npcList.getNpc(cmd.targetId)!!
+        val target = state.npcList.get(cmd.targetId)!!
         if (hitRoll < toHit) {
             val critRoll = RNG.nextInt(100)
             val crit = critRoll < toCrit

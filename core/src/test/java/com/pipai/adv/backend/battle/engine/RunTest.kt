@@ -5,7 +5,8 @@ import com.pipai.adv.backend.battle.engine.commands.RunCommand
 import com.pipai.adv.backend.battle.engine.log.BattleEndEvent
 import com.pipai.adv.backend.battle.engine.log.EndingType
 import com.pipai.adv.backend.battle.generators.EXIT
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
 import com.pipai.test.libgdx.GdxMockedTest
@@ -17,20 +18,22 @@ class RunTest : GdxMockedTest() {
 
     @Test
     fun testRun() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
         val player1 = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 null)
-        val player1Id = npcList.addNpc(player1)
+        val player1Id = npcList.add(player1)
         val player2 = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 sword)
-        val player2Id = npcList.addNpc(player2)
+        val player2Id = npcList.add(player2)
         map.getCell(0, 0).specialFlags.add(EXIT)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(player1Id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(player2Id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(player1Id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(player2Id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
         var runCommand = RunCommand(player2Id)
         var runPreview = backend.canBeExecuted(runCommand)
         Assert.assertFalse(runPreview.executable)

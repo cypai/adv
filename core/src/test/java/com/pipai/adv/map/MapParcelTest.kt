@@ -1,6 +1,7 @@
 package com.pipai.adv.map
 
 import com.badlogic.gdx.assets.loaders.resolvers.ExternalFileHandleResolver
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.test.libgdx.GdxMockedTest
 import com.pipai.test.libgdx.getTestResourceFilePath
 import org.junit.Test
@@ -14,7 +15,7 @@ class MapParcelTest : GdxMockedTest() {
 
     @Test
     fun testMapParcel() {
-        MapParcel.Factory.readMapParcel(ExternalFileHandleResolver(), PARCEL_FILE)
+        MapParcel.Factory.readMapParcel(ExternalFileHandleResolver(), PARCEL_FILE, AutoIncrementIdMap())
     }
 
 }

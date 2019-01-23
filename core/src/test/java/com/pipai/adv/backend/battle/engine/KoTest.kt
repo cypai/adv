@@ -5,7 +5,9 @@ import com.pipai.adv.backend.battle.engine.commands.DevHpChangeCommand
 import com.pipai.adv.backend.battle.engine.log.DamageEvent
 import com.pipai.adv.backend.battle.engine.log.NpcKoEvent
 import com.pipai.adv.backend.battle.engine.log.PlayerKoEvent
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
 import com.pipai.test.libgdx.generateBackend
@@ -16,16 +18,18 @@ class KoTest : GdxMockedTest() {
 
     @Test
     fun testPlayerKo() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val player = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val playerId = npcList.addNpc(player)
+        val playerId = npcList.add(player)
         val enemy = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val enemyId = npcList.addNpc(enemy)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE)
+        val enemyId = npcList.add(enemy)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val cmd = DevHpChangeCommand(playerId, 0)
 
@@ -41,23 +45,25 @@ class KoTest : GdxMockedTest() {
         val (npcId1) = events.stream().filter { it -> it is PlayerKoEvent }.findFirst().get() as PlayerKoEvent
         Assert.assertEquals(playerId.toLong(), npcId1.toLong())
 
-        val envObj = map.getCell(0, 0).fullEnvObject
-        Assert.assertTrue(envObj is FullEnvObject.NpcEnvObject)
-        Assert.assertEquals(playerId.toLong(), (envObj as FullEnvObject.NpcEnvObject).npcId.toLong())
+        val envObj = map.getCell(0, 0).fullEnvObjId
+        Assert.assertTrue(envObj.fetch(envObjList) is NpcEnvObject)
+        Assert.assertEquals(playerId.toLong(), (envObj.fetch(envObjList) as NpcEnvObject).npcId.toLong())
     }
 
     @Test
     fun testEnemyKo() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val player = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val playerId = npcList.addNpc(player)
+        val playerId = npcList.add(player)
         val enemy = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val enemyId = npcList.addNpc(enemy)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE)
+        val enemyId = npcList.add(enemy)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val cmd = DevHpChangeCommand(enemyId, 0)
 
@@ -72,6 +78,6 @@ class KoTest : GdxMockedTest() {
         Assert.assertTrue(events.stream().anyMatch { it -> it is NpcKoEvent })
         val (npcId1) = events.stream().filter { it -> it is NpcKoEvent }.findFirst().get() as NpcKoEvent
         Assert.assertEquals(enemyId.toLong(), npcId1.toLong())
-        Assert.assertEquals(null, map.getCell(1, 1).fullEnvObject)
+        Assert.assertEquals(null, map.getCell(1, 1).fullEnvObjId)
     }
 }

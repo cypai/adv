@@ -32,7 +32,7 @@ class ElementalSkillExecutionRule : CommandExecutionRule {
         val weapon = state.getNpcWeapon(cmd.unitId)!!
         val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.intelligence + weaponSchema.patk
+        val base = state.npcList.get(cmd.unitId)!!.unitInstance.stats.intelligence + weaponSchema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
@@ -60,9 +60,9 @@ class ElementalSkillExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         state.battleLog.addEvent(TargetSkillEvent(
                 cmd.unitId,
-                state.npcList.getNpc(cmd.unitId)!!,
+                state.npcList.get(cmd.unitId)!!,
                 cmd.targetId,
-                state.npcList.getNpc(cmd.targetId)!!,
+                state.npcList.get(cmd.targetId)!!,
                 cmd.skill))
     }
 

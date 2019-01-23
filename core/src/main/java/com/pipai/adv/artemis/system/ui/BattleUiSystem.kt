@@ -31,7 +31,7 @@ import com.pipai.adv.backend.battle.engine.commands.*
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.TpUsedPreviewComponent
 import com.pipai.adv.backend.battle.utils.BattleUtils
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.gui.NpcDisplay
 import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.gui.UiConstants
@@ -40,7 +40,7 @@ import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, private val stage: Stage) : BaseSystem(), InputProcessor, PausableSystem {
+class BattleUiSystem(private val game: AdvGame, private val npcList: AutoIncrementIdMap<Npc>, private val stage: Stage) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val logger = getLogger()
 
@@ -691,13 +691,14 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
     }
 
     private fun selectTargetPosition(position: GridPosition) {
+        val backend = getBackend()
         targetTiles.firstOrNull { it.position == position }
                 ?.let { cmd ->
                     if (cmd is InteractCommand) {
-                        val envObj = getBackend().getBattleMapUnsafe().getCell(cmd.position).fullEnvObject!!
+                        val envObj = backend.getEnvObj(backend.getBattleMapUnsafe().getCell(cmd.position).fullEnvObjId)
                         when (envObj) {
-                            is FullEnvObject.ChestEnvObject -> commandPreviewSubtitle.setText("Open this chest")
-                            is FullEnvObject.NpcEnvObject -> {
+                            is ChestEnvObject -> commandPreviewSubtitle.setText("Open this chest")
+                            is NpcEnvObject -> {
                                 commandPreviewSubtitle.setText("Interact with ${getBackend().getNpc(envObj.npcId)!!.unitInstance.nickname}")
                             }
                             else -> commandPreviewSubtitle.setText("Interact with this object")
@@ -950,7 +951,7 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: NpcList, pr
     private fun getBackend() = mBackend.get(sTags.getEntityId(Tags.BACKEND.toString())).backend
 
     private fun initInfoView() {
-        val npc = npcList.getNpc(selectedNpcId!!)!!
+        val npc = npcList.get(selectedNpcId!!)!!
         infoStatsDisplay.setNpcId(selectedNpcId)
         infoSkillsTable.clearChildren()
         infoSkillsTable.add(Label("Skills", game.skin))

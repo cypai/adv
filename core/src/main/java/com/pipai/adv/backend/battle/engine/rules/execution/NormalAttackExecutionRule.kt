@@ -27,7 +27,7 @@ class NormalAttackExecutionRule : CommandExecutionRule {
         val cmd = command as NormalAttackCommand
         val weapon = state.getNpcWeapon(cmd.unitId)!!
         val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+        val base = state.npcList.get(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ToHitPreviewComponent(65))

@@ -10,7 +10,7 @@ class KoCannotBeAttackedRule : CommandRule {
 
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
         if (command is NormalAttackCommand) {
-            val unit = state.npcList.getNpc(command.targetId)!!
+            val unit = state.npcList.get(command.targetId)!!
             if (unit.unitInstance.hp <= 0) {
                 return ExecutableStatus(false, "This character is KOed and cannot be attacked")
             }

@@ -1,8 +1,9 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 
-class BattleStats(private val npcList: NpcList) {
+class BattleStats(private val npcList: AutoIncrementIdMap<Npc>) {
 
     private val creditedKills: MutableMap<Int, MutableList<Int>> = mutableMapOf()
     private val allKills: MutableList<Int> = mutableListOf()
@@ -10,7 +11,7 @@ class BattleStats(private val npcList: NpcList) {
     private var totalExp: Int = 0
 
     fun recordTargetedKill(attackerId: Int, koId: Int) {
-        val kill = npcList.getNpc(koId)!!
+        val kill = npcList.get(koId)!!
         totalExp += kill.unitInstance.expGiven
 
         if (creditedKills.containsKey(attackerId)) {
@@ -23,7 +24,7 @@ class BattleStats(private val npcList: NpcList) {
     }
 
     fun recordUntargetedKill(koId: Int) {
-        val kill = npcList.getNpc(koId)!!
+        val kill = npcList.get(koId)!!
         totalExp += kill.unitInstance.expGiven
 
         allKills.add(koId)

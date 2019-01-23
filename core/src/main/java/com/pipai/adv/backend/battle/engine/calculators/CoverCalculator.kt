@@ -1,25 +1,24 @@
 package com.pipai.adv.backend.battle.engine.calculators
 
-import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.Direction
-import com.pipai.adv.backend.battle.domain.FullEnvObject
-import com.pipai.adv.backend.battle.domain.GridPosition
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.domain.CoverDirections
 import com.pipai.adv.backend.battle.engine.domain.CoverType
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.DirectionUtils
+import com.pipai.adv.utils.fetch
 
-class CoverCalculator(private val map: BattleMap) {
+class CoverCalculator(private val envObjList: AutoIncrementIdMap<EnvObject>, private val map: BattleMap) {
 
     fun directionalCover(position: GridPosition, direction: Direction): CoverType {
         val neighborPosition = DirectionUtils.neighborCellInDirection(position, direction)
         val neighborCell = map.getCellSafe(neighborPosition) ?: return CoverType.OPEN
-        val envObj = neighborCell.fullEnvObject
+        val envObj = neighborCell.fullEnvObjId.fetch(envObjList)
         return when (envObj) {
-            is FullEnvObject.NpcEnvObject -> CoverType.OPEN
-            is FullEnvObject.FullWall -> CoverType.FULL
-            is FullEnvObject.ChestEnvObject -> CoverType.HALF
-            is FullEnvObject.DestructibleEnvObject -> envObj.type.coverType
-            null -> CoverType.OPEN
+            is NpcEnvObject -> CoverType.OPEN
+            is FullWall -> CoverType.FULL
+            is ChestEnvObject -> CoverType.HALF
+            is DestructibleEnvObject -> envObj.coverType
+            else -> CoverType.OPEN
         }
     }
 

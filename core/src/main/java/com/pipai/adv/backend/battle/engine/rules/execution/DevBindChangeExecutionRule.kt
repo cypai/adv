@@ -30,7 +30,7 @@ class DevBindChangeExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         val cmd = command as DevBindChangeCommand
-        val npc = state.npcList.getNpc(cmd.unitId)!!
+        val npc = state.npcList.get(cmd.unitId)!!
         state.npcStatusState.setNpcBind(cmd.unitId, cmd.bodyPart, cmd.amount)
         val bindState = state.npcStatusState.getNpcBind(cmd.unitId, cmd.bodyPart)
         when (bindState) {

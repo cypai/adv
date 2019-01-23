@@ -4,7 +4,8 @@ import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.DevBindChangeCommand
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommand
 import com.pipai.adv.backend.battle.engine.domain.BodyPart
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
 import com.pipai.test.libgdx.GdxMockedTest
@@ -16,19 +17,21 @@ class BindTest : GdxMockedTest() {
 
     @Test
     fun testBoundNormalAttack() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
         val attacker = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 sword)
-        val attackerId = npcList.addNpc(attacker)
+        val attackerId = npcList.add(attacker)
         val target = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 null)
-        val targetId = npcList.addNpc(target)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val targetId = npcList.add(target)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         backend.execute(DevBindChangeCommand(attackerId, BodyPart.ARMS, 1))
 

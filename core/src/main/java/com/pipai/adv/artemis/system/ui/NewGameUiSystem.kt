@@ -154,7 +154,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
                         nameText.text,
                         weaponSchemaIndex.getWeaponSchema("Toy Sword")!!),
                 PccTilesetMetadata(playerPcc))
-        val playerId = save.globalNpcList.addNpc(playerNpc)
+        val playerId = save.globalNpcList.add(playerNpc)
         save.addToGuild(guildText.text, playerId)
 
         val friendPcc: MutableList<PccMetadata> = mutableListOf()
@@ -162,7 +162,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val friendNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(friendPcc))
         friendNpc.unitInstance.weapon = InventoryItem.WeaponInstance("Toy Bow", 1)
-        val friendId = save.globalNpcList.addNpc(friendNpc)
+        val friendId = save.globalNpcList.add(friendNpc)
         save.addToGuild(guildText.text, friendId)
 
         val rivalPcc: MutableList<PccMetadata> = mutableListOf()
@@ -174,7 +174,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val rivalNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Miriam"),
                 PccTilesetMetadata(rivalPcc))
         rivalNpc.unitInstance.weapon = InventoryItem.WeaponInstance("Toy Staff", 1)
-        val rivalId = save.globalNpcList.addNpc(rivalNpc)
+        val rivalId = save.globalNpcList.add(rivalNpc)
         save.addToGuild(guildText.text, rivalId)
 
         val knightPcc: MutableList<PccMetadata> = mutableListOf()
@@ -187,7 +187,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val knightNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Ayra"),
                 PccTilesetMetadata(knightPcc))
         knightNpc.unitInstance.weapon = InventoryItem.WeaponInstance("Toy Sword", 1)
-        val knightId = save.globalNpcList.addNpc(knightNpc)
+        val knightId = save.globalNpcList.add(knightNpc)
         save.addToGuild(guildText.text, knightId)
 
         val medicPcc: MutableList<PccMetadata> = mutableListOf()
@@ -203,7 +203,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
         val medicNpc = Npc(UnitInstance(schemas.getSchema("Human").schema, "Nellie"),
                 PccTilesetMetadata(medicPcc))
         medicNpc.unitInstance.weapon = InventoryItem.WeaponInstance("Toy Bow", 1)
-        val medicId = save.globalNpcList.addNpc(medicNpc)
+        val medicId = save.globalNpcList.add(medicNpc)
         save.addToGuild(guildText.text, medicId)
 
         val squadName = "Squad 1"

@@ -32,7 +32,7 @@ class HealingSkillExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         val skill = cmd.skill
 
-        val base = state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.wisdom
+        val base = state.npcList.get(cmd.unitId)!!.unitInstance.stats.wisdom
 
         val previewComponents: MutableList<PreviewComponent> = mutableListOf()
         previewComponents.add(ApUsedPreviewComponent(cmd.unitId, state.apState.getNpcAp(cmd.unitId)))
@@ -51,9 +51,9 @@ class HealingSkillExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         state.battleLog.addEvent(TargetSkillEvent(
                 cmd.unitId,
-                state.npcList.getNpc(cmd.unitId)!!,
+                state.npcList.get(cmd.unitId)!!,
                 cmd.targetId,
-                state.npcList.getNpc(cmd.targetId)!!,
+                state.npcList.get(cmd.targetId)!!,
                 cmd.skill))
     }
 

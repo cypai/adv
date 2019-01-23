@@ -2,10 +2,8 @@ package com.pipai.adv.map
 
 import com.pipai.adv.SchemaMetadata
 import com.pipai.adv.backend.battle.domain.*
-import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
 import com.pipai.adv.backend.battle.generators.OpenTerrainGenerator
 import com.pipai.adv.domain.Npc
-import com.pipai.adv.domain.NpcList
 import com.pipai.adv.domain.UnitSkill
 import com.pipai.adv.index.UnitSchemaIndex
 import com.pipai.adv.index.WeaponSchemaIndex
@@ -13,16 +11,19 @@ import com.pipai.adv.tiles.MapTileType
 import com.pipai.adv.tiles.MapTileset
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.RNG
 
 interface MapGenerator {
-    fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+    fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex,
+                 npcList: AutoIncrementIdMap<Npc>, envObjList: AutoIncrementIdMap<EnvObject>, party: List<Int>,
                  width: Int, height: Int, tileset: MapTileset): BattleMap
 }
 
 class GuildMapGenerator : MapGenerator {
 
-    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex,
+                          npcList: AutoIncrementIdMap<Npc>, envObjList: AutoIncrementIdMap<EnvObject>, party: List<Int>,
                           width: Int, height: Int, tileset: MapTileset): BattleMap {
         val map = BattleMap.createBattleMap(width, height)
         generateGround(map)
@@ -30,10 +31,10 @@ class GuildMapGenerator : MapGenerator {
 
         var currentY = 1
         for (index in party) {
-            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(party[index], Team.PLAYER, npcList.getNpc(party[index])!!.tilesetMetadata)
+            map.getCell(1, currentY).fullEnvObjId = envObjList.add(NpcEnvObject(party[index], Team.PLAYER, npcList.get(party[index])!!.tilesetMetadata))
             currentY++
         }
-        generateWallBoundary(map)
+        generateWallBoundary(envObjList, map)
         return map
     }
 
@@ -41,27 +42,28 @@ class GuildMapGenerator : MapGenerator {
 
 class TestMapGenerator : MapGenerator {
 
-    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList, party: List<Int>,
+    override fun generate(schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex,
+                          npcList: AutoIncrementIdMap<Npc>, envObjList: AutoIncrementIdMap<EnvObject>, party: List<Int>,
                           width: Int, height: Int, tileset: MapTileset): BattleMap {
         val generator = OpenTerrainGenerator()
-        val map = generator.generate(width, height)
+        val map = generator.generate(envObjList, width, height)
         generateGround(map)
         generateGroundDeco(map, 4, tileset)
 
         var currentY = 1
         for (npcId in party) {
-            map.getCell(1, currentY).fullEnvObject = NpcEnvObject(npcId, Team.PLAYER, npcList.getNpc(npcId)!!.tilesetMetadata)
+            map.getCell(1, currentY).fullEnvObjId = envObjList.add(NpcEnvObject(npcId, Team.PLAYER, npcList.get(npcId)!!.tilesetMetadata))
             currentY++
         }
 
-        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + 4, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList)
-        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + 4, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList, envObjList)
+        generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList, envObjList)
 
-        generateWallBoundary(map)
+        generateWallBoundary(envObjList, map)
         val chestTile = EnvObjTilesetMetadata.SingleTilesetMetadata(TileDescriptor("chest", TilePosition(0, 0)))
-        map.getCell(3, 3).fullEnvObject = FullEnvObject.ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile)
-        map.getCell(4, 3).fullEnvObject = FullEnvObject.ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile)
-        map.getCell(8, 8).fullEnvObject = FullEnvObject.FULL_WALL
+        map.getCell(3, 3).fullEnvObjId = envObjList.add(ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile))
+        map.getCell(4, 3).fullEnvObjId = envObjList.add(ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile))
+        map.getCell(8, 8).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
         return map
     }
 
@@ -93,20 +95,21 @@ private fun generateGroundDeco(map: BattleMap, sparseness: Int, tileset: MapTile
     }
 }
 
-private fun generateWallBoundary(map: BattleMap) {
+private fun generateWallBoundary(envObjList: AutoIncrementIdMap<EnvObject>, map: BattleMap) {
     for (x in 0 until map.width) {
         if (x > 5 || x == 0) {
-            map.getCell(x, 0).fullEnvObject = FullEnvObject.FULL_WALL
+            map.getCell(x, 0).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
         }
-        map.getCell(x, map.height - 1).fullEnvObject = FullEnvObject.FULL_WALL
+        map.getCell(x, map.height - 1).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
     }
     for (y in 1 until map.height - 1) {
-        map.getCell(0, y).fullEnvObject = FullEnvObject.FULL_WALL
-        map.getCell(map.width - 1, y).fullEnvObject = FullEnvObject.FULL_WALL
+        map.getCell(0, y).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
+        map.getCell(map.width - 1, y).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
     }
 }
 
-private fun generatePod(position: GridPosition, map: BattleMap, schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex, npcList: NpcList) {
+private fun generatePod(position: GridPosition, map: BattleMap, schemas: UnitSchemaIndex, weapons: WeaponSchemaIndex,
+                        npcList: AutoIncrementIdMap<Npc>, envObjList: AutoIncrementIdMap<EnvObject>) {
 
     val defaultMelee = weapons.getWeaponSchema("Monster Melee")!!
     val defaultRanged = weapons.getWeaponSchema("Monster Ranged")!!
@@ -126,8 +129,8 @@ private fun generatePod(position: GridPosition, map: BattleMap, schemas: UnitSch
             else -> defaultMelee
         }
         val skills = schema.schema.enemySkills.map { UnitSkill(1, it) }
-        val id = npcList.addNpc(Npc(UnitInstance(schema.schema, schema.schema.name, weaponSchema, skills), schema.tilesetMetadata))
-        map.getCell(schemaPosition).fullEnvObject = NpcEnvObject(id, Team.AI, schema.tilesetMetadata)
+        val id = npcList.add(Npc(UnitInstance(schema.schema, schema.schema.name, weaponSchema, skills), schema.tilesetMetadata))
+        map.getCell(schemaPosition).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.AI, schema.tilesetMetadata))
     }
 }
 

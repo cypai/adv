@@ -16,18 +16,20 @@ import com.pipai.adv.artemis.system.ui.GuildManagementUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.MapTilesetMetadata
-import com.pipai.adv.backend.battle.domain.FullEnvObject
-import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
+import com.pipai.adv.backend.battle.domain.EnvObject
+import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 
 @Wire
 class GuildScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig,
-                      private val npcList: NpcList, private val map: BattleMap) {
+                      private val npcList: AutoIncrementIdMap<Npc>, private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
@@ -56,7 +58,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, map, MapClearEndingRule())
+        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, AutoIncrementIdMap(), map, MapClearEndingRule())
 
         val cameraId = world.create()
         val camera = mCamera.create(cameraId).camera
@@ -79,7 +81,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {
                 val cell = map.getCell(x, y)
-                val fullEnvObj = cell.fullEnvObject ?: continue
+                val fullEnvObj = cell.fullEnvObjId.fetch(cBackend.backend.getBattleState().envObjList) ?: continue
                 handleEnvObj(fullEnvObj, x, y)
             }
         }
@@ -136,7 +138,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         val cNpcId = mNpcId.create(entityId)
         cNpcId.npcId = npcId
 
-        val npc = npcList.getNpc(npcId)!!
+        val npc = npcList.get(npcId)!!
 
         if (npcId == 0) {
             sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
@@ -171,7 +173,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         cCollision.bounds = CollisionBoundingBox(tileSize / 4, tileSize / 4, tileSize / 2, tileSize / 2)
     }
 
-    private fun handleEnvObj(envObj: FullEnvObject, x: Int, y: Int) {
+    private fun handleEnvObj(envObj: EnvObject, x: Int, y: Int) {
         val id = world.create()
         val tilesetMetadata = envObj.getTilesetMetadata()
 
@@ -195,7 +197,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         }
     }
 
-    private fun generateCollisionComponents(id: Int, envObj: FullEnvObject) {
+    private fun generateCollisionComponents(id: Int, envObj: EnvObject) {
         val tileSize = config.resolution.tileSize.toFloat()
         when (envObj) {
             is NpcEnvObject -> {

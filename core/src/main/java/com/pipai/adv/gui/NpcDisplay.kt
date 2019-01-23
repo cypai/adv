@@ -7,10 +7,11 @@ import com.pipai.adv.AdvGame
 import com.pipai.adv.backend.battle.domain.Direction
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata
 import com.pipai.adv.backend.progression.LevelBackend
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 
 class NpcDisplay(private val game: AdvGame,
-                 private val npcList: NpcList,
+                 private val npcList: AutoIncrementIdMap<Npc>,
                  private var npcId: Int?) : ScrollPane(Table(), game.skin) {
 
     private val table = this.actor as Table
@@ -31,7 +32,7 @@ class NpcDisplay(private val game: AdvGame,
     private fun initializeTableForNpc() {
         table.clear()
         val npcId = this.npcId ?: return
-        val npc = npcList.getNpc(npcId)!!
+        val npc = npcList.get(npcId)!!
         val tilesetMetadata = npc.tilesetMetadata
         val pcc = if (tilesetMetadata is EnvObjTilesetMetadata.PccTilesetMetadata) {
             tilesetMetadata.pccMetadata

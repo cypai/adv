@@ -1,9 +1,10 @@
 package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.engine.domain.*
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 
-class NpcStatusState(npcList: NpcList) {
+class NpcStatusState(npcList: AutoIncrementIdMap<Npc>) {
 
     private val npcAilments: MutableMap<Int, AilmentInstance?> = mutableMapOf()
     private val npcBinds: MutableMap<Int, BindStatus> = mutableMapOf()

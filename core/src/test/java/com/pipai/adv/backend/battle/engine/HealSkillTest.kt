@@ -3,7 +3,8 @@ package com.pipai.adv.backend.battle.engine
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.TargetSkillCommand
 import com.pipai.adv.backend.battle.engine.log.HealEvent
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
 import com.pipai.test.libgdx.generateBackend
@@ -14,19 +15,21 @@ class HealSkillTest : GdxMockedTest() {
 
     @Test
     fun testHeal() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val attacker = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 null)
-        val attackerId = npcList.addNpc(attacker)
+        val attackerId = npcList.add(attacker)
         val target = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 null)
         target.unitInstance.hp = 1
-        val targetId = npcList.addNpc(target)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val targetId = npcList.add(target)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(attackerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(targetId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val cmd = TargetSkillCommand(backend.skillIndex.getSkillSchema("Heal")!!.new(), attackerId, targetId)
 

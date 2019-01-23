@@ -50,7 +50,7 @@ class MapGraph(val map: BattleMap, val start: GridPosition, val mobility: Int, v
         for (x in startX..endX) {
             for (y in startY..endY) {
                 val cellPos = GridPosition(x, y)
-                if (map.getCell(cellPos).fullEnvObject == null || cellPos == start) {
+                if (map.getCell(cellPos).fullEnvObjId == null || cellPos == start) {
                     val cell = Node(cellPos)
                     nodeMap.put(cellPos.toString(), cell)
                     val west = getNode(GridPosition(x - 1, y))

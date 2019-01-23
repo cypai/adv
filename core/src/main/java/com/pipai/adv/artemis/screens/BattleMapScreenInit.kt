@@ -7,24 +7,26 @@ import com.artemis.managers.TagManager
 import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.artemis.components.*
-import com.pipai.adv.artemis.system.cutscene.BattleCutsceneSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
 import com.pipai.adv.artemis.system.misc.BattleAiSystem
 import com.pipai.adv.artemis.system.ui.BattleUiSystem
 import com.pipai.adv.backend.battle.domain.BattleMap
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.*
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.EnvObject
+import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
                           private val globals: AdvGameGlobals,
-                          private val npcList: NpcList, private val partyList: List<Int>,
+                          private val npcList: AutoIncrementIdMap<Npc>, private val partyList: List<Int>,
                           private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
@@ -54,7 +56,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     fun initialize() {
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, map, MapClearEndingRule())
+        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, AutoIncrementIdMap(), map, MapClearEndingRule())
         sTags.register(Tags.BACKEND.toString(), backendId)
 
         val cameraId = world.create()
@@ -74,14 +76,14 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {
                 val cell = map.getCell(x, y)
-                val fullEnvObj = cell.fullEnvObject ?: continue
+                val fullEnvObj = cell.fullEnvObjId.fetch(cBackend.backend.getBattleState().envObjList) ?: continue
                 handleEnvObj(cBackend.backend, fullEnvObj, x, y)
             }
         }
         sAi.initializeAi()
     }
 
-    private fun handleEnvObj(backend: BattleBackend, envObj: FullEnvObject, x: Int, y: Int) {
+    private fun handleEnvObj(backend: BattleBackend, envObj: EnvObject, x: Int, y: Int) {
         val id = world.create()
         val tilesetMetadata = envObj.getTilesetMetadata()
 
@@ -101,7 +103,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cCollision.bounds = CollisionBounds.CollisionBoundingBox(0f, 0f,
                         PccManager.PCC_WIDTH.toFloat(), PccManager.PCC_HEIGHT.toFloat())
 
-                if (envObj is FullEnvObject.NpcEnvObject) {
+                if (envObj is NpcEnvObject) {
                     mNpcId.create(id).npcId = envObj.npcId
                     if (backend.getNpcTeam(envObj.npcId) == Team.PLAYER) {
                         mPlayerUnit.create(id).index = playerUnitIndex
@@ -147,7 +149,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                 cCollision.bounds = CollisionBounds.CollisionBoundingBox(0f, 0f,
                         AnimatedTilesetManager.TILE_WIDTH.toFloat(), AnimatedTilesetManager.TILE_HEIGHT.toFloat())
 
-                if (envObj is FullEnvObject.NpcEnvObject) {
+                if (envObj is NpcEnvObject) {
                     mNpcId.create(id).npcId = envObj.npcId
                     if (backend.getNpcTeam(envObj.npcId) == Team.PLAYER) {
                         mPlayerUnit.create(id).index = playerUnitIndex

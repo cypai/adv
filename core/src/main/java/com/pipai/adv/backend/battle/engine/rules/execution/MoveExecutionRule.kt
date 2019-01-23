@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.ActionPointState
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
@@ -11,6 +11,7 @@ import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.MoveEvent
 import com.pipai.adv.utils.GridUtils
+import com.pipai.adv.utils.fetch
 
 class MoveExecutionRule : CommandExecutionRule {
 
@@ -25,7 +26,7 @@ class MoveExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache): List<PreviewComponent> {
 
         val cmd = command as MoveCommand
-        val npc = state.npcList.getNpc(cmd.unitId)!!
+        val npc = state.npcList.get(cmd.unitId)!!
         val apMax = ActionPointState.startingNumAPs
         val mobility = npc.unitInstance.stats.mobility
         val distancePerAp = mobility.toFloat() / apMax.toFloat()
@@ -54,11 +55,13 @@ class MoveExecutionRule : CommandExecutionRule {
         val startingCell = state.battleMap.getCell(startPosition)
         val endingCell = state.battleMap.getCell(endPosition)
 
-        val npc = startingCell.fullEnvObject as FullEnvObject.NpcEnvObject
+        val envObjId = startingCell.fullEnvObjId!!
 
-        startingCell.fullEnvObject = null
-        endingCell.fullEnvObject = npc
+        val npc = startingCell.fullEnvObjId.fetch(state.envObjList) as NpcEnvObject
 
-        state.battleLog.addEvent(MoveEvent(npc.npcId, state.npcList.getNpc(npc.npcId)!!, cmd.path))
+        startingCell.fullEnvObjId = null
+        endingCell.fullEnvObjId = envObjId
+
+        state.battleLog.addEvent(MoveEvent(npc.npcId, state.npcList.get(npc.npcId)!!, cmd.path))
     }
 }

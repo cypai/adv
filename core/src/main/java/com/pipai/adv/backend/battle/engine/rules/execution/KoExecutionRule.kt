@@ -31,18 +31,18 @@ class KoExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         cache.teamNpcs[Team.PLAYER]!!.forEach { npcId ->
-            val npc = state.npcList.getNpc(npcId)!!
+            val npc = state.npcList.get(npcId)!!
             if (npc.unitInstance.hp <= 0
                     && !cache.currentTurnKos.contains(npcId)) {
                 state.battleLog.addEvent(PlayerKoEvent(npcId, npc))
             }
         }
         cache.teamNpcs[Team.AI]!!.forEach { npcId ->
-            val npc = state.npcList.getNpc(npcId)!!
+            val npc = state.npcList.get(npcId)!!
             if (npc.unitInstance.hp <= 0
                     && !cache.currentTurnKos.contains(npcId)) {
                 val position = cache.npcPositions[npcId]!!
-                state.battleMap.getCell(position).fullEnvObject = null
+                state.battleMap.getCell(position).fullEnvObjId = null
                 state.battleLog.addEvent(NpcKoEvent(npcId, npc))
                 if (command is TargetCommand) {
                     state.battleStats.recordTargetedKill(command.unitId, npcId)

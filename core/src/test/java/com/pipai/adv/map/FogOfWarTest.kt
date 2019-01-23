@@ -1,8 +1,8 @@
 package com.pipai.adv.map
 
 import com.pipai.adv.backend.battle.domain.*
-import com.pipai.adv.domain.NpcList
-import com.pipai.adv.save.AdvSave
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.GridUtils
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
@@ -14,19 +14,21 @@ class FogOfWarTest : GdxMockedTest() {
 
     @Test
     fun testVisibilitySemiWalledMap() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(10, 10)
         GridUtils.boundaries(GridPosition(0, 0), GridPosition(9, 9)).forEach {
             if (!(it.x in 1..3 && it.y == 0)) {
-                map.getCell(it).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
+                map.getCell(it).fullEnvObjId = envObjList.add(FullWall(FullWallType.SOLID))
             }
         }
         val player = npcFromStats(UnitStats(100, 1, 1, 1, 1, 1, 1, 1, 3),
                 null)
-        val playerId = npcList.addNpc(player)
-        map.getCell(1, 1).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val playerId = npcList.add(player)
+        map.getCell(1, 1).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val fogOfWar = FogOfWar()
         fogOfWar.calculateVisibility(backend, playerId, GridPosition(1, 1))

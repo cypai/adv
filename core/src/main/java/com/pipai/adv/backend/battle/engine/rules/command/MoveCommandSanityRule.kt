@@ -1,11 +1,12 @@
 package com.pipai.adv.backend.battle.engine.rules.command
 
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
+import com.pipai.adv.utils.fetch
 
 class MoveCommandSanityRule : CommandRule {
     override fun canBeExecuted(command: BattleCommand, state: BattleState, cache: BattleBackendCache): ExecutableStatus {
@@ -16,14 +17,14 @@ class MoveCommandSanityRule : CommandRule {
                 }
             }
             val origin = command.path.first()
-            val originObject = state.battleMap.getCell(origin).fullEnvObject
-            if (originObject == null || originObject !is FullEnvObject.NpcEnvObject) {
+            val originObject = state.battleMap.getCell(origin).fullEnvObjId.fetch(state.envObjList)
+            if (originObject == null || originObject !is NpcEnvObject) {
                 return ExecutableStatus(false, "Origin has no movable NPC")
             } else if (originObject.npcId != command.unitId) {
                 return ExecutableStatus(false, "NPC at origin is not the stated NPC")
             }
             val destination = command.path.last()
-            if (state.battleMap.getCell(destination).fullEnvObject != null) {
+            if (state.battleMap.getCell(destination).fullEnvObjId != null) {
                 return ExecutableStatus(false, "Destination is not empty")
             }
         }

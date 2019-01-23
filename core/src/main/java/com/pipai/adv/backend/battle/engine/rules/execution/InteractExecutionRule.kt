@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.engine.rules.execution
 
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.ChestEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
@@ -10,6 +10,7 @@ import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
 import com.pipai.adv.backend.battle.engine.log.CellStateEvent
 import com.pipai.adv.backend.battle.engine.log.TextEvent
+import com.pipai.adv.utils.fetch
 
 class InteractExecutionRule : CommandExecutionRule {
 
@@ -38,12 +39,12 @@ class InteractExecutionRule : CommandExecutionRule {
         val cmd = command as InteractCommand
         val npc = state.getNpc(cmd.unitId)!!
         val cell = state.battleMap.getCell(cmd.position)
-        if (cell.fullEnvObject is FullEnvObject.ChestEnvObject) {
-            val chest = cell.fullEnvObject as FullEnvObject.ChestEnvObject
-            npc.unitInstance.inventory.first { it.item == null }.item = chest.item
-            cell.fullEnvObject = null
+        val fullEnvObj = cell.fullEnvObjId.fetch(state.envObjList)
+        if (fullEnvObj is ChestEnvObject) {
+            npc.unitInstance.inventory.first { it.item == null }.item = fullEnvObj.item
+            cell.fullEnvObjId = null
             state.battleLog.addEvent(CellStateEvent(command.position, cell.deepCopy(), "Opens this chest"))
-            state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} obtained a ${chest.item.name}!"))
+            state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} obtained a ${fullEnvObj.item.name}!"))
         }
     }
 }

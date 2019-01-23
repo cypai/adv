@@ -4,14 +4,9 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.IntMap
 import com.badlogic.gdx.utils.ObjectSet
-import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvObject
-import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.BattleBackend
-import com.pipai.adv.utils.ArrayUtils
-import com.pipai.adv.utils.GridUtils
-import com.pipai.adv.utils.MathUtils
+import com.pipai.adv.utils.*
 
 class FogOfWar {
 
@@ -24,6 +19,7 @@ class FogOfWar {
         clearVisibility(backend, npcId)
 
         val map = backend.getBattleMapUnsafe()
+        val envObjList = backend.getBattleState().envObjList
         val visibilityBounds = GridUtils.boundaries(
                 GridPosition(
                         Math.max(0, position.x - BattleBackend.VISIBLE_DISTANCE),
@@ -43,7 +39,7 @@ class FogOfWar {
                     break
                 }
                 visibility.add(rayPosition)
-                if (blocksVision(map, rayPosition)) {
+                if (blocksVision(envObjList, map, rayPosition)) {
                     stopped = true
                     break
                 }
@@ -56,7 +52,7 @@ class FogOfWar {
         val tilesInRange = GridUtils.gridInRadius(position, BattleBackend.VISIBLE_DISTANCE,
                 0, 0, map.width - 1, map.height - 1)
         tilesInRange.forEach {
-            if (blocksVision(map, it)) {
+            if (blocksVision(envObjList, map, it)) {
                 val tilesInFront = GridUtils.tilesInFront(position, it)
                 tilesInFront.forEach { tileInFront ->
                     if (visibility.contains(tileInFront)) {
@@ -72,9 +68,9 @@ class FogOfWar {
         npcIdCachedPosition.put(npcId, position)
     }
 
-    private fun blocksVision(map: BattleMap, position: GridPosition): Boolean {
-        val envObj = map.getCell(position).fullEnvObject
-        return envObj != null && envObj is FullEnvObject.FullWall
+    private fun blocksVision(envObjList: AutoIncrementIdMap<EnvObject>, map: BattleMap, position: GridPosition): Boolean {
+        val envObj = map.getCell(position).fullEnvObjId.fetch(envObjList)
+        return envObj != null && envObj is FullWall
     }
 
     fun getPreviouslyCalculatedPosition(npcId: Int): GridPosition? {

@@ -12,7 +12,7 @@ class TotalPartyKillEndingRule : EndingRule {
 
     override fun evaluate(backend: BattleBackend, state: BattleState, cache: BattleBackendCache): Boolean {
         return cache.getTeam(Team.PLAYER)
-                .map { state.npcList.getNpc(it)!! }
+                .map { state.npcList.get(it)!! }
                 .all { it.unitInstance.hp <= 0 }
     }
 }

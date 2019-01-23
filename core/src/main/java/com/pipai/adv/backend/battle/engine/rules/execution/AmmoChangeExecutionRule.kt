@@ -34,7 +34,7 @@ class AmmoChangeExecutionRule : CommandExecutionRule {
                 ?.let { it as AmmoChangePreviewComponent }
 
         if (ammoChangeComponent != null) {
-            state.npcList.getNpc(ammoChangeComponent.npcId)!!.unitInstance.weapon?.ammo = ammoChangeComponent.newAmount
+            state.npcList.get(ammoChangeComponent.npcId)!!.unitInstance.weapon?.ammo = ammoChangeComponent.newAmount
             state.battleLog.addEvent(AmmoChangeEvent(ammoChangeComponent.npcId, ammoChangeComponent.newAmount))
         }
     }

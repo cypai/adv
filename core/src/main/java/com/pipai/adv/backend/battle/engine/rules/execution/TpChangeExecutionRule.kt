@@ -30,7 +30,7 @@ class TpChangeExecutionRule : CommandExecutionRule {
 
         previews.forEach {
             if (it is TpUsedPreviewComponent) {
-                val unitInstance = state.npcList.getNpc(it.npcId)!!.unitInstance
+                val unitInstance = state.npcList.get(it.npcId)!!.unitInstance
                 val previousTp = unitInstance.tp
                 val newTp = previousTp - it.tpUsed
                 unitInstance.tp = newTp

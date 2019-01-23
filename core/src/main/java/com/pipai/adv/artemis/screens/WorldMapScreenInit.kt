@@ -68,7 +68,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             val cXy = mXy.create(entityId)
             cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
             val squadLeader = save.squads[squad]!!.first()
-            val squadPcc = save.globalNpcList.getNpc(squadLeader)!!.tilesetMetadata
+            val squadPcc = save.globalNpcList.get(squadLeader)!!.tilesetMetadata
             val cEnvObjTile = mEnvObjTile.create(entityId)
             cEnvObjTile.tilesetMetadata = squadPcc
             val cAnimationFrames = mAnimationFrames.create(entityId)

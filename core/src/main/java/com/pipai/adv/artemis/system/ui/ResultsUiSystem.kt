@@ -61,7 +61,7 @@ class ResultsUiSystem(private val game: AdvGame,
         expTable.left().top()
 
         resultsData.expGiven.keys.sorted().forEach {
-            val npc = save.globalNpcList.getNpc(it)!!
+            val npc = save.globalNpcList.get(it)!!
             val nameLabel = Label("${npc.unitInstance.nickname}: ", skin)
             nameLabel.setAlignment(Align.left)
             val levelLabel = Label("Lv. ${npc.unitInstance.level} ", skin)
@@ -92,7 +92,7 @@ class ResultsUiSystem(private val game: AdvGame,
 
     fun giveExp(npcId: Int, expGained: Int): Boolean {
         val save = globals.save!!
-        val unitInstance = save.globalNpcList.getNpc(npcId)!!.unitInstance
+        val unitInstance = save.globalNpcList.get(npcId)!!.unitInstance
         unitInstance.exp += expGained
         val levelExp = levelBackend.expRequired(unitInstance.level)
         val levelledUp = unitInstance.exp > levelBackend.expRequired(unitInstance.level)

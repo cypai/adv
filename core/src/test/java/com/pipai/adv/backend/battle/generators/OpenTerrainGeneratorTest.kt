@@ -1,9 +1,9 @@
 package com.pipai.adv.backend.battle.generators
 
+import com.pipai.adv.backend.battle.utils.isExit
+import com.pipai.adv.utils.AutoIncrementIdMap
 import org.junit.Assert
 import org.junit.Test
-
-import com.pipai.adv.backend.battle.utils.*
 
 class OpenTerrainGeneratorTest {
 
@@ -13,7 +13,7 @@ class OpenTerrainGeneratorTest {
         generator.rocks = 1
         generator.trees = 2
 
-        val map = generator.generate(3, 3)
+        val map = generator.generate(AutoIncrementIdMap(), 3, 3)
         Assert.assertTrue(isExit(map, 0, 0))
         Assert.assertTrue(isExit(map, 1, 0))
         Assert.assertTrue(isExit(map, 2, 0))

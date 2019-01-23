@@ -2,7 +2,9 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.MoveCommand
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
 import com.pipai.test.libgdx.generateBackend
@@ -14,13 +16,15 @@ class MoveBackendTest : GdxMockedTest() {
 
     @Test
     fun testMove() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val id = npcList.addNpc(npc)
-        map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val id = npcList.add(npc)
+        map.getCell(2, 1).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
 
@@ -31,25 +35,27 @@ class MoveBackendTest : GdxMockedTest() {
         val expectedDestination = GridPosition(3, 1)
         Assert.assertEquals(expectedDestination, backend.getNpcPositions()[id])
 
-        val destinationObj = backend.getBattleMapState().getCell(expectedDestination).fullEnvObject
+        val destinationObj = backend.getBattleMapState().getCell(expectedDestination).fullEnvObjId
 
-        Assert.assertTrue(destinationObj is FullEnvObject.NpcEnvObject)
+        Assert.assertTrue(destinationObj.fetch(envObjList) is NpcEnvObject)
 
-        val unit = destinationObj as FullEnvObject.NpcEnvObject?
+        val unit = destinationObj.fetch(envObjList) as NpcEnvObject
 
-        Assert.assertEquals(id.toLong(), unit!!.npcId.toLong())
+        Assert.assertEquals(id.toLong(), unit.npcId.toLong())
     }
 
     @Test
     fun testCantMoveToFullSpace() {
-        val npcList = NpcList()
-        val map = BattleMap.createBattleMap(4, 4)
-        map.getCell(3, 1).fullEnvObject = FullEnvObject.FULL_WALL
-        val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val id = npcList.addNpc(npc)
-        map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
 
-        val backend = generateBackend(npcList, map)
+        val map = BattleMap.createBattleMap(4, 4)
+        map.getCell(3, 1).fullEnvObjId = envObjList.add(FullWall(FullWallType.SOLID))
+        val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
+        val id = npcList.add(npc)
+        map.getCell(2, 1).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
+
+        val backend = generateBackend(npcList, envObjList, map)
 
         val cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
 
@@ -67,24 +73,26 @@ class MoveBackendTest : GdxMockedTest() {
         val expectedLocation = GridPosition(2, 1)
         Assert.assertEquals(expectedLocation, backend.getNpcPositions()[id])
 
-        val destinationObj = backend.getBattleMapState().getCell(expectedLocation).fullEnvObject
+        val destinationObj = backend.getBattleMapState().getCell(expectedLocation).fullEnvObjId
 
-        Assert.assertTrue(destinationObj is FullEnvObject.NpcEnvObject)
+        Assert.assertTrue(destinationObj.fetch(envObjList) is NpcEnvObject)
 
-        val unit = destinationObj as FullEnvObject.NpcEnvObject?
+        val unit = destinationObj.fetch(envObjList) as NpcEnvObject
 
-        Assert.assertEquals(id.toLong(), unit!!.npcId.toLong())
+        Assert.assertEquals(id.toLong(), unit.npcId.toLong())
     }
 
     @Test
     fun testCantMoveMoreThanApAllow() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val id = npcList.addNpc(npc)
-        map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val id = npcList.add(npc)
+        map.getCell(2, 1).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         var cmd = MoveCommand(id, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
         Assert.assertTrue(backend.canBeExecuted(cmd).executable)
@@ -102,13 +110,15 @@ class MoveBackendTest : GdxMockedTest() {
 
     @Test
     fun testCantMoveNonexistentNpc() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val id = npcList.addNpc(npc)
-        map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        val id = npcList.add(npc)
+        map.getCell(2, 1).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val badId = id + 1
         val cmd = MoveCommand(badId, Arrays.asList(GridPosition(2, 1), GridPosition(3, 1)))
@@ -119,14 +129,16 @@ class MoveBackendTest : GdxMockedTest() {
 
     @Test
     fun testCantMoveToOutOfMap() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(1, 1)
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        val id = npcList.addNpc(npc)
+        val id = npcList.add(npc)
         val startLocation = GridPosition(0, 0)
-        map.getCell(startLocation).fullEnvObject = FullEnvObject.NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        map.getCell(startLocation).fullEnvObjId = envObjList.add(NpcEnvObject(id, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val badLocations: List<GridPosition> = listOf(
                 GridPosition(0, 1),
@@ -148,10 +160,10 @@ class MoveBackendTest : GdxMockedTest() {
             }
 
             Assert.assertEquals(startLocation, backend.getNpcPositions()[id])
-            val destinationObj = backend.getBattleMapState().getCell(startLocation).fullEnvObject
-            Assert.assertTrue(destinationObj is FullEnvObject.NpcEnvObject)
-            val unit = destinationObj as FullEnvObject.NpcEnvObject?
-            Assert.assertEquals(id.toLong(), unit!!.npcId.toLong())
+            val destinationObj = backend.getBattleMapState().getCell(startLocation).fullEnvObjId
+            Assert.assertTrue(destinationObj.fetch(envObjList) is NpcEnvObject)
+            val unit = destinationObj.fetch(envObjList) as NpcEnvObject
+            Assert.assertEquals(id.toLong(), unit.npcId.toLong())
         }
     }
 }

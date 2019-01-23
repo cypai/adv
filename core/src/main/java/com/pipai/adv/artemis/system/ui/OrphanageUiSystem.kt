@@ -162,7 +162,7 @@ class OrphanageUiSystem(private val game: AdvGame,
         val npc = Npc(
                 UnitInstance(game.globals.unitSchemaIndex.getSchema("Human").schema, "Orphan"),
                 EnvObjTilesetMetadata.PccTilesetMetadata(pcc))
-        val npcId = game.globals.save!!.globalNpcList.addNpc(npc)
+        val npcId = game.globals.save!!.globalNpcList.add(npc)
         val save = game.globals.save!!
         save.addToGuild(save.playerGuild, npcId)
         game.globals.autoSave()

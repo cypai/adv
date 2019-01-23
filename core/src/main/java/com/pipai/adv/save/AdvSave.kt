@@ -5,8 +5,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.domain.GuildRank
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.map.WorldMapLocation
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 
 class AdvSave() {
 
@@ -32,7 +34,7 @@ class AdvSave() {
         val mapper = jacksonObjectMapper()
     }
 
-    var globalNpcList = NpcList()
+    var globalNpcList = AutoIncrementIdMap<Npc>()
         private set
 
     var playerGuild: String = "Moriya"
@@ -105,7 +107,7 @@ class AdvSave() {
         guilds[name]!!.add(npcId)
         if (npcInPlayerGuild(npcId)) {
             classes[npcId] = null
-            sp[npcId] = globalNpcList.getNpc(npcId)!!.unitInstance.level
+            sp[npcId] = npcId.fetch(globalNpcList)!!.unitInstance.level
         }
     }
 

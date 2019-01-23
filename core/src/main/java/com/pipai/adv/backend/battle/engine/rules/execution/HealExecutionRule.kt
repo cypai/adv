@@ -38,7 +38,7 @@ class HealExecutionRule : CommandExecutionRule {
 
         val cmd = command as TargetCommand
 
-        val target = state.npcList.getNpc(cmd.targetId)!!
+        val target = state.npcList.get(cmd.targetId)!!
 
         val healRange = calculateHealRange(previews)
 

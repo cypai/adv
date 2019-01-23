@@ -14,7 +14,7 @@ object BattleUtils {
     fun enemiesInWeaponRange(npcId: Int, backend: BattleBackend): List<Int> {
         val attackableEnemies: MutableList<Int> = mutableListOf()
 
-        val attacker = backend.getBattleState().npcList.getNpc(npcId)!!
+        val attacker = backend.getBattleState().npcList.get(npcId)!!
         val weapon = attacker.unitInstance.weapon
 
         if (weapon != null) {
@@ -27,7 +27,7 @@ object BattleUtils {
     fun enemiesInWeaponRange(npcId: Int, position: GridPosition, backend: BattleBackend): List<Int> {
         val attackableEnemies: MutableList<Int> = mutableListOf()
 
-        val attacker = backend.getBattleState().npcList.getNpc(npcId)!!
+        val attacker = backend.getBattleState().npcList.get(npcId)!!
         val weapon = attacker.unitInstance.weapon
 
         if (weapon != null) {

@@ -24,6 +24,7 @@ import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
 import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.map.GuildMapGenerator
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.getLogger
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -45,7 +46,7 @@ class GuildScreen(game: AdvGame) : Screen {
         val npcList = globals.save!!.globalNpcList.shallowCopy()
 
         val map = GuildMapGenerator()
-                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, listOf(), 30, 20, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, AutoIncrementIdMap(), listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(

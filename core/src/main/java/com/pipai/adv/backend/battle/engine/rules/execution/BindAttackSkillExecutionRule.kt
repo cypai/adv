@@ -32,10 +32,10 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
         val weaponSchema = backend.weaponSchemaIndex.getWeaponSchema(weapon.name)!!
 
         val base = when (skill.name) {
-            "Hamstring" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.dexterity + weaponSchema.patk
-            "Head Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
-            "Arm Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
-            "Leg Strike" -> state.npcList.getNpc(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+            "Hamstring" -> state.npcList.get(cmd.unitId)!!.unitInstance.stats.dexterity + weaponSchema.patk
+            "Head Strike" -> state.npcList.get(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+            "Arm Strike" -> state.npcList.get(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
+            "Leg Strike" -> state.npcList.get(cmd.unitId)!!.unitInstance.stats.strength + weaponSchema.patk
             else -> throw IllegalStateException("An unexpected skill is being previewed: $skill")
         }
 
@@ -75,9 +75,9 @@ class BindAttackSkillExecutionRule : CommandExecutionRule {
         val cmd = command as TargetSkillCommand
         state.battleLog.addEvent(TargetSkillEvent(
                 cmd.unitId,
-                state.npcList.getNpc(cmd.unitId)!!,
+                state.npcList.get(cmd.unitId)!!,
                 cmd.targetId,
-                state.npcList.getNpc(cmd.targetId)!!,
+                state.npcList.get(cmd.targetId)!!,
                 cmd.skill))
     }
 

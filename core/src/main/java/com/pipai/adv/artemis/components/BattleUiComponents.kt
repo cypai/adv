@@ -19,7 +19,7 @@ class SideUiBoxComponent : Component() {
 
     fun setToNpc(npcId: Int, backend: BattleBackend) {
         this.npcId = npcId
-        val npc = backend.getBattleState().npcList.getNpc(npcId)
+        val npc = backend.getBattleState().npcList.get(npcId)
         if (npc != null) {
             name = npc.unitInstance.nickname
             hp = npc.unitInstance.hp
@@ -41,7 +41,7 @@ class UnitHealthbarComponent : Component() {
 
     fun setToNpc(npcId: Int, backend: BattleBackend) {
         this.npcId = npcId
-        val npc = backend.getBattleState().npcList.getNpc(npcId)
+        val npc = backend.getBattleState().npcList.get(npcId)
         if (npc != null) {
             percentage = npc.unitInstance.hp.toFloat() / npc.unitInstance.stats.hpMax.toFloat()
         }

@@ -2,7 +2,8 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.NormalAttackCommandFactory
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.fixtures.swordFixture
@@ -15,25 +16,27 @@ class NormalAttackCommandFactoryTest : GdxMockedTest() {
 
     @Test
     fun testSwordNormalAttackCommandFactory() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val sword = swordFixture()
         val player = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), sword)
-        npcList.addNpc(player)
-        val playerId = npcList.addNpc(player)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        npcList.add(player)
+        val playerId = npcList.add(player)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
         val enemy = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), sword)
-        npcList.addNpc(enemy)
-        val enemyId = npcList.addNpc(player)
-        map.getCell(1, 0).fullEnvObject = FullEnvObject.NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE)
+        npcList.add(enemy)
+        val enemyId = npcList.add(player)
+        map.getCell(1, 0).fullEnvObjId = envObjList.add(NpcEnvObject(enemyId, Team.AI, EnvObjTilesetMetadata.NONE))
 
         val outOfRangeEnemy = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), sword)
-        npcList.addNpc(outOfRangeEnemy)
-        val outOfRangeEnemyId = npcList.addNpc(player)
-        map.getCell(3, 0).fullEnvObject = FullEnvObject.NpcEnvObject(outOfRangeEnemyId, Team.AI, EnvObjTilesetMetadata.NONE)
+        npcList.add(outOfRangeEnemy)
+        val outOfRangeEnemyId = npcList.add(player)
+        map.getCell(3, 0).fullEnvObjId = envObjList.add(NpcEnvObject(outOfRangeEnemyId, Team.AI, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val factory = NormalAttackCommandFactory(backend)
         val playerCommands = factory.generate(playerId)
@@ -54,25 +57,27 @@ class NormalAttackCommandFactoryTest : GdxMockedTest() {
 
     @Test
     fun testBowNormalAttackCommandFactory() {
-        val npcList = NpcList()
+        val npcList = AutoIncrementIdMap<Npc>()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
+
         val map = BattleMap.createBattleMap(4, 4)
         val bow = bowFixture()
         val player = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), bow)
-        npcList.addNpc(player)
-        val playerId = npcList.addNpc(player)
-        map.getCell(0, 0).fullEnvObject = FullEnvObject.NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        npcList.add(player)
+        val playerId = npcList.add(player)
+        map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
 
         val enemy1 = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), bow)
-        npcList.addNpc(enemy1)
-        val enemy1Id = npcList.addNpc(player)
-        map.getCell(1, 0).fullEnvObject = FullEnvObject.NpcEnvObject(enemy1Id, Team.AI, EnvObjTilesetMetadata.NONE)
+        npcList.add(enemy1)
+        val enemy1Id = npcList.add(player)
+        map.getCell(1, 0).fullEnvObjId = envObjList.add(NpcEnvObject(enemy1Id, Team.AI, EnvObjTilesetMetadata.NONE))
 
         val enemy2 = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 2), bow)
-        npcList.addNpc(enemy2)
-        val enemy2Id = npcList.addNpc(player)
-        map.getCell(3, 0).fullEnvObject = FullEnvObject.NpcEnvObject(enemy2Id, Team.AI, EnvObjTilesetMetadata.NONE)
+        npcList.add(enemy2)
+        val enemy2Id = npcList.add(player)
+        map.getCell(3, 0).fullEnvObjId = envObjList.add(NpcEnvObject(enemy2Id, Team.AI, EnvObjTilesetMetadata.NONE))
 
-        val backend = generateBackend(npcList, map)
+        val backend = generateBackend(npcList, envObjList, map)
 
         val factory = NormalAttackCommandFactory(backend)
         val playerCommands = factory.generate(playerId)

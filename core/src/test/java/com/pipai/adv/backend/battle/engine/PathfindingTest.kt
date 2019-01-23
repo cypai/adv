@@ -1,6 +1,7 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.backend.battle.domain.*
+import com.pipai.adv.backend.battle.domain.BattleMap
+import com.pipai.adv.backend.battle.domain.GridPosition
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
@@ -70,9 +71,9 @@ class PathfindingTest {
          * 0 0 0 1
          */
         val map = BattleMap.createBattleMap(4, 4)
-        map.getCell(1, 2).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
-        map.getCell(2, 2).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
-        map.getCell(3, 0).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
+        map.getCell(1, 2).fullEnvObjId = 0
+        map.getCell(2, 2).fullEnvObjId = 0
+        map.getCell(3, 0).fullEnvObjId = 0
         val graph = MapGraph(map, GridPosition(1, 1), 3, 1, 1, false)
         val movableList = graph.getMovableCellPositions(1)
         val req = ArrayList<GridPosition>()
@@ -167,13 +168,10 @@ class PathfindingTest {
     @Test
     fun testCannotMoveToNonEmpty() {
         val map = BattleMap.createBattleMap(4, 4)
-        map.getCell(3, 0).fullEnvObject = FullEnvObject.SOLID_FULL_WALL
-        map.getCell(2, 1).fullEnvObject = FullEnvObject.NpcEnvObject(0, Team.PLAYER, EnvObjTilesetMetadata.NONE)
+        map.getCell(3, 0).fullEnvObjId = 0
 
         val graph = MapGraph(map, GridPosition(1, 1), 10, 1, 1, false)
         Assert.assertFalse("Failed to return false on moving to solid tile", graph.canMoveTo(GridPosition(3, 0)))
-        Assert.assertFalse("Failed to return false on moving to tile with other agent",
-                graph.canMoveTo(GridPosition(2, 1)))
     }
 
     @Test

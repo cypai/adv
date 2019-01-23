@@ -1,8 +1,9 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
+import com.pipai.adv.utils.AutoIncrementIdMap
 
-class ActionPointState(npcList: NpcList) {
+class ActionPointState(npcList: AutoIncrementIdMap<Npc>) {
 
     companion object {
         val startingNumAPs = 2

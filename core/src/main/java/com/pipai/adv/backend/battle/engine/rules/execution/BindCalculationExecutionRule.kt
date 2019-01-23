@@ -54,7 +54,7 @@ class BindCalculationExecutionRule(private val hitCalculator: HitCalculator,
             val currentTurns = state.npcStatusState.getNpcBind(cmd.targetId, bindComponent.bodyPart)
             state.npcStatusState.setNpcBind(cmd.targetId, bindComponent.bodyPart, currentTurns + turns)
 
-            val target = state.npcList.getNpc(cmd.targetId)!!
+            val target = state.npcList.get(cmd.targetId)!!
             state.battleLog.addEvent(BindEvent(cmd.targetId, target, bindComponent.bodyPart, currentTurns))
         }
     }

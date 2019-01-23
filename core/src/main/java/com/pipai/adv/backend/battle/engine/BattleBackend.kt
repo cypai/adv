@@ -1,9 +1,6 @@
 package com.pipai.adv.backend.battle.engine
 
-import com.pipai.adv.backend.battle.domain.BattleMap
-import com.pipai.adv.backend.battle.domain.FullEnvObject.NpcEnvObject
-import com.pipai.adv.backend.battle.domain.GridPosition
-import com.pipai.adv.backend.battle.domain.Team
+import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.calculators.*
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.TargetStageExecuteCommand
@@ -20,9 +17,11 @@ import com.pipai.adv.backend.battle.engine.rules.ending.TotalPartyKillEndingRule
 import com.pipai.adv.backend.battle.engine.rules.execution.*
 import com.pipai.adv.backend.battle.engine.rules.verification.ApVerificationRule
 import com.pipai.adv.backend.battle.engine.rules.verification.VerificationRule
-import com.pipai.adv.domain.NpcList
+import com.pipai.adv.domain.Npc
 import com.pipai.adv.index.SkillIndex
 import com.pipai.adv.index.WeaponSchemaIndex
+import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 import com.pipai.adv.utils.getLogger
 
 /**
@@ -41,13 +40,14 @@ import com.pipai.adv.utils.getLogger
  */
 class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
                     val skillIndex: SkillIndex,
-                    private val npcList: NpcList,
+                    private val npcList: AutoIncrementIdMap<Npc>,
+                    private val envObjList: AutoIncrementIdMap<EnvObject>,
                     private val battleMap: BattleMap,
                     val objective: EndingRule) {
 
     private val logger = getLogger()
 
-    private var state: BattleState = BattleState(Team.PLAYER, npcList, battleMap, BattleLog(),
+    private var state: BattleState = BattleState(Team.PLAYER, npcList, envObjList, battleMap, BattleLog(),
             ActionPointState(npcList), NpcStatusState(npcList), BattleStats(npcList), mutableMapOf())
     private lateinit var cache: BattleBackendCache
 
@@ -106,7 +106,7 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
             RangedHitCritExecutionRule(),
             AvoidHitCritExecutionRule(),
             DefendHitCritExecutionRule(),
-            CoverHitCritExecutionRule(CoverCalculator(battleMap)),
+            CoverHitCritExecutionRule(CoverCalculator(envObjList, battleMap)),
             ElementalResistanceExecutionRule(),
             ApChangeExecutionRule(),
             TpChangeExecutionRule(),
@@ -145,14 +145,14 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
         teamNpcs.put(Team.AI, mutableListOf())
         for (x in 0 until battleMap.width) {
             for (y in 0 until battleMap.height) {
-                val envObject = battleMap.getCell(x, y).fullEnvObject
+                val envObject = battleMap.getCell(x, y).fullEnvObjId.fetch(envObjList)
                 if (envObject != null && envObject is NpcEnvObject) {
                     val npcId = envObject.npcId
                     npcPositions.put(npcId, GridPosition(x, y))
                     val team = envObject.team
                     teamNpcs[team]!!.add(npcId)
                     npcTeams[npcId] = team
-                    val npc = npcList.getNpc(envObject.npcId)!!
+                    val npc = npcList.get(envObject.npcId)!!
                     if (npc.unitInstance.hp <= 0) {
                         currentTurnKos.add(npcId)
                     }
@@ -164,9 +164,9 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
 
     fun getBattleMapState(): BattleMap = battleMap.deepCopy()
     fun getBattleMapUnsafe(): BattleMap = battleMap
-    fun getNpc(npcId: Int) = npcList.getNpc(npcId)
+    fun getNpc(npcId: Int) = npcList.get(npcId)
     fun getNpcAp(npcId: Int) = state.apState.getNpcAp(npcId)
-    fun getNpcTp(npcId: Int) = npcList.getNpc(npcId)!!.unitInstance.tp
+    fun getNpcTp(npcId: Int) = npcList.get(npcId)!!.unitInstance.tp
     fun getNpcPositions(): Map<Int, GridPosition> = cache.npcPositions
     fun getNpcPosition(npcId: Int) = cache.npcPositions[npcId]
     fun getNpcTeams(): Map<Int, Team> = cache.npcTeams
@@ -176,6 +176,8 @@ class BattleBackend(val weaponSchemaIndex: WeaponSchemaIndex,
     fun getNpcAilment(npcId: Int) = state.getNpcAilment(npcId)
     fun getNpcStatus(npcId: Int) = state.getNpcStatus(npcId)
     fun checkNpcStatus(npcId: Int, status: NpcStatus) = state.checkNpcStatus(npcId, status)
+    fun getEnvObj(envObjId: Int?) = envObjId.fetch(envObjList)
+    fun getFullEnvObj(position: GridPosition) = battleMap.getCell(position).fullEnvObjId.fetch(envObjList)
     fun getCurrentTurn() = state.turn
     fun getBattleState() = state.copy()
 
@@ -281,7 +283,8 @@ data class BattleBackendCache(val npcPositions: Map<Int, GridPosition>,
 }
 
 data class BattleState(var turn: Team,
-                       val npcList: NpcList,
+                       val npcList: AutoIncrementIdMap<Npc>,
+                       val envObjList: AutoIncrementIdMap<EnvObject>,
                        val battleMap: BattleMap,
                        val battleLog: BattleLog,
                        val apState: ActionPointState,
@@ -289,7 +292,7 @@ data class BattleState(var turn: Team,
                        val battleStats: BattleStats,
                        val variables: MutableMap<String, String>) {
 
-    fun getNpc(npcId: Int) = npcList.getNpc(npcId)
+    fun getNpc(npcId: Int) = npcList.get(npcId)
     fun getNpcAp(npcId: Int) = apState.getNpcAp(npcId)
     fun getNpcWeapon(npcId: Int) = getNpc(npcId)?.unitInstance?.weapon
     fun getNpcAilment(npcId: Int) = npcStatusState.getNpcAilment(npcId)

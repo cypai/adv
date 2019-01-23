@@ -342,7 +342,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         loadoutLeftList.setItems(save.guilds[save.playerGuild]!!
                 .map {
                     StringMenuItem(
-                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            save.globalNpcList.get(it)!!.unitInstance.nickname,
                             null,
                             "")
                             .withData("npcId", it)
@@ -420,7 +420,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         appearanceLeftColumn.setItems(save.guilds[save.playerGuild]!!
                 .map {
                     StringMenuItem(
-                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            save.globalNpcList.get(it)!!.unitInstance.nickname,
                             null,
                             "")
                             .withData("npcId", it)
@@ -431,9 +431,9 @@ class GuildManagementUiSystem(private val game: AdvGame,
         appearanceLeftColumn.clearSelection()
     }
 
-    private fun getNpc(): Npc = game.globals.save!!.globalNpcList.getNpc(selectedNpcId)!!
+    private fun getNpc(): Npc = game.globals.save!!.globalNpcList.get(selectedNpcId)!!
 
-    private fun getNpc(npcId: Int): Npc = game.globals.save!!.globalNpcList.getNpc(npcId)!!
+    private fun getNpc(npcId: Int): Npc = game.globals.save!!.globalNpcList.get(npcId)!!
 
     private fun initializeAppearanceCustomization(selection: StringMenuItem) {
         this.selectedNpcId = selection.getData("npcId") as Int
@@ -449,7 +449,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         val newNpc = npc.copy(
                 unitInstance = npc.unitInstance.copy(nickname = appearanceNameField.text),
                 tilesetMetadata = EnvObjTilesetMetadata.PccTilesetMetadata(pcc))
-        game.globals.save!!.globalNpcList.setNpc(newNpc, selectedNpcId)
+        game.globals.save!!.globalNpcList.set(newNpc, selectedNpcId)
         val targetEntityId = world.fetch(allOf(NpcIdComponent::class, EnvObjTileComponent::class))
                 .firstOrNull { mNpcId.get(it).npcId == selectedNpcId }
         targetEntityId?.let {
@@ -496,7 +496,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
             } else {
                 rightColumn.setItems(save.squads[selectedItem.text]!!
                         .map {
-                            StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                            StringMenuItem(save.globalNpcList.get(it)!!.unitInstance.nickname, null, "")
                         })
             }
         }
@@ -527,13 +527,13 @@ class GuildManagementUiSystem(private val game: AdvGame,
         val save = game.globals.save!!
         squadLeftList.setItems(save.guilds[save.playerGuild]!!
                 .map {
-                    StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                    StringMenuItem(save.globalNpcList.get(it)!!.unitInstance.nickname, null, "")
                             .withData("npcId", it)
                 })
         squadLeftList.clearSelection()
         squadRightList.setItems(save.squads[squad]!!
                 .map {
-                    StringMenuItem(save.globalNpcList.getNpc(it)!!.unitInstance.nickname, null, "")
+                    StringMenuItem(save.globalNpcList.get(it)!!.unitInstance.nickname, null, "")
                             .withData("npcId", it)
                 })
         squadRightList.clearSelection()
@@ -548,7 +548,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         leftColumn.setItems(save.guilds[save.playerGuild]!!
                 .map {
                     StringMenuItem(
-                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            save.globalNpcList.get(it)!!.unitInstance.nickname,
                             null,
                             save.classes[it] ?: "Rookie")
                             .withData("npcId", it)
@@ -623,7 +623,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
         leftColumn.setItems(save.guilds[save.playerGuild]!!
                 .map {
                     StringMenuItem(
-                            save.globalNpcList.getNpc(it)!!.unitInstance.nickname,
+                            save.globalNpcList.get(it)!!.unitInstance.nickname,
                             null,
                             "${save.classes[it] ?: "Rookie"}/SP: ${save.sp[it]!!}")
                             .withData("npcId", it)
@@ -679,7 +679,7 @@ class GuildManagementUiSystem(private val game: AdvGame,
     }
 
     private fun increaseSkill(npcId: Int, skill: UnitSkill) {
-        val npc = game.globals.save!!.globalNpcList.getNpc(npcId)!!
+        val npc = game.globals.save!!.globalNpcList.get(npcId)!!
         skill.level += 1
         npc.unitInstance.skills.removeIf { it.name == skill.name }
         npc.unitInstance.skills.add(skill)

@@ -81,7 +81,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
      * squadMember[1-5]: Name of the member of the squad (1 is leader, 2-5 are the others)
      */
     private fun interpolateText(text: String): String {
-        var interpolatedText = text.replace("\$player", game.globals.save!!.globalNpcList.getNpc(0)!!.unitInstance.nickname)
+        var interpolatedText = text.replace("\$player", game.globals.save!!.globalNpcList.get(0)!!.unitInstance.nickname)
         variables.forEach { variable, value -> interpolatedText = interpolatedText.replace("\$$variable", value) }
         // To be replaced with actual squad size/health
         interpolatedText = interpolatedText.replace("\$squadSize", "5")

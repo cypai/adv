@@ -1,18 +1,18 @@
 package com.pipai.adv.backend.battle.domain;
 
+import com.pipai.adv.utils.AutoIncrementIdMap;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.pipai.adv.backend.battle.domain.FullEnvObject.FullWallType;
 
 public class BattleMapTest {
 
     @Test
     public void testImmutability() {
+        AutoIncrementIdMap<EnvObject> envObjList = new AutoIncrementIdMap<>();
         BattleMap battleMap = BattleMap.Factory.createBattleMap(2, 2);
         BattleMap mapCopy = battleMap.deepCopy();
-        mapCopy.getCell(0, 0).setFullEnvObject(new FullEnvObject.FullWall(FullWallType.SOLID));
-        Assert.assertNull(battleMap.getCell(0, 0).getFullEnvObject());
+        mapCopy.getCell(0, 0).setFullEnvObjId(envObjList.add(new FullWall(FullWallType.SOLID)));
+        Assert.assertNull(battleMap.getCell(0, 0).getFullEnvObjId());
     }
 
     @Test

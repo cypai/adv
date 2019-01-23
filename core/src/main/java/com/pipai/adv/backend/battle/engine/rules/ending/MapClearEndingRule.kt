@@ -12,7 +12,7 @@ class MapClearEndingRule : EndingRule {
 
     override fun evaluate(backend: BattleBackend, state: BattleState, cache: BattleBackendCache): Boolean {
         return cache.getTeam(Team.AI)
-                .map { state.npcList.getNpc(it)!! }
+                .map { state.npcList.get(it)!! }
                 .all { it.unitInstance.hp <= 0 }
     }
 }

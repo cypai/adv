@@ -1,12 +1,13 @@
 package com.pipai.adv.backend.battle.engine.rules.command
 
-import com.pipai.adv.backend.battle.domain.FullEnvObject
+import com.pipai.adv.backend.battle.domain.ChestEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackendCache
 import com.pipai.adv.backend.battle.engine.BattleState
 import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.InteractCommand
 import com.pipai.adv.backend.battle.engine.domain.ExecutableStatus
 import com.pipai.adv.utils.GridUtils
+import com.pipai.adv.utils.fetch
 
 class InteractRule : CommandRule {
 
@@ -17,7 +18,7 @@ class InteractRule : CommandRule {
                 return ExecutableStatus(false, "Not next to the interaction location")
             }
             val cell = state.battleMap.getCell(command.position)
-            if (cell.fullEnvObject !is FullEnvObject.ChestEnvObject) {
+            if (cell.fullEnvObjId.fetch(state.envObjList) !is ChestEnvObject) {
                 return ExecutableStatus(false, "Nothing to interact with")
             }
             val npc = state.getNpc(command.unitId)!!

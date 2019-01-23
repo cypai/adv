@@ -29,7 +29,7 @@ class DevHpChangeExecutionRule : CommandExecutionRule {
                          cache: BattleBackendCache) {
 
         val cmd = command as DevHpChangeCommand
-        val npc = state.npcList.getNpc(cmd.unitId)!!
+        val npc = state.npcList.get(cmd.unitId)!!
         val damage = npc.unitInstance.hp - cmd.hp
         npc.unitInstance.hp = cmd.hp
         when {

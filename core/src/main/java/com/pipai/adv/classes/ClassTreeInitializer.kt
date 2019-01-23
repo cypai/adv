@@ -28,7 +28,7 @@ class ClassTreeInitializer(private val skillIndex: SkillIndex) {
             else -> throw IllegalArgumentException("Class $name does not exist")
         }
 
-        save.globalNpcList.getNpc(npcId)!!.unitInstance.skills.forEach {
+        save.globalNpcList.get(npcId)!!.unitInstance.skills.forEach {
             tree.setSkillLevel(it.name, it.level)
         }
 

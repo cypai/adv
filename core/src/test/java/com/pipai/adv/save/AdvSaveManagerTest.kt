@@ -30,10 +30,10 @@ class AdvSaveManagerTest : GdxMockedTest() {
         val playerNpc = Npc(
                 UnitInstance(getSchemaList().getSchema("Human").schema, "Amber"),
                 PccTilesetMetadata(playerPcc))
-        save.globalNpcList.addNpc(playerNpc)
+        save.globalNpcList.add(playerNpc)
 
         val npc = npcFromStats(UnitStats(1, 1, 1, 1, 1, 1, 1, 1, 3), null)
-        save.globalNpcList.addNpc(npc)
+        save.globalNpcList.add(npc)
 
         save.addToGuild("Test Guild", 0)
 
@@ -41,9 +41,9 @@ class AdvSaveManagerTest : GdxMockedTest() {
 
         val loadedSave = MANAGER.load(SAVE_SLOT)
         Assert.assertEquals("Test Guild", loadedSave.playerGuild)
-        Assert.assertEquals(2, loadedSave.globalNpcList.getNpcs().size.toLong())
+        Assert.assertEquals(2, loadedSave.globalNpcList.getAll().size.toLong())
 
-        val npc0 = loadedSave.globalNpcList.getNpc(0)
+        val npc0 = loadedSave.globalNpcList.get(0)
         Assert.assertEquals(1, (npc0!!.tilesetMetadata as PccTilesetMetadata).pccMetadata.size.toLong())
         val (type, filename) = (npc0.tilesetMetadata as PccTilesetMetadata).pccMetadata[0]
         Assert.assertEquals("body", type)
