@@ -22,6 +22,7 @@ import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.GuildManagementUiSystem
 import com.pipai.adv.artemis.system.ui.MainTextboxUiSystem
 import com.pipai.adv.artemis.system.ui.PauseUiSystem
+import com.pipai.adv.backend.battle.domain.EnvObject
 import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.map.GuildMapGenerator
 import com.pipai.adv.utils.AutoIncrementIdMap
@@ -44,9 +45,10 @@ class GuildScreen(game: AdvGame) : Screen {
         val mapTileset = globals.mapTilesetList.getTileset("grassy")
 
         val npcList = globals.save!!.globalNpcList.shallowCopy()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
 
         val map = GuildMapGenerator()
-                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, AutoIncrementIdMap(), listOf(), 30, 20, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, envObjList, listOf(), 30, 20, mapTileset)
 
         val config = WorldConfigurationBuilder()
                 .with(
@@ -90,7 +92,7 @@ class GuildScreen(game: AdvGame) : Screen {
 
         world.getSystem(CutsceneInputSystem::class.java)?.cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
 
-        GuildScreenInit(world, game, game.advConfig, npcList, map)
+        GuildScreenInit(world, game, game.advConfig, npcList, envObjList, map)
                 .initialize()
     }
 

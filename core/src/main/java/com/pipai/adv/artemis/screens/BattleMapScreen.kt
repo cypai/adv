@@ -25,6 +25,7 @@ import com.pipai.adv.artemis.system.rendering.BackgroundRenderingSystem
 import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.*
+import com.pipai.adv.backend.battle.domain.EnvObject
 import com.pipai.adv.map.MapGenerator
 import com.pipai.adv.utils.AutoIncrementIdMap
 import net.mostlyoriginal.api.event.common.EventSystem
@@ -41,9 +42,10 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
 
         // Local battle copy of the npcList to store temp NPCs (such as enemies), which are not needed after the battle
         val npcList = globals.save!!.globalNpcList.shallowCopy()
+        val envObjList = AutoIncrementIdMap<EnvObject>()
 
         val map = mapGenerator
-                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, AutoIncrementIdMap(), partyList, 40, 30, mapTileset)
+                .generate(game.globals.unitSchemaIndex, game.globals.weaponSchemaIndex, npcList, envObjList, partyList, 40, 30, mapTileset)
 
         val cutsceneDirectors: MutableList<BattleCutsceneDirector> = mutableListOf()
 
@@ -100,7 +102,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
         inputProcessor.addProcessor(stage)
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, game.globals, npcList, partyList, map)
+        BattleMapScreenInit(world, game.advConfig, game.globals, npcList, envObjList, partyList, map)
                 .initialize()
 
         world.getSystem(BattleCutsceneSystem::class.java).checkAllCutsceneDirectors()

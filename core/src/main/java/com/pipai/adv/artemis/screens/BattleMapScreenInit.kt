@@ -26,7 +26,9 @@ import com.pipai.adv.utils.fetch
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
                           private val globals: AdvGameGlobals,
-                          private val npcList: AutoIncrementIdMap<Npc>, private val partyList: List<Int>,
+                          private val npcList: AutoIncrementIdMap<Npc>,
+                          private val envObjList: AutoIncrementIdMap<EnvObject>,
+                          private val partyList: List<Int>,
                           private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
@@ -56,7 +58,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     fun initialize() {
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, AutoIncrementIdMap(), map, MapClearEndingRule())
+        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, envObjList, map, MapClearEndingRule())
         sTags.register(Tags.BACKEND.toString(), backendId)
 
         val cameraId = world.create()

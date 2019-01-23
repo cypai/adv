@@ -29,7 +29,8 @@ import com.pipai.adv.utils.fetch
 
 @Wire
 class GuildScreenInit(private val world: World, private val game: AdvGame, private val config: AdvConfig,
-                      private val npcList: AutoIncrementIdMap<Npc>, private val map: BattleMap) {
+                      private val npcList: AutoIncrementIdMap<Npc>, private val envObjList: AutoIncrementIdMap<EnvObject>,
+                      private val map: BattleMap) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
@@ -58,7 +59,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
         // This backend is just for rendering the BattleMap, there is no real battle happening
         val backendId = world.create()
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, AutoIncrementIdMap(), map, MapClearEndingRule())
+        cBackend.backend = BattleBackend(game.globals.weaponSchemaIndex, game.globals.skillIndex, npcList, envObjList, map, MapClearEndingRule())
 
         val cameraId = world.create()
         val camera = mCamera.create(cameraId).camera
