@@ -8,7 +8,7 @@ import com.pipai.adv.backend.battle.engine.commands.BattleCommand
 import com.pipai.adv.backend.battle.engine.commands.InteractCommand
 import com.pipai.adv.backend.battle.engine.domain.ApUsedPreviewComponent
 import com.pipai.adv.backend.battle.engine.domain.PreviewComponent
-import com.pipai.adv.backend.battle.engine.log.CellStateEvent
+import com.pipai.adv.backend.battle.engine.log.EnvObjectDestroyEvent
 import com.pipai.adv.backend.battle.engine.log.TextEvent
 import com.pipai.adv.utils.fetch
 
@@ -42,9 +42,9 @@ class InteractExecutionRule : CommandExecutionRule {
         val fullEnvObj = cell.fullEnvObjId.fetch(state.envObjList)
         if (fullEnvObj is ChestEnvObject) {
             npc.unitInstance.inventory.first { it.item == null }.item = fullEnvObj.item
-            cell.fullEnvObjId = null
-            state.battleLog.addEvent(CellStateEvent(command.position, cell.deepCopy(), "Opens this chest"))
+            state.battleLog.addEvent(EnvObjectDestroyEvent(cell.fullEnvObjId!!, fullEnvObj))
             state.battleLog.addEvent(TextEvent("${state.getNpc(cmd.unitId)!!.unitInstance.nickname} obtained a ${fullEnvObj.item.name}!"))
+            cell.fullEnvObjId = null
         }
     }
 }

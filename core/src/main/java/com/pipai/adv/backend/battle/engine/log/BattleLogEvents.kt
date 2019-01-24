@@ -1,6 +1,6 @@
 package com.pipai.adv.backend.battle.engine.log
 
-import com.pipai.adv.backend.battle.domain.BattleMapCell
+import com.pipai.adv.backend.battle.domain.EnvObject
 import com.pipai.adv.backend.battle.domain.GridPosition
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.backend.battle.engine.BattleStats
@@ -102,6 +102,10 @@ data class NpcKoEvent(val npcId: Int, val npc: Npc) : BattleLogEvent {
     override fun userFriendlyDescription() = "${npc.unitInstance.nickname} was KOed!"
 }
 
+data class EnvObjectDestroyEvent(val envObjId: Int, val envObj: EnvObject) : BattleLogEvent {
+    override fun description() = "$envObj ($envObjId) destroyed"
+}
+
 data class MoveEvent(val npcId: Int,
                      val npc: Npc,
                      val path: List<GridPosition>) : BattleLogEvent {
@@ -133,12 +137,4 @@ data class TargetSkillEvent(val npcId: Int,
 data class TextEvent(val text: String) : BattleLogEvent {
     override fun description(): String = text
     override fun userFriendlyDescription(): String = text
-}
-
-data class CellStateEvent(val position: GridPosition,
-                          val cell: BattleMapCell,
-                          val text: String) : BattleLogEvent {
-
-    override fun userFriendlyDescription(): String = text
-    override fun description(): String = "Cell at $position changed state to $cell"
 }

@@ -2,9 +2,10 @@ package com.pipai.adv.backend.battle.engine
 
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.engine.commands.InteractCommand
-import com.pipai.adv.backend.battle.engine.log.CellStateEvent
+import com.pipai.adv.backend.battle.engine.log.EnvObjectDestroyEvent
 import com.pipai.adv.domain.Npc
 import com.pipai.adv.utils.AutoIncrementIdMap
+import com.pipai.adv.utils.fetch
 import com.pipai.test.fixtures.bowFixture
 import com.pipai.test.fixtures.npcFromStats
 import com.pipai.test.libgdx.GdxMockedTest
@@ -26,7 +27,8 @@ class ChestInteractionTest : GdxMockedTest() {
         val playerId = npcList.add(player)
         val chestItem = bowFixture()
         map.getCell(0, 0).fullEnvObjId = envObjList.add(NpcEnvObject(playerId, Team.PLAYER, EnvObjTilesetMetadata.NONE))
-        map.getCell(0, 1).fullEnvObjId = envObjList.add(ChestEnvObject(chestItem, EnvObjTilesetMetadata.NONE))
+        val chestId = envObjList.add(ChestEnvObject(chestItem, EnvObjTilesetMetadata.NONE))
+        map.getCell(0, 1).fullEnvObjId = chestId
 
         val backend = generateBackend(npcList, envObjList, map)
         val interactCommand = InteractCommand(playerId, GridPosition(0, 1))
@@ -36,8 +38,9 @@ class ChestInteractionTest : GdxMockedTest() {
         Assert.assertEquals(1, backend.getNpcAp(playerId))
         Assert.assertTrue(player.unitInstance.inventory.any { it.item == chestItem })
         Assert.assertNull(map.getCell(0, 1).fullEnvObjId)
-        val cellStateEvent = events.first { it is CellStateEvent } as CellStateEvent
-        Assert.assertNull(cellStateEvent.cell.fullEnvObjId)
+        val envObjDestroyEvent = events.first { it is EnvObjectDestroyEvent } as EnvObjectDestroyEvent
+        Assert.assertEquals(chestId, envObjDestroyEvent.envObjId)
+        Assert.assertEquals(chestId.fetch(envObjList), envObjDestroyEvent.envObj)
     }
 
     @Test
