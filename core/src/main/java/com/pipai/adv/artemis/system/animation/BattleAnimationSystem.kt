@@ -37,6 +37,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
     private lateinit var delayAnimationHandler: DelayAnimationHandler
     private lateinit var normalAttackAnimationHandler: NormalAttackAnimationHandler
     private lateinit var tpUseAnimationHandler: TpUseAnimationHandler
+    private lateinit var envObjDestroyAnimationHandler: EnvObjDestroyAnimationHandler
 
     private val animatingEvents: MutableList<BattleLogEvent> = mutableListOf()
 
@@ -48,6 +49,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
         delayAnimationHandler = DelayAnimationHandler(world)
         normalAttackAnimationHandler = NormalAttackAnimationHandler(world)
         tpUseAnimationHandler = TpUseAnimationHandler(game.advConfig, world)
+        envObjDestroyAnimationHandler = EnvObjDestroyAnimationHandler(world)
     }
 
     @Subscribe
@@ -81,6 +83,7 @@ class BattleAnimationSystem(private val game: AdvGame) : NoProcessingSystem() {
             is NpcKoEvent -> npcKoAnimationHandler.animate(event)
             is NormalAttackEvent -> normalAttackAnimationHandler.animate(event)
             is TpChangeEvent -> tpUseAnimationHandler.animate(event)
+            is EnvObjectDestroyEvent -> envObjDestroyAnimationHandler.animate(event)
             is BattleEndEvent -> sBattleEnd.activateEndSequence(event)
             else -> {
                 val backend = getBackend()

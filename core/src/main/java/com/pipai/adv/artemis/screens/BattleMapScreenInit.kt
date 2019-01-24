@@ -21,7 +21,6 @@ import com.pipai.adv.domain.Npc
 import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.AutoIncrementIdMap
-import com.pipai.adv.utils.fetch
 
 @Wire
 class BattleMapScreenInit(private val world: World, private val config: AdvConfig,
@@ -38,6 +37,7 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
     private lateinit var mCollision: ComponentMapper<CollisionComponent>
     private lateinit var mNpcId: ComponentMapper<NpcIdComponent>
+    private lateinit var mEnvObjId: ComponentMapper<EnvObjIdComponent>
     private lateinit var mPlayerUnit: ComponentMapper<PlayerUnitComponent>
     private lateinit var mSideUiBox: ComponentMapper<SideUiBoxComponent>
     private lateinit var mUnitHealthbar: ComponentMapper<UnitHealthbarComponent>
@@ -78,15 +78,18 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
         for (x in 0 until map.width) {
             for (y in 0 until map.height) {
                 val cell = map.getCell(x, y)
-                val fullEnvObj = cell.fullEnvObjId.fetch(cBackend.backend.getBattleState().envObjList) ?: continue
-                handleEnvObj(cBackend.backend, fullEnvObj, x, y)
+                cell.fullEnvObjId?.let { handleEnvObj(cBackend.backend, it, x, y) }
             }
         }
         sAi.initializeAi()
     }
 
-    private fun handleEnvObj(backend: BattleBackend, envObj: EnvObject, x: Int, y: Int) {
+    private fun handleEnvObj(backend: BattleBackend, envObjId: Int, x: Int, y: Int) {
+        val envObj = backend.getEnvObj(envObjId)!!
         val id = world.create()
+
+        mEnvObjId.create(id).envObjId = envObjId
+
         val tilesetMetadata = envObj.getTilesetMetadata()
 
         when (tilesetMetadata) {

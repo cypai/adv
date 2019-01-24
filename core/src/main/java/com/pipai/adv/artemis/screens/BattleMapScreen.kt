@@ -71,6 +71,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
 
                         CameraFollowSystem(game.advConfig),
                         NpcIdSystem(),
+                        EnvObjIdSystem(),
                         BattleAnimationSystem(game),
                         BattleCutsceneSystem(cutsceneDirectors),
                         BattleAiSystem(game.globals))

@@ -13,6 +13,11 @@ class NpcIdComponent : Component() {
     var npcId = 0
 }
 
+@DelayedComponentRemoval
+class EnvObjIdComponent : Component() {
+    var envObjId = 0
+}
+
 class PlayerUnitComponent : Component() {
     var index = 0
 }
