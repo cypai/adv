@@ -8,7 +8,6 @@ import com.pipai.adv.AdvConfig
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.components.CollisionBounds.CollisionBoundingBox
-import com.pipai.adv.artemis.components.Interaction.ScreenChangeInteraction
 import com.pipai.adv.artemis.components.Interaction.TextInteraction
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.ZoomInputSystem
@@ -21,7 +20,6 @@ import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
 import com.pipai.adv.domain.Npc
-import com.pipai.adv.map.TestMapGenerator
 import com.pipai.adv.tiles.TileDescriptor
 import com.pipai.adv.tiles.TilePosition
 import com.pipai.adv.utils.AutoIncrementIdMap
@@ -96,25 +94,7 @@ class GuildScreenInit(private val world: World, private val game: AdvGame, priva
     }
 
     private fun addInteractionObjects() {
-        addTestMapSign()
         addGuildManagementSign()
-    }
-
-    private fun addTestMapSign() {
-        val signId = world.create()
-        val cTileDescriptor = mTileDescriptor.create(signId)
-        cTileDescriptor.descriptor = TileDescriptor("signs", TilePosition(1, 0))
-        val cSignXy = mXy.create(signId)
-        cSignXy.x = 32f * 6
-        cSignXy.y = 32f * 6
-        mWall.create(signId)
-        val tileSize = config.resolution.tileSize.toFloat()
-        val cCollision = mCollision.create(signId)
-        cCollision.bounds = CollisionBoundingBox(0f, 0f, tileSize, tileSize)
-        val cInteraction = mInteraction.create(signId)
-        cInteraction.interactionList.add(TextInteraction("Going to test map."))
-        val squad = game.globals.save!!.squads.values.first()
-        cInteraction.interactionList.add(ScreenChangeInteraction({ BattleMapScreen(game, squad, TestMapGenerator()) }))
     }
 
     private fun addGuildManagementSign() {

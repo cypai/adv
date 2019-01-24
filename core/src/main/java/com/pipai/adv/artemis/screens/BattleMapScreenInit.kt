@@ -16,8 +16,11 @@ import com.pipai.adv.backend.battle.domain.EnvObject
 import com.pipai.adv.backend.battle.domain.NpcEnvObject
 import com.pipai.adv.backend.battle.domain.Team
 import com.pipai.adv.backend.battle.engine.BattleBackend
+import com.pipai.adv.backend.battle.engine.rules.ending.ItemRetrievalEndingRule
 import com.pipai.adv.backend.battle.engine.rules.ending.MapClearEndingRule
+import com.pipai.adv.backend.battle.generators.BattleEndingRuleGenerator
 import com.pipai.adv.domain.Npc
+import com.pipai.adv.domain.QuestGoal
 import com.pipai.adv.tiles.AnimatedTilesetManager
 import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.AutoIncrementIdMap
@@ -28,7 +31,8 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
                           private val npcList: AutoIncrementIdMap<Npc>,
                           private val envObjList: AutoIncrementIdMap<EnvObject>,
                           private val partyList: List<Int>,
-                          private val map: BattleMap) {
+                          private val map: BattleMap,
+                          private val goal: QuestGoal?) {
 
     private lateinit var mBackend: ComponentMapper<BattleBackendComponent>
     private lateinit var mCamera: ComponentMapper<OrthographicCameraComponent>
@@ -57,8 +61,9 @@ class BattleMapScreenInit(private val world: World, private val config: AdvConfi
 
     fun initialize() {
         val backendId = world.create()
+        val endingRule = BattleEndingRuleGenerator().generate(goal, envObjList, map)
         val cBackend = mBackend.create(backendId)
-        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, envObjList, map, MapClearEndingRule())
+        cBackend.backend = BattleBackend(globals.weaponSchemaIndex, globals.skillIndex, npcList, envObjList, map, endingRule)
         sTags.register(Tags.BACKEND.toString(), backendId)
 
         val cameraId = world.create()

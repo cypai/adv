@@ -26,11 +26,12 @@ import com.pipai.adv.artemis.system.rendering.BattleMapRenderingSystem
 import com.pipai.adv.artemis.system.rendering.FpsRenderingSystem
 import com.pipai.adv.artemis.system.ui.*
 import com.pipai.adv.backend.battle.domain.EnvObject
+import com.pipai.adv.domain.QuestGoal
 import com.pipai.adv.map.MapGenerator
 import com.pipai.adv.utils.AutoIncrementIdMap
 import net.mostlyoriginal.api.event.common.EventSystem
 
-class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGenerator) : Screen {
+class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGenerator, goal: QuestGoal?) : Screen {
 
     private val stage = Stage(ScreenViewport(), game.spriteBatch)
 
@@ -90,8 +91,8 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
 
         world = World(config)
 
-        cutsceneDirectors.add(OpeningDirector())
         cutsceneDirectors.add(TutorialDirector(world))
+        cutsceneDirectors.add(OpeningDirector(game.advConfig, world))
 
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addProcessor(world.getSystem(CameraMovementInputSystem::class.java))
@@ -103,7 +104,7 @@ class BattleMapScreen(game: AdvGame, partyList: List<Int>, mapGenerator: MapGene
         inputProcessor.addProcessor(stage)
         inputProcessor.activateInput()
 
-        BattleMapScreenInit(world, game.advConfig, game.globals, npcList, envObjList, partyList, map)
+        BattleMapScreenInit(world, game.advConfig, game.globals, npcList, envObjList, partyList, map, goal)
                 .initialize()
 
         world.getSystem(BattleCutsceneSystem::class.java).checkAllCutsceneDirectors()

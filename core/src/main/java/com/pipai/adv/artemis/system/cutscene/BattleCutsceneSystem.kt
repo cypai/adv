@@ -30,13 +30,6 @@ class BattleCutsceneSystem(private val directors: List<BattleCutsceneDirector>) 
     }
 
     @Subscribe
-    fun handleCutsceneEnd(event: CutsceneEvent) {
-        if (!event.start) {
-            checkCutsceneDirectors()
-        }
-    }
-
-    @Subscribe
     fun handleDirectorEnd(@Suppress("UNUSED_PARAMETER") event: DirectorEndEvent) {
         checkCutsceneDirectors()
     }

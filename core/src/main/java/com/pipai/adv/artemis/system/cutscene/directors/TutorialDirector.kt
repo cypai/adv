@@ -4,6 +4,8 @@ import com.artemis.ComponentMapper
 import com.artemis.World
 import com.badlogic.gdx.Gdx
 import com.pipai.adv.artemis.components.XYComponent
+import com.pipai.adv.artemis.events.CutsceneEvent
+import com.pipai.adv.artemis.events.DirectorEndEvent
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.misc.CameraInterpolationSystem
 import com.pipai.adv.artemis.system.misc.NpcIdSystem
@@ -13,6 +15,8 @@ import com.pipai.adv.backend.battle.engine.BattleBackend
 import com.pipai.adv.domain.Cutscene
 import com.pipai.adv.domain.CutsceneUtils
 import com.pipai.adv.map.TileVisibility
+import net.mostlyoriginal.api.event.common.EventSystem
+import net.mostlyoriginal.api.event.common.Subscribe
 
 class TutorialDirector(world: World) : BattleCutsceneDirector {
 
@@ -23,7 +27,11 @@ class TutorialDirector(world: World) : BattleCutsceneDirector {
     private lateinit var sBattleMapRenderer: BattleMapRenderingSystem
     private lateinit var sNpcId: NpcIdSystem
 
+    private lateinit var sEvent: EventSystem
+
     private val cutscene: Cutscene
+
+    private var playingCutscene = false
 
     private var controlsExplained = false
     private var attackExplained = false
@@ -31,7 +39,16 @@ class TutorialDirector(world: World) : BattleCutsceneDirector {
 
     init {
         world.inject(this)
+        sEvent.registerEvents(this)
         cutscene = CutsceneUtils.loadCutscene(Gdx.files.local("assets/data/cutscenes/opening.txt"))
+    }
+
+    @Subscribe
+    fun handleCutsceneEnd(event: CutsceneEvent) {
+        if (playingCutscene && !event.start) {
+            playingCutscene = false
+            sEvent.dispatch(DirectorEndEvent())
+        }
     }
 
     override fun check(backend: BattleBackend): Boolean {
@@ -54,12 +71,14 @@ class TutorialDirector(world: World) : BattleCutsceneDirector {
                         if (butterfly) {
                             sCutscene.showScene("tutorialStatus", cutsceneVariables)
                             statusExplained = true
+                            playingCutscene = true
                             return true
                         }
                     } else {
                         sCutscene.showScene("tutorialEnemyEncounter", cutsceneVariables)
                         attackExplained = true
                         statusExplained = butterfly
+                        playingCutscene = true
                         return true
                     }
                 }
@@ -72,6 +91,7 @@ class TutorialDirector(world: World) : BattleCutsceneDirector {
                 attackExplained = true
                 statusExplained = true
             }
+            playingCutscene = true
             return true
         }
         return false

@@ -36,7 +36,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
     var cutscene: Cutscene = Cutscene(mapOf())
 
     fun showScene(sceneName: String, initVariables: Map<String, String>) {
-        sEvent.dispatch(CutsceneEvent(true))
+        sEvent.dispatch(CutsceneEvent(sceneName, true))
         variables.clear()
         variables.putAll(initVariables)
         currentIndex = 0
@@ -106,7 +106,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
                 finishCutsceneLine()
             }
             "exit" -> {
-                sEvent.dispatch(CutsceneEvent(false))
+                sEvent.dispatch(CutsceneEvent(scene, false))
                 sMainTextbox.isEnabled = false
             }
             "ifjmp" -> {
@@ -204,7 +204,7 @@ class CutsceneInputSystem(private val game: AdvGame) : NoProcessingSystem(), Inp
         if (currentIndex < cutscene.scenes[scene]!!.size) {
             performLine(cutscene.scenes[scene]!![currentIndex])
         } else {
-            sEvent.dispatch(CutsceneEvent(false))
+            sEvent.dispatch(CutsceneEvent(scene, false))
         }
     }
 

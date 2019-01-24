@@ -60,9 +60,6 @@ class TestMapGenerator : MapGenerator {
         generatePod(GridPosition(RNG.nextInt((width - 4) / 2) + width / 2, RNG.nextInt(height - 10) + 6), map, schemas, weapons, npcList, envObjList)
 
         generateWallBoundary(envObjList, map)
-        val chestTile = EnvObjTilesetMetadata.SingleTilesetMetadata(TileDescriptor("chest", TilePosition(0, 0)))
-        map.getCell(3, 3).fullEnvObjId = envObjList.add(ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile))
-        map.getCell(4, 3).fullEnvObjId = envObjList.add(ChestEnvObject(InventoryItem.MiscItem("D-Rank Guild Card"), chestTile))
         map.getCell(8, 8).fullEnvObjId = envObjList.add(FullWall(FullWallType.WALL))
         return map
     }

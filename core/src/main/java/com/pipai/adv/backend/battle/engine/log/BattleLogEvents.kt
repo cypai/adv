@@ -21,6 +21,7 @@ data class BattleEndEvent(val endingType: EndingType, val battleStats: BattleSta
 enum class EndingType(val description: String) {
     MAP_CLEAR("The map is clear of enemies!"),
     RAN_AWAY("The party ran away..."),
+    MISSION_COMPLETE("Mission complete!"),
     GAME_OVER("The party was defeated...")
 }
 

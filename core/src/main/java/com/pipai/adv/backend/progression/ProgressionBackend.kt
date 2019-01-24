@@ -36,7 +36,7 @@ class ProgressionBackend {
 
     private fun initQuests() {
         createQuest(Quest("Guild Exam: D", mapOf(
-                Pair("start", QuestStage(listOf(QuestGoal.ItemRetrievalGoal(listOf("D-Rank Guild Card"), "Lagos Forest")),
+                Pair("start", QuestStage(listOf(QuestGoal.ItemRetrievalGoal("D-Rank Guild Card", "Lagos Forest")),
                         "Enter Lagos Forest, find the chest containing the D-Rank Guild Card, and return to tell the tale!")),
                 Pair("report", QuestStage(listOf(QuestGoal.TalkWithNpcGoal("Guild Associate")),
                         "Report your success to the Guild Associate!")))
@@ -59,7 +59,7 @@ class ProgressionBackend {
         createQuest(Quest("Calico Cat Rescue", mapOf(
                 Pair("start", QuestStage(listOf(QuestGoal.TalkWithNpcGoal("Calico")),
                         "Calico, a local young girl, has lost her cat. Speak with her to get the details.")),
-                Pair("rescue", QuestStage(listOf(QuestGoal.ItemRetrievalGoal(listOf("D-Rank Guild Card"), "Glires Forest")),
+                Pair("rescue", QuestStage(listOf(QuestGoal.ItemRetrievalGoal("Mr. Whiskers", "Glires Forest")),
                         "Seems like Mr. Whiskers left the village. Where could he be?")),
                 Pair("report", QuestStage(listOf(QuestGoal.TalkWithNpcGoal("Calico")),
                         "Bring Mr. Whiskers back to Calico!")))

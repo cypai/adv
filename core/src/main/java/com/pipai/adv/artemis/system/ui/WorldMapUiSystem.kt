@@ -248,12 +248,12 @@ class WorldMapUiSystem(private val game: AdvGame,
     private fun handleExcursionEvent(excursion: StringMenuItem) {
         val squad = game.globals.save!!.squads[excursion.getData("squad") as String]!!
         when {
-            excursion.text == "Exploration" -> game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+            excursion.text == "Exploration" -> game.screen = BattleMapScreen(game, squad, TestMapGenerator(), null)
             excursion.text.startsWith("Retrieve Item") -> {
-                game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+                game.screen = BattleMapScreen(game, squad, TestMapGenerator(), excursion.getData("goal")!! as QuestGoal)
             }
             excursion.text.startsWith("Clear Map") -> {
-                game.screen = BattleMapScreen(game, squad, TestMapGenerator())
+                game.screen = BattleMapScreen(game, squad, TestMapGenerator(), null)
             }
         }
     }

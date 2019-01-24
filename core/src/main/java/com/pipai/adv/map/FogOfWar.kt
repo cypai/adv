@@ -95,6 +95,20 @@ class FogOfWar {
         return npcIdVisibility[npcId]?.contains(position) ?: false
     }
 
+    fun setPlayerTileVisibility(position: GridPosition, visibility: TileVisibility) {
+        when (visibility) {
+            TileVisibility.VISIBLE -> {
+                playerVisibility.add(position)
+                playerFog.add(position)
+            }
+            TileVisibility.SEEN -> playerFog.add(position)
+            TileVisibility.NEVER_SEEN -> {
+                playerVisibility.remove(position)
+                playerFog.remove(position)
+            }
+        }
+    }
+
     fun getPlayerTileVisibility(position: GridPosition): TileVisibility {
         return when {
             playerVisibility.contains(position) -> TileVisibility.VISIBLE

@@ -13,5 +13,5 @@ sealed class QuestGoal {
     data class FetchGoal(val items: List<Pair<String, Int>>) : QuestGoal()
     data class ClearMapGoal(val location: String) : QuestGoal()
     data class ClearTempMapGoal(val locationName: String, val location: WorldMapLocation) : QuestGoal()
-    data class ItemRetrievalGoal(val items: List<String>, val location: String) : QuestGoal()
+    data class ItemRetrievalGoal(val item: String, val location: String) : QuestGoal()
 }
