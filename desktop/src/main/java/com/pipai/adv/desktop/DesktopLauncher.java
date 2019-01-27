@@ -21,6 +21,7 @@ public final class DesktopLauncher {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowedMode(advConfig.getResolution().getWidth(), advConfig.getResolution().getHeight());
         config.setResizable(false);
+        config.useVsync(true);
         new Lwjgl3Application(new AdvGame(advConfig), config);
     }
 }
