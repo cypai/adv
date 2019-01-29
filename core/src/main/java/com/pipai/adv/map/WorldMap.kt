@@ -23,6 +23,8 @@ class WorldMap {
  * x and y here are pixel positions on the world map texture
  */
 data class WorldMapLocation(val x: Int, val y: Int) {
+    constructor(x: Float, y: Float) : this(x.toInt(), y.toInt())
+
     fun toVector2() = Vector2(x.toFloat(), y.toFloat())
 }
 

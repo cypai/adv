@@ -1,7 +1,9 @@
 package com.pipai.adv
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.progression.ProgressionBackend
@@ -99,8 +101,14 @@ class AdvGameInitializer {
 
     private fun initializeWorldMap(): WorldMap {
         val worldMap = WorldMap()
-        worldMap.addPoi(PointOfInterest("Lagos Village", PointOfInterestType.VILLAGE, WorldMapLocation(200, 100)))
-        worldMap.addPoi(PointOfInterest("Lagos Forest", PointOfInterestType.DUNGEON, WorldMapLocation(100, 200)))
+        val tiledWorldMap = TmxMapLoader(LocalFileHandleResolver()).load("assets/binassets/maps/worldmap.tmx")
+        val pois = tiledWorldMap.layers.get("Metadata").objects
+        pois.forEach {
+            worldMap.addPoi(PointOfInterest(
+                    it.name,
+                    PointOfInterestType.valueOf(it.properties["type"] as String),
+                    WorldMapLocation(it.properties["x"] as Float, it.properties["y"] as Float)))
+        }
         return worldMap
     }
 
