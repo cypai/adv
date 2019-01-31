@@ -3,6 +3,7 @@ package com.pipai.adv
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
@@ -29,7 +30,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                           val textureManager: TextureManager,
                           val pccManager: PccManager,
                           val animatedTilesetManager: AnimatedTilesetManager,
-                          val worldMap: WorldMap) {
+                          val worldMap: WorldMap,
+                          val worldMapTmx: TiledMap) {
 
     private val logger = getLogger()
 
@@ -93,23 +95,20 @@ class AdvGameInitializer {
         val animatedUnitTilesets = schemaList.filter { it.tilesetMetadata is EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata }
                 .map { (it.tilesetMetadata as EnvObjTilesetMetadata.AnimatedUnitTilesetMetadata).filename }
         animatedTilesetManager.loadTextures(animatedUnitTilesets)
-        val worldMap = initializeWorldMap()
-        return AdvGameGlobals(null, ProgressionBackend(), SaveManager(), schemaList,
-                weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
-                tilesetList, textureManager, pccManager, animatedTilesetManager, worldMap)
-    }
 
-    private fun initializeWorldMap(): WorldMap {
         val worldMap = WorldMap()
-        val tiledWorldMap = TmxMapLoader(LocalFileHandleResolver()).load("assets/binassets/maps/worldmap.tmx")
-        val pois = tiledWorldMap.layers.get("Metadata").objects
+        val worldMapTmx = TmxMapLoader(LocalFileHandleResolver()).load("assets/binassets/maps/worldmap.tmx")
+        val pois = worldMapTmx.layers.get("Metadata").objects
         pois.forEach {
             worldMap.addPoi(PointOfInterest(
                     it.name,
                     PointOfInterestType.valueOf(it.properties["type"] as String),
                     WorldMapLocation(it.properties["x"] as Float, it.properties["y"] as Float)))
         }
-        return worldMap
+
+        return AdvGameGlobals(null, ProgressionBackend(), SaveManager(), schemaList,
+                weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
+                tilesetList, textureManager, pccManager, animatedTilesetManager, worldMap, worldMapTmx)
     }
 
     private fun initializeSchemaList(): UnitSchemaIndex {

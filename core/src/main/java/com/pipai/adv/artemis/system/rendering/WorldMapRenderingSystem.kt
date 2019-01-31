@@ -4,7 +4,7 @@ import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.screens.Tags
@@ -18,6 +18,8 @@ import com.pipai.adv.utils.system
 class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf()) {
 
     private val batch = game.batchHelper
+    private val worldMap = game.globals.worldMap
+    private val worldMapTmx = game.globals.worldMapTmx
 
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mXy by mapper<XYComponent>()
@@ -32,30 +34,20 @@ class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf
 
     private val glayout = GlyphLayout()
 
+    private val renderer = OrthogonalTiledMapRenderer(worldMapTmx)
+
     override fun process(entityId: Int) {
         val cameraId = sTags.getEntityId(Tags.CAMERA.toString())
         val camera = mCamera.get(cameraId).camera
 
-        batch.shape.projectionMatrix = camera.combined
-        batch.shape.begin(ShapeRenderer.ShapeType.Filled)
-        renderLines()
-        batch.shape.end()
+        renderer.setView(camera)
+        renderer.render()
         batch.spr.projectionMatrix = camera.combined
         batch.spr.begin()
         batch.spr.color = Color.WHITE
         renderEverything()
         renderText()
         batch.spr.end()
-    }
-
-    private fun renderLines() {
-        val lineEntities = world.fetch(allOf(LinesComponent::class))
-        lineEntities.forEach { entityId ->
-            val cLines = mLines.get(entityId)
-            cLines.lines.forEach {
-                batch.shape.line(it.first, it.second)
-            }
-        }
     }
 
     private fun renderEverything() {

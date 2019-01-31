@@ -53,20 +53,21 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             val cDrawable = mDrawable.create(entityId)
             cDrawable.drawable = game.skin.newDrawable("white", Color.RED)
             cDrawable.depth = -1
-            cDrawable.width = 24f
-            cDrawable.height = 24f
-            cDrawable.centered = true
+            cDrawable.width = (game.globals.worldMapTmx.properties["tilewidth"] as Int).toFloat()
+            cDrawable.height = (game.globals.worldMapTmx.properties["tileheight"] as Int).toFloat()
             val cPoi = mPoi.create(entityId)
             cPoi.poi = poi
         }
     }
 
     private fun initializeSquads() {
+        val tileWidth = game.globals.worldMapTmx.properties["tilewidth"] as Int
+        val tileHeight = game.globals.worldMapTmx.properties["tileheight"] as Int
         val save = game.globals.save!!
         save.squadLocations.forEach { squad, worldMapLocation ->
             val entityId = world.create()
             val cXy = mXy.create(entityId)
-            cXy.setXy(worldMapLocation.x.toFloat(), worldMapLocation.y.toFloat())
+            cXy.setXy(worldMapLocation.x.toFloat() + tileWidth / 2, worldMapLocation.y.toFloat() + tileHeight / 2)
             val squadLeader = save.squads[squad]!!.first()
             val squadPcc = save.globalNpcList.get(squadLeader)!!.tilesetMetadata
             val cEnvObjTile = mEnvObjTile.create(entityId)
