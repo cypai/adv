@@ -11,8 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.system.animation.AnimationFrameIncrementSystem
+import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.artemis.system.input.CutsceneInputSystem
 import com.pipai.adv.artemis.system.input.InputProcessingSystem
+import com.pipai.adv.artemis.system.misc.CameraFollowSystem
 import com.pipai.adv.artemis.system.misc.PassTimeMovementSystem
 import com.pipai.adv.artemis.system.misc.PathInterpolationSystem
 import com.pipai.adv.artemis.system.misc.XyInterpolationSystem
@@ -43,11 +45,15 @@ class WorldMapScreen(game: AdvGame) : Screen {
                         XyInterpolationSystem(),
 
                         InputProcessingSystem(),
-                        CutsceneInputSystem(game))
+                        CutsceneInputSystem(game),
+
+                        CharacterMovementInputSystem(2))
                 .withPassive(-1,
+                        CameraFollowSystem(game.advConfig))
+                .withPassive(-2,
                         BackgroundRenderingSystem(game),
                         WorldMapRenderingSystem(game))
-                .withPassive(-2,
+                .withPassive(-3,
                         FpsRenderingSystem(game.batchHelper),
                         WorldMapUiSystem(game, stage),
                         MainTextboxUiSystem(game))
@@ -58,6 +64,7 @@ class WorldMapScreen(game: AdvGame) : Screen {
         val inputProcessor = world.getSystem(InputProcessingSystem::class.java)
         inputProcessor.addAlwaysOnProcessor(world.getSystem(CutsceneInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(world.getSystem(WorldMapUiSystem::class.java))
+        inputProcessor.addAlwaysOnProcessor(world.getSystem(CharacterMovementInputSystem::class.java))
         inputProcessor.addAlwaysOnProcessor(stage)
         inputProcessor.activateInput()
 

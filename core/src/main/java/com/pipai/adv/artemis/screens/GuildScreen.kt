@@ -59,7 +59,7 @@ class GuildScreen(game: AdvGame) : Screen {
 
                         AnimationFrameIncrementSystem(),
                         InputProcessingSystem(),
-                        CharacterMovementInputSystem(game.advConfig),
+                        CharacterMovementInputSystem(3),
                         ZoomInputSystem(),
                         InteractionInputSystem(game, this, game.advConfig),
                         PartialTextUpdateSystem(),

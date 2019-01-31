@@ -16,9 +16,7 @@ import com.pipai.adv.utils.mapper
 import com.pipai.adv.utils.system
 import net.mostlyoriginal.api.event.common.Subscribe
 
-class CharacterMovementInputSystem(private val config: AdvConfig) : BaseSystem(), InputProcessor, PausableSystem {
-
-    private val speed = 3
+class CharacterMovementInputSystem(private val speed: Int) : BaseSystem(), InputProcessor, PausableSystem {
 
     private val mXy by mapper<XYComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()

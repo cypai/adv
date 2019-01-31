@@ -19,6 +19,7 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
     private lateinit var mPoi: ComponentMapper<PointOfInterestComponent>
     private lateinit var mEnvObjTile: ComponentMapper<EnvObjTileComponent>
     private lateinit var mAnimationFrames: ComponentMapper<AnimationFramesComponent>
+    private lateinit var mCameraFollow: ComponentMapper<CameraFollowComponent>
 
     private lateinit var sTags: TagManager
 
@@ -78,6 +79,9 @@ class WorldMapScreenInit(private val world: World, private val game: AdvGame, pr
             cAnimationFrames.tStartNoise = 5
             val cSquad = mSquad.create(entityId)
             cSquad.squad = squad
+
+            sTags.register(Tags.CONTROLLABLE_CHARACTER.toString(), entityId)
+            mCameraFollow.create(entityId)
         }
     }
 

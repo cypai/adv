@@ -8,13 +8,10 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine
 import com.badlogic.gdx.ai.fsm.State
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageList
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.pipai.adv.AdvGame
 import com.pipai.adv.artemis.components.*
 import com.pipai.adv.artemis.events.PauseEvent
@@ -29,8 +26,6 @@ import com.pipai.adv.gui.StandardImageListItemView
 import com.pipai.adv.map.PointOfInterest
 import com.pipai.adv.map.PointOfInterestType
 import com.pipai.adv.map.TestMapGenerator
-import com.pipai.adv.map.WorldMapLocation
-import com.pipai.adv.tiles.PccManager
 import com.pipai.adv.utils.*
 import net.mostlyoriginal.api.event.common.EventSystem
 
@@ -42,9 +37,7 @@ class WorldMapUiSystem(private val game: AdvGame,
     private val mSquad by mapper<SquadComponent>()
     private val mDrawable by mapper<DrawableComponent>()
     private val mText by mapper<TextComponent>()
-    private val mAnimationFrames by mapper<AnimationFramesComponent>()
     private val mCamera by mapper<OrthographicCameraComponent>()
-    private val mLines by mapper<LinesComponent>()
     private val mPath by mapper<PathInterpolationComponent>()
 
     private val sTags by system<TagManager>()
@@ -53,16 +46,10 @@ class WorldMapUiSystem(private val game: AdvGame,
 
     private val stateMachine = DefaultStateMachine<WorldMapUiSystem, WorldMapUiState>(this)
 
-    private val skin = game.skin
-
     private val screenTable = Table()
     private val excursionTable = Table()
     private val excursionLabel = Label("", game.skin)
     private val excursionList = ImageList(game.skin, "smallMenuList", StandardImageListItemView<StringMenuItem>())
-    private val runTimeButton = TextButton("  Pass Time  ", skin)
-
-    private var selectedSquad: String? = null
-    private var selectedSquadEntity: Int? = null
 
     init {
         stateMachine.setInitialState(WorldMapUiState.DISABLED)
@@ -70,15 +57,6 @@ class WorldMapUiSystem(private val game: AdvGame,
     }
 
     private fun createUi() {
-        screenTable.x = 0f
-        screenTable.y = 0f
-        screenTable.width = game.advConfig.resolution.width.toFloat()
-        screenTable.height = game.advConfig.resolution.height.toFloat()
-        screenTable.add(runTimeButton)
-                .expand()
-                .top()
-                .padTop(32f)
-
         excursionTable.background = game.skin.getDrawable("frameDrawable")
         excursionTable.pad(16f)
         excursionTable.add(excursionLabel)
@@ -93,12 +71,6 @@ class WorldMapUiSystem(private val game: AdvGame,
         excursionList.addConfirmCallback { handleExcursionEvent(it) }
 
         stage.addActor(screenTable)
-
-        runTimeButton.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                stateMachine.changeState(WorldMapUiState.RUNNING_TIME)
-            }
-        })
     }
 
     fun stopPassTime() {
@@ -118,9 +90,6 @@ class WorldMapUiSystem(private val game: AdvGame,
                 when (stateMachine.currentState) {
                     WorldMapUiState.RUNNING_TIME -> {
                         stopPassTime()
-                        stateMachine.changeState(WorldMapUiState.DISABLED)
-                    }
-                    WorldMapUiState.SELECTED_SQUAD -> {
                         stateMachine.changeState(WorldMapUiState.DISABLED)
                     }
                     WorldMapUiState.EXCURSION_SELECTION -> {
@@ -146,22 +115,6 @@ class WorldMapUiSystem(private val game: AdvGame,
         when (button) {
             Input.Buttons.LEFT -> {
                 val squadEntities = world.fetch(allOf(SquadComponent::class, XYComponent::class))
-                for (squadEntity in squadEntities) {
-                    val cSquad = mSquad.get(squadEntity)
-                    val cXy = mXy.get(squadEntity)
-                    val bounds = CollisionBounds.CollisionBoundingBox(
-                            -PccManager.PCC_WIDTH / 2f, 0f,
-                            PccManager.PCC_WIDTH.toFloat(), PccManager.PCC_HEIGHT.toFloat())
-                    if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
-                        stateMachine.changeState(WorldMapUiState.SELECTED_SQUAD)
-                        selectedSquad = cSquad.squad
-                        selectedSquadEntity = squadEntity
-                        val cAnimationFrames = mAnimationFrames.get(squadEntity)
-                        cAnimationFrames.tMax = 15
-                        return true
-                    }
-                }
-
                 val poiEntities = world.fetch(allOf(PointOfInterestComponent::class, XYComponent::class, DrawableComponent::class))
                 for (poiEntity in poiEntities) {
                     val cPoi = mPoi.get(poiEntity)
@@ -171,7 +124,7 @@ class WorldMapUiSystem(private val game: AdvGame,
                     if (CollisionUtils.withinBounds(mouseX, mouseY, cXy.x, cXy.y, bounds)) {
                         val closeSquad = squadEntities.find { squad ->
                             val cSquadXy = mXy.get(squad)
-                            MathUtils.distance2(cXy.x, cXy.y, cSquadXy.x, cSquadXy.y) < 100
+                            CollisionUtils.withinBounds(cSquadXy.x, cSquadXy.y, cXy.x, cXy.y, bounds)
                         }
                         if (closeSquad != null) {
                             val cSquad = mSquad.get(closeSquad)
@@ -179,11 +132,6 @@ class WorldMapUiSystem(private val game: AdvGame,
                             return true
                         }
                     }
-                }
-            }
-            Input.Buttons.RIGHT -> {
-                if (stateMachine.isInState(WorldMapUiState.SELECTED_SQUAD)) {
-                    setDestination(selectedSquadEntity!!, selectedSquad!!, WorldMapLocation(mouseX.toInt(), mouseY.toInt()))
                 }
             }
         }
@@ -258,15 +206,6 @@ class WorldMapUiSystem(private val game: AdvGame,
         }
     }
 
-    private fun setDestination(entityId: Int, squad: String, location: WorldMapLocation) {
-        val save = game.globals.save!!
-        save.squadDestinations[squad] = location
-        val cLines = mLines.create(entityId)
-        cLines.lines.clear()
-        val origin = save.squadLocations[squad]!!
-        cLines.lines.add(Pair(origin.toVector2(), location.toVector2()))
-    }
-
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
@@ -308,13 +247,6 @@ class WorldMapUiSystem(private val game: AdvGame,
 
             override fun exit(uiSystem: WorldMapUiSystem) {
                 uiSystem.excursionTable.remove()
-            }
-        },
-        SELECTED_SQUAD() {
-            override fun exit(uiSystem: WorldMapUiSystem) {
-                uiSystem.selectedSquad = null
-                uiSystem.mAnimationFrames.get(uiSystem.selectedSquadEntity!!).tMax = 60
-                uiSystem.selectedSquadEntity = null
             }
         },
         RUNNING_TIME() {

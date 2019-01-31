@@ -18,13 +18,11 @@ import com.pipai.adv.utils.system
 class WorldMapRenderingSystem(private val game: AdvGame) : IteratingSystem(allOf()) {
 
     private val batch = game.batchHelper
-    private val worldMap = game.globals.worldMap
     private val worldMapTmx = game.globals.worldMapTmx
 
     private val mCamera by mapper<OrthographicCameraComponent>()
     private val mXy by mapper<XYComponent>()
     private val mDrawable by mapper<DrawableComponent>()
-    private val mLines by mapper<LinesComponent>()
     private val mText by mapper<TextComponent>()
     private val mEnvObjTile by mapper<EnvObjTileComponent>()
     private val mAnimationFrames by mapper<AnimationFramesComponent>()
