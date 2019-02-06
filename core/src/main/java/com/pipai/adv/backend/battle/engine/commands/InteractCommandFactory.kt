@@ -12,7 +12,9 @@ class InteractCommandFactory(backend: BattleBackend) : ActionCommandFactory<Inte
             val position = backend.getNpcPosition(npcId)!!
             val neighbors = GridUtils.neighbors(position)
 
-            neighbors.filter { backend.getFullEnvObj(it) is ChestEnvObject }
+            val map = backend.getBattleMapUnsafe()
+            neighbors.filter { it.x >= 0 && it.y >= 0 && it.x < map.width && it.y < map.height }
+                    .filter { backend.getFullEnvObj(it) is ChestEnvObject }
                     .map { InteractCommand(npcId, it) }
                     .forEach { commands.add(it) }
         }
