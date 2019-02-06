@@ -102,6 +102,17 @@ class BattleEndSystem(private val game: AdvGame,
                     }
                 })
             }
+            EndingType.MISSION_COMPLETE -> {
+                titleLabel.setText("Mission Complete!")
+                killsLabel.setText("Enemies Defeated: ${event.battleStats.getAllKills().size}")
+                expLabel.setText("EXP Gained: ${event.battleStats.getExpGained()}")
+                button.setText("  Return to guild  ")
+                button.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        game.screen = ResultsScreen(game, results)
+                    }
+                })
+            }
         }
     }
 
