@@ -451,7 +451,7 @@ class BattleUiSystem(private val game: AdvGame, private val npcList: AutoIncreme
         }
         val position = backend.getNpcPosition(npcId)!!
         val map = backend.getBattleMapState()
-        if (map.getCell(position).specialFlags.any { it is BattleMapCellSpecialFlag.Exit }) {
+        if (!map.getCell(position).specialFlags.any { it is BattleMapCellSpecialFlag.Exit }) {
             primaryActionMenu.setDisabledIndex(5, true)
         }
         primaryActionMenu.height = primaryActionMenu.prefHeight
