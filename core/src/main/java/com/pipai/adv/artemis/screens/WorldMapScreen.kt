@@ -39,7 +39,7 @@ class WorldMapScreen(game: AdvGame) : Screen {
                         GroupManager(),
                         EventSystem(),
 
-                        PassTimeMovementSystem(game),
+                        PassTimeMovementSystem(game.globals),
                         AnimationFrameIncrementSystem(),
                         PathInterpolationSystem(),
                         XyInterpolationSystem(),

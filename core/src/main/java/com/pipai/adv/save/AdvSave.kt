@@ -6,9 +6,12 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.pipai.adv.backend.battle.domain.InventoryItem
 import com.pipai.adv.domain.GuildRank
 import com.pipai.adv.domain.Npc
+import com.pipai.adv.domain.Quest
 import com.pipai.adv.map.WorldMapLocation
 import com.pipai.adv.utils.AutoIncrementIdMap
 import com.pipai.adv.utils.fetch
+import java.time.LocalDateTime
+import java.time.Month
 
 class AdvSave() {
 
@@ -28,6 +31,7 @@ class AdvSave() {
         activeQuests = mapper.readValue(lines[11])
         finishedQuests = mapper.readValue(lines[12])
         variables = mapper.readValue(lines[13])
+        time = LocalDateTime.parse(lines[14])
     }
 
     companion object {
@@ -66,6 +70,9 @@ class AdvSave() {
     var availableQuests: MutableList<String> = mutableListOf()
         private set
 
+    var availableRandomQuests: MutableMap<String, MutableMap<String, Quest>> = mutableMapOf()
+        private set
+
     var activeQuests: MutableMap<String, String> = mutableMapOf()
         private set
 
@@ -74,6 +81,8 @@ class AdvSave() {
 
     var variables: MutableMap<String, String> = mutableMapOf()
         private set
+
+    var time: LocalDateTime = LocalDateTime.of(1800, Month.MARCH, 1, 0, 0)
 
     init {
         guilds = mutableMapOf()
@@ -153,6 +162,7 @@ class AdvSave() {
         val activeQuestsLine = mapper.writeValueAsString(activeQuests)
         val finishedQuestsLine = mapper.writeValueAsString(finishedQuests)
         val variablesLine = mapper.writeValueAsString(variables)
+        val timeLine = time.toString()
         return "$playerGuild\n" +
                 "$guildsLine\n" +
                 "$npcListLine\n" +
@@ -166,6 +176,7 @@ class AdvSave() {
                 "$availableQuestsLine\n" +
                 "$activeQuestsLine\n" +
                 "$finishedQuestsLine\n" +
-                "$variablesLine\n"
+                "$variablesLine\n" +
+                "$timeLine\n"
     }
 }

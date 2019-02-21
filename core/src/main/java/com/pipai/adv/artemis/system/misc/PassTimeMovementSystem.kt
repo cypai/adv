@@ -1,48 +1,27 @@
 package com.pipai.adv.artemis.system.misc
 
-import com.artemis.systems.IteratingSystem
+import com.artemis.BaseSystem
 import com.badlogic.gdx.math.Interpolation
-import com.pipai.adv.AdvGame
-import com.pipai.adv.artemis.components.LinesComponent
-import com.pipai.adv.artemis.components.PathInterpolationComponent
-import com.pipai.adv.artemis.components.SquadComponent
-import com.pipai.adv.artemis.components.XYComponent
-import com.pipai.adv.artemis.system.ui.WorldMapUiSystem
+import com.pipai.adv.AdvGameGlobals
+import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
 import com.pipai.adv.map.WorldMapLocation
-import com.pipai.adv.utils.allOf
-import com.pipai.adv.utils.mapper
-import com.pipai.adv.utils.require
+import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.system
 
-class PassTimeMovementSystem(private val game: AdvGame) : IteratingSystem(allOf()) {
-    private val mXy by require<XYComponent>()
-    private val mSquad by require<SquadComponent>()
-    private val mLines by require<LinesComponent>()
+class PassTimeMovementSystem(private val globals: AdvGameGlobals) : BaseSystem() {
 
-    private val mPath by mapper<PathInterpolationComponent>()
+    private val sMovement by system<CharacterMovementInputSystem>()
 
-    private val sUi by system<WorldMapUiSystem>()
+    private var timeBuffer = 0
+    private val maxTimeBuffer = 60
 
-    override fun initialize() {
-        super.initialize()
-        isEnabled = false
-    }
-
-    override fun process(entityId: Int) {
-        val cLines = mLines.get(entityId)
-        val cPath = mPath.create(entityId)
-        if (cPath.endpoints.isEmpty()) {
-            cPath.interpolation = Interpolation.linear
-            cPath.endpoints.add(cLines.lines.first().first.cpy())
-            cPath.endpoints.add(cLines.lines.first().second.cpy())
-            cPath.setUsingSpeed(2.0)
-            cPath.onEndpoint = {
-                mLines.remove(entityId)
-                sUi.stopPassTime()
+    override fun processSystem() {
+        if (sMovement.isMoving) {
+            timeBuffer += 1
+            if (timeBuffer > maxTimeBuffer) {
+                timeBuffer = 0
+                globals.timeBackend.update()
             }
         }
-        val cXy = mXy.get(entityId)
-        cLines.lines.first().first.set(cXy.x, cXy.y)
-        game.globals.save!!.squadLocations[mSquad.get(entityId).squad] = WorldMapLocation(cXy.x.toInt(), cXy.y.toInt())
     }
 }

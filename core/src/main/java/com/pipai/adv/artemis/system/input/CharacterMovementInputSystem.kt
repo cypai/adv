@@ -4,7 +4,6 @@ import com.artemis.BaseSystem
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
-import com.pipai.adv.AdvConfig
 import com.pipai.adv.artemis.components.AnimationFramesComponent
 import com.pipai.adv.artemis.components.EnvObjTileComponent
 import com.pipai.adv.artemis.components.XYComponent
@@ -26,6 +25,9 @@ class CharacterMovementInputSystem(private val speed: Int) : BaseSystem(), Input
 
     private val heldKeys: HeldKeys = HeldKeys()
     private var keyDownDirection: MutableList<Direction> = mutableListOf()
+
+    var isMoving = false
+        private set
 
     @Subscribe
     fun handleCutsceneEvent(event: CutsceneEvent) {
@@ -61,7 +63,7 @@ class CharacterMovementInputSystem(private val speed: Int) : BaseSystem(), Input
 
     private fun translateCharacter(charId: Int) {
         val cXy = mXy.get(charId)
-        var isMoving = false
+        isMoving = false
         if (heldKeys.isDown(Keys.W) || heldKeys.isDown(Keys.UP)) {
             cXy.y += speed
             isMoving = true

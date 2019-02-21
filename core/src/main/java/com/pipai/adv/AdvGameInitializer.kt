@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.pipai.adv.backend.battle.domain.*
 import com.pipai.adv.backend.battle.domain.EnvObjTilesetMetadata.PccTilesetMetadata
 import com.pipai.adv.backend.progression.ProgressionBackend
+import com.pipai.adv.backend.progression.TimeBackend
 import com.pipai.adv.index.*
 import com.pipai.adv.map.PointOfInterest
 import com.pipai.adv.map.PointOfInterestType
@@ -17,9 +18,12 @@ import com.pipai.adv.save.AdvSave
 import com.pipai.adv.save.SaveManager
 import com.pipai.adv.tiles.*
 import com.pipai.adv.utils.getLogger
+import java.time.LocalDateTime
+import java.time.Month
 
 data class AdvGameGlobals(var save: AdvSave?,
                           val progressionBackend: ProgressionBackend,
+                          val timeBackend: TimeBackend,
                           val saveManager: SaveManager,
                           val unitSchemaIndex: UnitSchemaIndex,
                           val weaponSchemaIndex: WeaponSchemaIndex,
@@ -77,6 +81,8 @@ data class AdvGameGlobals(var save: AdvSave?,
                 .forEach { pccMetadataList.addAll((it as PccTilesetMetadata).pccMetadata) }
 
         pccManager.loadPccTextures(pccMetadataList)
+
+        timeBackend.time = save.time
     }
 }
 
@@ -106,7 +112,9 @@ class AdvGameInitializer {
                     WorldMapLocation(it.properties["x"] as Float, it.properties["y"] as Float)))
         }
 
-        return AdvGameGlobals(null, ProgressionBackend(), SaveManager(), schemaList,
+        val timeBackend = TimeBackend(LocalDateTime.of(1000, Month.JANUARY, 1, 0, 0))
+
+        return AdvGameGlobals(null, ProgressionBackend(), timeBackend, SaveManager(), schemaList,
                 weaponSchemaIndex, armorSchemaIndex, itemSchemaIndex, skillIndex,
                 tilesetList, textureManager, pccManager, animatedTilesetManager, worldMap, worldMapTmx)
     }
