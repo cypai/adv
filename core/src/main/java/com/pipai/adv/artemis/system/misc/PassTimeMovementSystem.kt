@@ -1,16 +1,17 @@
 package com.pipai.adv.artemis.system.misc
 
 import com.artemis.BaseSystem
-import com.badlogic.gdx.math.Interpolation
 import com.pipai.adv.AdvGameGlobals
 import com.pipai.adv.artemis.system.input.CharacterMovementInputSystem
-import com.pipai.adv.map.WorldMapLocation
-import com.pipai.adv.save.AdvSave
 import com.pipai.adv.utils.system
+import java.time.Duration
 
 class PassTimeMovementSystem(private val globals: AdvGameGlobals) : BaseSystem() {
 
     private val sMovement by system<CharacterMovementInputSystem>()
+
+    private val save = globals.save!!
+    private val updateTimespan: Duration = Duration.ofHours(2)
 
     private var timeBuffer = 0
     private val maxTimeBuffer = 60
@@ -20,8 +21,13 @@ class PassTimeMovementSystem(private val globals: AdvGameGlobals) : BaseSystem()
             timeBuffer += 1
             if (timeBuffer > maxTimeBuffer) {
                 timeBuffer = 0
-                globals.timeBackend.update()
+                updateTime()
             }
         }
+    }
+
+    private fun updateTime() {
+        save.time = save.time.plus(updateTimespan)
+        globals.questBackend.scheduleEvents(globals)
     }
 }

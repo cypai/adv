@@ -212,7 +212,7 @@ class NewGameUiSystem(private val game: AdvGame) : BaseSystem(), InputProcessor 
 
         save.variables["disabledVillageOptions"] = "Hospital|Market|Orphanage|Guild Hall|Town Hall|Gate"
 
-        game.globals.progressionBackend.scheduleEvents(save)
+        game.globals.questBackend.scheduleEvents(game.globals)
 
         return save
     }

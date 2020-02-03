@@ -157,7 +157,7 @@ class WorldMapUiSystem(private val game: AdvGame,
         }
 
         game.globals.save!!.activeQuests.forEach { questName, stageName ->
-            val quest = game.globals.progressionBackend.getQuest(questName)
+            val quest = game.globals.questBackend.getQuest(questName)
             val stage = quest.stages[stageName]!!
             stage.goals.forEach {
                 when (it) {
